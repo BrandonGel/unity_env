@@ -1,0 +1,29 @@
+{
+    "Robot": {
+        "checkpoints": [
+            {
+                "steps": 1512,
+                "file_path": "results/Test1/Robot/Robot-1512.onnx",
+                "reward": -2.8974000364542007,
+                "creation_time": 1754676785.4432387,
+                "auxillary_file_paths": [
+                    "results/Test1/Robot/Robot-1512.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1512,
+            "file_path": "results/Test1/Robot.onnx",
+            "reward": -2.8974000364542007,
+            "creation_time": 1754676785.4432387,
+            "auxillary_file_paths": [
+                "results/Test1/Robot/Robot-1512.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.4.1+cu121"
+    }
+}

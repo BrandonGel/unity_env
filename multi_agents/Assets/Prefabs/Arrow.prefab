@@ -99,7 +99,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d95714dc9de29944afaba04094f75bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stemLength: 1
-  stemWidth: -0.25
-  tipLength: 0.5
-  tipWidth: 0.5
+  stemLength: 0.5
+  stemWidth: 0.125
+  tipLength: 0.25
+  tipWidth: 0.25
+  numberAxialPoints: 10
+  Material: {fileID: 2100000, guid: 15edef95c525ffb118df0f88c3bd17e7, type: 2}

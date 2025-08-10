@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using UnityEngine.AI;
 using System.Collections;
 using Unity.Burst.Intrinsics;
 using System;
@@ -52,15 +53,17 @@ namespace multiagent
         [SerializeField] float U_constraint;
         [HideInInspector] public int CurrentEpisode = 0;
         [HideInInspector] public float CumulativeReward = 0f;
-
-        private Color _defaultGroundColor;
-        private Color _robotColor;
+        private Color _defaultGroundColor, _robotColor;
         private Coroutine _flashGroundCoroutine;
+        public GameObject arrow;
+        public bool debugArrow = false;
+        private bool usingArrow = false;
+        GameObject arrowObj; 
 
         float[] minLim, maxLim;
         public override void Initialize()
         {
-            Debug.Log("Initialize()");
+            // Debug.Log("Initialize()");
             _controllerNameStr = Enum.GetName(_controllerName.GetType(), _controllerName);
             _controllerTypeStr = Enum.GetName(_controllerType.GetType(), _controllerType);
             _rigidbody = GetComponent<Rigidbody>();
@@ -117,32 +120,36 @@ namespace multiagent
                 );
             }
 
+            
+            generateArrow();
+        }
+
+        private void generateArrow()
+        {
+            if (debugArrow == true && usingArrow == false)
+            {
+                usingArrow = true;
+                Vector3 arrowPosition = transform.position;
+                Quaternion arrowOrientation = transform.rotation;
+                arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj.transform.parent = gameObject.transform;
+            }
+            if (debugArrow == false && usingArrow == true)
+            {
+                Destroy(arrowObj);
+                usingArrow = false;
+            }
         }
 
         public override void OnEpisodeBegin()
         {
-            Debug.Log("OnEpisodeBeing()");
+            // Debug.Log("OnEpisodeBeing()");
 
             CurrentEpisode++;
             CumulativeReward = 0f;
             // _renderer.material.color = Color.blue;
-
-            SpawnObjects();
         }
 
-
-        public void SpawnObjects()
-        {
-            // transform.localRotation = Quaternion.identity;
-            // transform.localPosition = new Vector3(0f, 0.15f, 0f);
-
-            // float randomAngle = Random.Range(-90f, 0f);
-            // Vector3 randomDirection = Quaternion.Euler(0f, randomAngle, 0f) * Vector3.forward;
-
-            // float randomDistance = Random.Range(0f, 7.0f);
-
-            // transform.localPosition= transform.localPosition + randomDirection * randomDistance;
-        }
 
         public override void CollectObservations(VectorSensor sensor)
         {
@@ -353,6 +360,7 @@ namespace multiagent
                     transform.InverseTransformDirection(_rigidbody.angularVelocity).y
                 );
             }
+            generateArrow();
         }
         private void OnTriggerEnter(Collider other)
         {
@@ -371,7 +379,7 @@ namespace multiagent
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
                 AddReward(-0.05f);
                 if (_renderer != null)
@@ -383,7 +391,7 @@ namespace multiagent
 
         private void OnCollisionStay(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
                 AddReward(-0.01f * Time.fixedDeltaTime);
             }
@@ -391,7 +399,7 @@ namespace multiagent
 
         private void OnCollisionExit(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
                 if (_renderer != null)
                 {
