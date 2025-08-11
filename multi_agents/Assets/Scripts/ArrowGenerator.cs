@@ -49,7 +49,7 @@ public class ArrowGenerator : MonoBehaviour
         {
             return (Vector3.forward, Vector3.up);
         }
-        return (Vector3.zero, Vector3.up);
+        return (Vector3.right, Vector3.up);
     }
 
     void GenerateArrow()
@@ -137,10 +137,19 @@ public class ArrowGenerator : MonoBehaviour
         this.noShowZero = noShowZero;
         this.color = color;
     }
-    public void scaleArrow(float dummyValue)
+    public void scaleArrow(float dummyValue, Vector3 direction = default)
     {
+        if (direction != default)
+        {
+            
+            directionalVector =  transform.InverseTransformDirection(direction).normalized;
+            normalVector = Vector3.Cross(directionalVector, new Vector3(UnityEngine.Random.Range(0.1f, 1f), UnityEngine.Random.Range(0.1f, 1f), UnityEngine.Random.Range(0.1f, 1f))).normalized;
+            Vector3 forwardVector = Vector3.Cross(directionalVector, normalVector); // Or any other non-parallel vector
+            cylinder.transform.localRotation = Quaternion.LookRotation(forwardVector,directionalVector);
+        }
+
         float directionSign = Mathf.Sign(dummyValue);
-        float scale = Mathf.Abs(dummyValue) / maxLim;
+        float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim,0,1);
         
         Vector3 newCylinderPos = stemOrigin + directionSign*scale*(stemLength / 2f * directionalVector);
         cylinder.transform.localPosition = newCylinderPos;
@@ -152,15 +161,21 @@ public class ArrowGenerator : MonoBehaviour
         {
             if (noShowZero && scale <= 1e-6)
             {
-                vertices[i] = new Vector3(0f,0f,0f);
+                vertices[i] = new Vector3(0f, 0f, 0f);
                 continue;
             }
 
-            vertices[i] = verticesList[i] -(1f-scale)*stemLength * directionalVector ;
+            vertices[i] = verticesList[i] - (1f - scale) * stemLength * directionalVector;
             if (directionSign < 0)
             {
-                vertices[i] = Quaternion.AngleAxis(180, normalVector) * (vertices[i]-stemOrigin)+stemOrigin;
+                vertices[i] = Quaternion.AngleAxis(180, normalVector) * (vertices[i] - stemOrigin) + stemOrigin;
             }
+
+            if (direction != default)
+            {
+                vertices[i] = Quaternion.FromToRotation(Vector3.right, directionalVector) * (vertices[i] - stemOrigin) + stemOrigin;
+            }
+
         }
 
         mesh.vertices = vertices;

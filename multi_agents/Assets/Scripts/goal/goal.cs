@@ -13,6 +13,7 @@ public class Goal : MonoBehaviour
 {
 
     public Vector3 position;
+    public Vector2 position2D;
     public bool inUsed = false;
     public int robotID = -1;
     public int startTimeStep = 0;
@@ -38,7 +39,8 @@ public class Goal : MonoBehaviour
 
     void Start()
     {
-        position = transform.localPosition;
+        position = transform.position;
+        position2D = new Vector2(transform.position.x, transform.position.z);
     }
 
     public void setInUsed(int robotID, int startTimeStep)

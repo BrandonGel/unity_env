@@ -25,7 +25,7 @@ namespace multiagent
         }
     public class Robot : Agent
     {
-        [SerializeField] private Transform _goal;
+        [SerializeField] private Vector2 _goal;
         [SerializeField] private Renderer _groundRenderer;
         [SerializeField] private float _maxSpeed = 0.7f; // meters per second
         [SerializeField] private float _maxRotationSpeed = 2.11f; // degrees per second
@@ -61,7 +61,7 @@ namespace multiagent
         private bool usingArrow = false;
         GameObject arrowObj,arrowObj2,arrowObj3,arrowObj4,arrowObj5;
         private Vector3  newSpawnPosition;
-        private Quaternion  newSpawnOrientation;
+        private Quaternion newSpawnOrientation;
         float[] minLim, maxLim;
         public override void Initialize()
         {
@@ -106,6 +106,7 @@ namespace multiagent
             generateArrow();
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
+            _goal = new Vector2(0,0);
         }
 
         private void generateArrow()
@@ -137,9 +138,9 @@ namespace multiagent
                 arrowObj4.transform.parent = gameObject.transform;
 
                 // Goal Arrow
-                // arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                // arrowObj4.GetComponent<ArrowGenerator>().setParam("r", -1, 1,Color.green, true);
-                // arrowObj4.transform.parent = gameObject.transform;
+                arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green);
+                arrowObj5.transform.parent = gameObject.transform;
             }
             else if (debugArrow == true && usingArrow == true)
             {
@@ -147,10 +148,17 @@ namespace multiagent
                 arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
                 arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
                 arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
+
+                Vector3 goalVector = new Vector3(_goal.x, 0, _goal.y) - new Vector3(transform.position.x, 0, transform.position.z);
+                arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude,goalVector);
             }
             else if (debugArrow == false && usingArrow == true)
             {
                 Destroy(arrowObj);
+                Destroy(arrowObj2);
+                Destroy(arrowObj3);
+                Destroy(arrowObj4);
+                Destroy(arrowObj5);
                 usingArrow = false;
             }
         }
@@ -395,7 +403,10 @@ namespace multiagent
                 GoalReached();
             }
         }
-
+        public void setGoal(Vector2 goal)
+        {
+            this._goal = goal;
+        }
         private void GoalReached()
         {
             AddReward(1.0f);

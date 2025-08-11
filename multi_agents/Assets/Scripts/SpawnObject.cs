@@ -82,6 +82,8 @@ public class SpawnObject : MonoBehaviour
             Goal[] pickup =  new Goal[2];
             Goal paletteDropOff = child.transform.Find("Drop Palette").GetComponent<Goal>();
             Goal batteryPickUp = child.transform.Find("Get Battery").GetComponent<Goal>();
+            Debug.Log("Pickups: " + paletteDropOff.position2D + " " + batteryPickUp.position2D);
+
             pickup[0] = paletteDropOff;
             pickup[1] = batteryPickUp;
             goals["Pickups"].Add(pickup);
@@ -96,6 +98,8 @@ public class SpawnObject : MonoBehaviour
             Goal[] dropoff = new Goal[2];
             Goal palettePickUp = child.transform.Find("Get Palette").GetComponent<Goal>();
             Goal batteryDropOff = child.transform.Find("Drop Battery").GetComponent<Goal>();
+            Debug.Log("Dropoff: " + palettePickUp.position2D + " " + batteryDropOff.position2D);
+
             dropoff[0] = palettePickUp;
             dropoff[1] = batteryDropOff;
             goals["Dropoff"].Add(dropoff);
@@ -107,6 +111,22 @@ public class SpawnObject : MonoBehaviour
     {
         int numberPickUps = transform.Find("Pickups").childCount;
         int numberDropoffs = transform.Find("Dropoffs").childCount;
+        for (int i = 0; i < spawnCount; i++)
+        {
+            int pickUpID = Random.Range(0, numberPickUps - 1);
+            int dropOffID = Random.Range(0, numberDropoffs-1);
+
+            Goal paletteDropOff = goals["Pickups"][pickUpID][0];
+            Goal batteryPickUp = goals["Pickups"][pickUpID][1];
+            Goal palettePickUp = goals["Dropoff"][dropOffID][0];
+            Goal batteryDropOff = goals["Dropoff"][dropOffID][0];
+
+            Vector2 goal = batteryDropOff.position2D;
+
+            Robot robotComponent = robots[i].GetComponent<Robot>();
+            robotComponent.setGoal(goal);
+        }
+
     }
 
     public (Vector3, Quaternion) FindValidNavMeshSpawnPoint(Vector3 center, float radius)
@@ -244,6 +264,7 @@ public class SpawnObject : MonoBehaviour
         StartMesh();
         SpawnRobots();
         CheckGoals();
+        AssignGoals();
     }
 
     // Check terminal conditions
@@ -259,6 +280,7 @@ public class SpawnObject : MonoBehaviour
         {
             adjustRobotHeight(10f);
             SpawnRobots(false);
+            AssignGoals();
         }
     }
 

@@ -434,7 +434,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
-  _goal: {fileID: 0}
+  _goal: {x: 0, y: 0}
   _groundRenderer: {fileID: 0}
   _maxSpeed: 0.7
   _maxRotationSpeed: 2.11
@@ -454,7 +454,7 @@ MonoBehaviour:
   CurrentEpisode: 0
   CumulativeReward: 0
   arrow: {fileID: 415096288113428036, guid: f329cf2526ff25481934698b5d06f697, type: 3}
-  debugArrow: 0
+  debugArrow: 1
 --- !u!114 &7856453141020139538
 MonoBehaviour:
   m_ObjectHideFlags: 0
