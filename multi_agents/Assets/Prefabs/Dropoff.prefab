@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5698361766753289381}
   - component: {fileID: 7911662071499451825}
   - component: {fileID: 1222680281928655338}
+  - component: {fileID: 6370174465852425835}
   m_Layer: 0
   m_Name: Drop Battery
   m_TagString: Goal
@@ -108,6 +109,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6370174465852425835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 457977612477472930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b05740c6c1b77981192eeaae51bb6479, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0, z: 0}
+  inUsed: 0
+  robotID: -1
+  startTimeStep: 0
+  counter: 0
+  totalTimesteps: 1
 --- !u!1 &1252247841507572303
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,6 +392,7 @@ GameObject:
   - component: {fileID: 404507144136443604}
   - component: {fileID: 2929665775416427446}
   - component: {fileID: 4857231906227085040}
+  - component: {fileID: 104606721599517953}
   m_Layer: 0
   m_Name: Get Palette
   m_TagString: Goal
@@ -469,6 +489,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &104606721599517953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3870388338049013965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b05740c6c1b77981192eeaae51bb6479, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0, z: 0}
+  inUsed: 0
+  robotID: -1
+  startTimeStep: 0
+  counter: 0
+  totalTimesteps: 1
 --- !u!1 &6359470431192082469
 GameObject:
   m_ObjectHideFlags: 0

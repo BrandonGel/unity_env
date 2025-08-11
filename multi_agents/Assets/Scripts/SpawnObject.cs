@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.AI.Navigation;
+using System.Collections.Generic;
 using multiagent;
+using UnityEditor.Callbacks;
 
 public class SpawnObject : MonoBehaviour
 {
@@ -13,6 +15,9 @@ public class SpawnObject : MonoBehaviour
 
     public GameObject robot = null;
     public GameObject[] robots;
+    public Dictionary<string,List<Goal[]>> goals;
+    public Vector3[] robotsPosition;
+    public Quaternion[] robotsQuaternion;
     public GameObject Ground = null;
     public int spawnCount = 0;
     public float spawnRadius = 0;
@@ -23,18 +28,17 @@ public class SpawnObject : MonoBehaviour
     public Vector3 spawningOffset = new Vector3(0, 0, 0);
     public NavMeshSurface navMeshSurface;
     public bool debug_mesh = false;
-    private Robot robotObjrobot;
     public float tol = 0.1f;
     public void SpawnRobots(bool init = true)
     {
-        robotObjrobot = robot.GetComponent<Robot>();
+        Robot robotObj = robot.GetComponent<Robot>();
         for (int i = 0; i < spawnCount; i++)
         {
             bool isOverlapping = false;
             for (int j = 0; j < num_spawn_tries; j++)
             {
-                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(transform.position, spawnRadius);
-                Vector3 halfExtents = robotObjrobot.transform.localScale * (0.5f + tol); // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
+                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(spawningOffset+transform.localPosition, spawnRadius);
+                Vector3 halfExtents = robotObj.transform.localScale * (0.5f + tol); // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
                 halfExtents.y = 0; // Set the height to be zero (don't care any overlap in height)
                 isOverlapping = Physics.CheckBox(randomPoint, halfExtents, orientation);
                 if (isOverlapping == false)
@@ -43,16 +47,18 @@ public class SpawnObject : MonoBehaviour
                     {
                         GameObject robotInstance = Instantiate(robot, randomPoint, orientation);
                         robotInstance.transform.parent = gameObject.transform.Find("Robots").transform;
-
+                        robots[i] = robotInstance;
                     }
                     else
                     {
-                        GameObject robotInstance = robots[i];
-                        robotInstance.transform.localPosition = randomPoint;
-                        robotInstance.transform.localRotation = orientation;
+                        Rigidbody robotRigidBody = robots[i].GetComponent<Rigidbody>();
+                        robotRigidBody.position = randomPoint;
+                        robotRigidBody.rotation = orientation;
+                        Robot robotComponent = robots[i].GetComponent<Robot>();
+                        robotComponent.updateSpawnState(randomPoint, orientation);
                     }
                     break;
-                    
+
                 }
             }
             if (isOverlapping)
@@ -60,6 +66,47 @@ public class SpawnObject : MonoBehaviour
                 Debug.Log("Couldn't find valid position");
             }
         }
+    }
+
+    
+    public void CheckGoals()
+    {
+        int ii = 0;
+        goals = new Dictionary<string,List<Goal[]>>();
+        
+        // Pickups
+        goals.Add("Pickups", new List<Goal[]>());
+        ii = 0;
+        foreach (Transform child in transform.Find("Pickups"))
+        {
+            Goal[] pickup =  new Goal[2];
+            Goal paletteDropOff = child.transform.Find("Drop Palette").GetComponent<Goal>();
+            Goal batteryPickUp = child.transform.Find("Get Battery").GetComponent<Goal>();
+            pickup[0] = paletteDropOff;
+            pickup[1] = batteryPickUp;
+            goals["Pickups"].Add(pickup);
+            ii += 1;
+        }
+
+        // Dropouts
+        goals.Add("Dropoff", new List<Goal[]>());
+        ii = 0;
+        foreach (Transform child in transform.Find("Dropoffs"))
+        {
+            Goal[] dropoff = new Goal[2];
+            Goal palettePickUp = child.transform.Find("Get Palette").GetComponent<Goal>();
+            Goal batteryDropOff = child.transform.Find("Drop Battery").GetComponent<Goal>();
+            dropoff[0] = palettePickUp;
+            dropoff[1] = batteryDropOff;
+            goals["Dropoff"].Add(dropoff);
+            ii += 1;
+        }
+    }
+
+    public void AssignGoals()
+    {
+        int numberPickUps = transform.Find("Pickups").childCount;
+        int numberDropoffs = transform.Find("Dropoffs").childCount;
     }
 
     public (Vector3, Quaternion) FindValidNavMeshSpawnPoint(Vector3 center, float radius)
@@ -101,11 +148,11 @@ public class SpawnObject : MonoBehaviour
         switch (spawnShape)
         {
             case SpawnShape.Circle:
-                Gizmos.DrawWireSphere(transform.position + spawningOffset, spawnRadius);
+                Gizmos.DrawWireSphere(transform.localPosition + spawningOffset, spawnRadius);
                 break;
             case SpawnShape.Box:
                 Vector3 size = new Vector3(boxSize.x, 0, boxSize.y);
-                Gizmos.DrawWireCube(transform.position + spawningOffset, size);
+                Gizmos.DrawWireCube(transform.localPosition + spawningOffset, size);
                 break;
             default:
                 break;
@@ -173,20 +220,47 @@ public class SpawnObject : MonoBehaviour
         }
     }
 
+    void adjustRobotHeight(float height = 0f)
+    {
+        for (int i = 0; i < spawnCount; i++)
+            {
+                Rigidbody robotRigidBody = robots[i].GetComponent<Rigidbody>();
+                robotRigidBody.position = new Vector3(
+                    robotRigidBody.position.x,
+                    robotRigidBody.position.y + height,
+                    robotRigidBody.position.z
+                );
+            }
+    }
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         robots = new GameObject[spawnCount];
+        robotsPosition = new Vector3[spawnCount];
+        robotsQuaternion = new Quaternion[spawnCount];
         GetGround();
         StartMesh();
         SpawnRobots();
+        CheckGoals();
     }
 
-    // Update is called once per frame
-    void Update()
+    // Check terminal conditions
+    void LateUpdate()
     {
-
+        bool allRobotTerminalCond = false;
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Robot robotComponent = robots[i].GetComponent<Robot>();
+            allRobotTerminalCond |= robotComponent.checkTerminalCondition();
+        }
+        if (allRobotTerminalCond)
+        {
+            adjustRobotHeight(10f);
+            SpawnRobots(false);
+        }
     }
-    
+
 
 }

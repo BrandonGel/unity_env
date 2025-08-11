@@ -11,6 +11,7 @@ using UnityEditor.UI;
 using multiagent.controller;
 using Unity.MLAgents.Policies;
 using UnityEditorInternal;
+using Unity.MLAgents.Integrations.Match3;
 
 namespace multiagent
 {
@@ -58,8 +59,9 @@ namespace multiagent
         public GameObject arrow;
         public bool debugArrow = false;
         private bool usingArrow = false;
-        GameObject arrowObj; 
-
+        GameObject arrowObj,arrowObj2,arrowObj3,arrowObj4,arrowObj5;
+        private Vector3  newSpawnPosition;
+        private Quaternion  newSpawnOrientation;
         float[] minLim, maxLim;
         public override void Initialize()
         {
@@ -100,28 +102,10 @@ namespace multiagent
                 };
             }
 
-            // Initialize the state and time derivative of the state
-            if (_absoluteCoordinate)
-            {
-                _state = new Vector3(transform.position.x, transform.position.z, transform.rotation.eulerAngles.y * MathF.PI / 180);
-                _dstate = new Vector3(
-                    _rigidbody.linearVelocity.x,
-                    _rigidbody.linearVelocity.z,
-                    _rigidbody.angularVelocity.y
-                );
-            }
-            else
-            {
-                _state = Vector3.zero;
-                _dstate = new Vector3(
-                    transform.InverseTransformDirection(_rigidbody.linearVelocity).x,
-                    transform.InverseTransformDirection(_rigidbody.linearVelocity).z,
-                    transform.InverseTransformDirection(_rigidbody.angularVelocity).y
-                );
-            }
-
-            
+            updateState();
             generateArrow();
+            newSpawnPosition = transform.position;
+            newSpawnOrientation = transform.rotation;
         }
 
         private void generateArrow()
@@ -131,10 +115,40 @@ namespace multiagent
                 usingArrow = true;
                 Vector3 arrowPosition = transform.position;
                 Quaternion arrowOrientation = transform.rotation;
+
+                // Linear Velocity Arrow
                 arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -_maxSpeed, _maxSpeed, Color.red);
                 arrowObj.transform.parent = gameObject.transform;
+
+                // Angular Velocity Arrow
+                arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -_maxRotationSpeed, _maxRotationSpeed, Color.red, true);
+                arrowObj2.transform.parent = gameObject.transform;
+
+                // Linear Acceleration Arrow
+                arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -_maxAcceleration, _maxAcceleration, Color.blue);
+                arrowObj3.transform.parent = gameObject.transform;
+
+                // Angular Velocity Arrow
+                arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -_maxRotationAccleration, _maxRotationAccleration, Color.blue, true);
+                arrowObj4.transform.parent = gameObject.transform;
+
+                // Goal Arrow
+                // arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                // arrowObj4.GetComponent<ArrowGenerator>().setParam("r", -1, 1,Color.green, true);
+                // arrowObj4.transform.parent = gameObject.transform;
             }
-            if (debugArrow == false && usingArrow == true)
+            else if (debugArrow == true && usingArrow == true)
+            {
+                arrowObj.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
+                arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+                arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
+                arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
+            }
+            else if (debugArrow == false && usingArrow == true)
             {
                 Destroy(arrowObj);
                 usingArrow = false;
@@ -143,11 +157,16 @@ namespace multiagent
 
         public override void OnEpisodeBegin()
         {
-            // Debug.Log("OnEpisodeBeing()");
+            Debug.Log("OnEpisodeBeing()");
 
             CurrentEpisode++;
             CumulativeReward = 0f;
             // _renderer.material.color = Color.blue;
+            transform.position = newSpawnPosition;
+            transform.rotation = newSpawnOrientation;
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;  
+            updateState();
         }
 
 
@@ -286,6 +305,7 @@ namespace multiagent
                 U = U2;
 
                 Vector3 accelerationVector = transform.right * currentAcceleration;
+                Debug.Log(accelerationVector + " " + accelerationVector);
                 _rigidbody.AddForce(accelerationVector, ForceMode.Acceleration);
 
                 Vector3 rotationAccelerationVector = transform.up * currentRotationAcceleration;
@@ -323,7 +343,7 @@ namespace multiagent
             {
                 ddesS = new Vector3[] { new Vector3(0.0f, 0f, 0.0f) };
             }
-
+            // Debug.Log("Act: " + act[0] + " " + act[1] );
 
             // Vector2 u;
             // if (_absoluteCoordinate)
@@ -336,11 +356,12 @@ namespace multiagent
             // }
 
             Vector2 u = control.GetControl(act, S, ddesS, dS);
+            // Debug.Log("u: " + u[0] + " " + u[1] );
             plant(u);
             // Debug.Log($"Goal: {act[0]}, {act[1]} | Control {u}");
         }
 
-        private void Update()
+        private void updateState()
         {
             if (_absoluteCoordinate)
             {
@@ -360,6 +381,11 @@ namespace multiagent
                     transform.InverseTransformDirection(_rigidbody.angularVelocity).y
                 );
             }
+        }
+        private void Update()
+        {
+
+            updateState();
             generateArrow();
         }
         private void OnTriggerEnter(Collider other)
@@ -408,17 +434,22 @@ namespace multiagent
             }
         }
 
-        public Vector3 Round(Vector3 vector3, int decimalPlaces = 2)
+        public bool checkTerminalCondition()
         {
-            float multiplier = 1;
-            for (int i = 0; i < decimalPlaces; i++)
+
+            if (StepCount == MaxStep - 1)
             {
-                multiplier *= 10f;
+                return true;
             }
-            return new Vector3(
-                Mathf.Round(vector3.x * multiplier) / multiplier,
-                Mathf.Round(vector3.y * multiplier) / multiplier,
-                Mathf.Round(vector3.z * multiplier) / multiplier);
+            return false;
+        }
+        
+
+        public void updateSpawnState(Vector3 position, Quaternion orientation)
+        {
+            newSpawnPosition = position;
+            newSpawnOrientation = orientation;
+
         }
     }
 

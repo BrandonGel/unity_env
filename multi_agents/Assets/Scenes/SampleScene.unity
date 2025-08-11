@@ -656,8 +656,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.20512733, y: -0.09815923, z: 0.02061604, w: 0.9735823}
-  m_LocalPosition: {x: 46.552525, y: 29.992079, z: -36.503395}
+  m_LocalRotation: {x: 0.48042104, y: -0.017995616, z: 0.009860109, w: 0.8767979}
+  m_LocalPosition: {x: 31.934378, y: 50.28472, z: -12.421661}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1438,6 +1438,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robot: {fileID: 7150906331766047852, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
   robots: []
+  robotsPosition: []
+  robotsQuaternion: []
   Ground: {fileID: 29770116}
   spawnCount: 0
   spawnRadius: 0
@@ -1880,7 +1882,15 @@ PrefabInstance:
       objectReference: {fileID: 415096288113428036, guid: f329cf2526ff25481934698b5d06f697, type: 3}
     - target: {fileID: 2162769801001847865, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
       propertyPath: MaxStep
-      value: 50
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2162769801001847865, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
+      propertyPath: debugArrow
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2162769801001847865, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
+      propertyPath: _absoluteCoordinate
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5588217443724012201, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
       propertyPath: m_Enabled

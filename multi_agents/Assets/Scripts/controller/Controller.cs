@@ -84,6 +84,7 @@ namespace multiagent.controller
         }
         public Vector2 GetControl(Vector3[] desState, Vector3[] state = null, Vector3[] ddesState = null, Vector3[] dstate = null)
         {
+            // Pass (Desired State, State, Dot Desired State, Dot State)
             Vector2 action = new Vector2(desState[desState.Length - 1].x, desState[desState.Length - 1].y);
             Vector3 S, desS, dS, ddesS;
             switch (ctrlName)
@@ -133,23 +134,11 @@ namespace multiagent.controller
 
                     }
                     break;
-                case "": // No Controller option (pass the desired accleration or velocity input)
+                default: 
+                    action -=  new Vector2(desState[desState.Length - 2].x, desState[desState.Length - 2].y);
                     break;
             }
-            // action = Round(action,2);
             return action;
-        }
-        
-        public Vector2 Round(Vector2 vector2, int decimalPlaces = 2)
-        {
-            float multiplier = 1;
-            for (int i = 0; i < decimalPlaces; i++)
-            {
-                multiplier *= 10f;
-            }
-            return new Vector2(
-                Mathf.Round(vector2.x * multiplier) / multiplier,
-                Mathf.Round(vector2.y * multiplier) / multiplier);
         }
     }
 }
