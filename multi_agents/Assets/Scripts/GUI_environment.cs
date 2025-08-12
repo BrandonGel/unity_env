@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace multiagent
 {
-    public class GUI_Robot : MonoBehaviour
+    public class GUI_environment : MonoBehaviour
     {
-        [SerializeField] private Robot _robot;
+        [SerializeField] private Environment _env;
 
         private GUIStyle _defaultStyle = new GUIStyle();
         private GUIStyle _positivieStyle = new GUIStyle();
@@ -26,14 +26,14 @@ namespace multiagent
 
         private void OnGUI()
         {
-            string debugEpisode = "Episode: " + _robot.CurrentEpisode + " - Step: " + _robot.StepCount;
-            string debugReward = "Reward: " + _robot.CumulativeReward.ToString();
+            string debugEpisode = "Episode: " + _env.CurrentEpisode + " - Step: " + _env.StepCount;
+            // string debugReward = "Reward: " + _env.CumulativeReward.ToString();
 
-            GUIStyle rewardStyle = _robot.CumulativeReward < 0 ? _negativeStyle : _positivieStyle;
+            // GUIStyle rewardStyle = _robot.CumulativeReward < 0 ? _negativeStyle : _positivieStyle;
 
 
             GUI.Label(new Rect(20, 20, 500, 30), debugEpisode, _defaultStyle);
-            GUI.Label(new Rect(20, 60 , 500, 30), debugReward, rewardStyle);
+            // GUI.Label(new Rect(20, 60 , 500, 30), debugReward, rewardStyle);
         }
 
         // Update is called once per frame

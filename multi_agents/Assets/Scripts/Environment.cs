@@ -4,8 +4,9 @@ using Unity.AI.Navigation;
 using System.Collections.Generic;
 using multiagent;
 using UnityEditor.Callbacks;
+using multiagent.util;
 
-public class SpawnObject : MonoBehaviour
+public class Environment : MonoBehaviour
 {
     public enum SpawnShape
     {
@@ -29,6 +30,11 @@ public class SpawnObject : MonoBehaviour
     public NavMeshSurface navMeshSurface;
     public bool debug_mesh = false;
     public float tol = 0.1f;
+    public int CurrentEpisode = 1;
+    public int StepCount = 0; 
+    public Data dataClass;
+    public csv_exporter CSVexporter;
+    [SerializeField] public bool useCSVExporter = false;
     public void SpawnRobots(bool init = true)
     {
         Robot robotObj = robot.GetComponent<Robot>();
@@ -37,7 +43,7 @@ public class SpawnObject : MonoBehaviour
             bool isOverlapping = false;
             for (int j = 0; j < num_spawn_tries; j++)
             {
-                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(spawningOffset+transform.localPosition, spawnRadius);
+                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(spawningOffset + transform.localPosition, spawnRadius);
                 Vector3 halfExtents = robotObj.transform.localScale * (0.5f + tol); // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
                 halfExtents.y = 0; // Set the height to be zero (don't care any overlap in height)
                 isOverlapping = Physics.CheckBox(randomPoint, halfExtents, orientation);
@@ -69,7 +75,7 @@ public class SpawnObject : MonoBehaviour
     }
 
     
-    public void CheckGoals()
+    public void InitGoals()
     {
         int ii = 0;
         goals = new Dictionary<string,List<Goal[]>>();
@@ -82,7 +88,6 @@ public class SpawnObject : MonoBehaviour
             Goal[] pickup =  new Goal[2];
             Goal paletteDropOff = child.transform.Find("Drop Palette").GetComponent<Goal>();
             Goal batteryPickUp = child.transform.Find("Get Battery").GetComponent<Goal>();
-            Debug.Log("Pickups: " + paletteDropOff.position2D + " " + batteryPickUp.position2D);
 
             pickup[0] = paletteDropOff;
             pickup[1] = batteryPickUp;
@@ -98,7 +103,6 @@ public class SpawnObject : MonoBehaviour
             Goal[] dropoff = new Goal[2];
             Goal palettePickUp = child.transform.Find("Get Palette").GetComponent<Goal>();
             Goal batteryDropOff = child.transform.Find("Drop Battery").GetComponent<Goal>();
-            Debug.Log("Dropoff: " + palettePickUp.position2D + " " + batteryDropOff.position2D);
 
             dropoff[0] = palettePickUp;
             dropoff[1] = batteryDropOff;
@@ -107,25 +111,46 @@ public class SpawnObject : MonoBehaviour
         }
     }
 
-    public void AssignGoals()
+    public void AssignGoals(int i)
     {
-        int numberPickUps = transform.Find("Pickups").childCount;
         int numberDropoffs = transform.Find("Dropoffs").childCount;
-        for (int i = 0; i < spawnCount; i++)
+        int numberPickUps = transform.Find("Pickups").childCount;
+        
+        Robot robotComponent = robots[i].GetComponent<Robot>();
+        (_, int _goalID, int goal_type, _) = robotComponent.getGoal();
+        Vector3 goal = Vector3.zero;
+        Goal goalObj = null; 
+        switch (goal_type)
         {
-            int pickUpID = Random.Range(0, numberPickUps - 1);
-            int dropOffID = Random.Range(0, numberDropoffs-1);
-
-            Goal paletteDropOff = goals["Pickups"][pickUpID][0];
-            Goal batteryPickUp = goals["Pickups"][pickUpID][1];
-            Goal palettePickUp = goals["Dropoff"][dropOffID][0];
-            Goal batteryDropOff = goals["Dropoff"][dropOffID][0];
-
-            Vector2 goal = batteryDropOff.position2D;
-
-            Robot robotComponent = robots[i].GetComponent<Robot>();
-            robotComponent.setGoal(goal);
+            case 0:
+                _goalID = Random.Range(0, numberPickUps - 1);
+                goalObj = goals["Pickups"][_goalID][1];
+                goal_type = 1;
+                break;
+            case 1:
+                _goalID = Random.Range(0, numberDropoffs - 1);
+                goalObj = goals["Dropoff"][_goalID][1];
+                goal_type = 2;
+                break;
+            case 2:
+                goalObj = goals["Dropoff"][_goalID][0];
+                goal_type = 3;
+                break;
+            case 3:
+                _goalID = Random.Range(0, numberPickUps - 1);
+                goalObj = goals["Pickups"][_goalID][0];
+                goal_type = 4;
+                break;
+            case 4:
+                goalObj = goals["Pickups"][_goalID][1];
+                goal_type = 1;
+                break;
+            default:
+                break;
         }
+        if (goalObj != null)
+            goal = goalObj.position;
+        robotComponent.setGoal(goal,_goalID,goal_type,goalObj);
 
     }
 
@@ -257,19 +282,66 @@ public class SpawnObject : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Debug.Log("OnEpisodeBeing()");
         robots = new GameObject[spawnCount];
         robotsPosition = new Vector3[spawnCount];
         robotsQuaternion = new Quaternion[spawnCount];
+        StepCount = 0;
+        CurrentEpisode = 1;
         GetGround();
         StartMesh();
         SpawnRobots();
-        CheckGoals();
-        AssignGoals();
+        InitGoals();
+        CSVexporter = new csv_exporter();
+        dataClass = new Data(spawnCount);
+        List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();
+        for (int i = 0; i < spawnCount; i++)
+        {
+            AssignGoals(i);
+            Robot robotComponent = robots[i].GetComponent<Robot>();
+            if (useCSVExporter)
+            {
+                (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+                entries.Add((currentTime,s, ds));    
+            }
+        }
+        if (useCSVExporter)
+        {
+            dataClass.addEntry(entries);    
+        }
+        
     }
 
     // Check terminal conditions
-    void LateUpdate()
+    void FixedUpdate()
     {
+        StepCount += 1;
+
+        List<(float, Vector3,Vector3)> entries = new List<(float, Vector3,Vector3)>();
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Robot robotComponent = robots[i].GetComponent<Robot>();
+            if (useCSVExporter)
+            {
+                (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+                entries.Add((currentTime, s, ds));
+            }
+            
+
+            // Goal Assignment Condition
+            (_, _, _, bool goalReached) = robotComponent.getGoal();
+            if (goalReached)
+            {
+                AssignGoals(i);
+            }
+        }
+
+        if (useCSVExporter)
+        {
+            dataClass.addEntry(entries);
+        }
+
+        // Termination Condition
         bool allRobotTerminalCond = false;
         for (int i = 0; i < spawnCount; i++)
         {
@@ -280,8 +352,26 @@ public class SpawnObject : MonoBehaviour
         {
             adjustRobotHeight(10f);
             SpawnRobots(false);
-            AssignGoals();
+            if (useCSVExporter)
+            {
+                CSVexporter.transferData(dataClass, CurrentEpisode);
+                dataClass.clear();
+            }
+            for (int i = 0; i < spawnCount; i++)
+                {
+                    AssignGoals(i);
+                    Robot robotComponent = robots[i].GetComponent<Robot>();
+                    if (useCSVExporter)
+                    {
+                        (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+                        entries.Add((currentTime, s, ds));
+                    }
+                }
+            Debug.Log("Episode " + CurrentEpisode + " is over!");
+            StepCount = 0;
+            CurrentEpisode += 1;
         }
+
     }
 
 

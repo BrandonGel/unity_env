@@ -194,3 +194,4 @@ cython_debug/
 .cursorindexingignore
 
 multi_agents/Library
+multi_agents/data

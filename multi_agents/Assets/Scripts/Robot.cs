@@ -25,9 +25,9 @@ namespace multiagent
         }
     public class Robot : Agent
     {
-        [SerializeField] private Vector2 _goal;
+        [SerializeField] private Vector3 _goal;
         [SerializeField] private Renderer _groundRenderer;
-        [SerializeField] private float _maxSpeed = 0.7f; // meters per second
+        [SerializeField] private float _maxSpeed = .7f; // meters per second
         [SerializeField] private float _maxRotationSpeed = 2.11f; // degrees per second
         [SerializeField] private float _maxAcceleration = 2.72f; // degrees per second
         [SerializeField] private float _maxRotationAccleration = 8.23f; // degrees per second
@@ -49,6 +49,8 @@ namespace multiagent
 
         [SerializeField] Vector3 _state;
         [SerializeField] Vector3 _dstate;
+        [SerializeField] Vector3 _ddstate;
+        public Vector3 boxSize, spawningOffset;
         [SerializeField] bool _absoluteCoordinate = false;
 
         [SerializeField] float U_constraint;
@@ -59,10 +61,14 @@ namespace multiagent
         public GameObject arrow;
         public bool debugArrow = false;
         private bool usingArrow = false;
-        GameObject arrowObj,arrowObj2,arrowObj3,arrowObj4,arrowObj5;
-        private Vector3  newSpawnPosition;
+        GameObject arrowObj, arrowObj2, arrowObj3, arrowObj4, arrowObj5;
+        private Vector3 newSpawnPosition, accelerationVector, rotationAccelerationVector;
         private Quaternion newSpawnOrientation;
         float[] minLim, maxLim;
+        public int goal_type = 0; // Define what goal is being assigned (0 - no goal, 1 to infty - goal type)
+        public bool goalReached = false;
+        private Goal goalObj = null;
+        private int _goalID = -1;
         public override void Initialize()
         {
             // Debug.Log("Initialize()");
@@ -106,7 +112,6 @@ namespace multiagent
             generateArrow();
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
-            _goal = new Vector2(0,0);
         }
 
         private void generateArrow()
@@ -149,8 +154,8 @@ namespace multiagent
                 arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
                 arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
 
-                Vector3 goalVector = new Vector3(_goal.x, 0, _goal.y) - new Vector3(transform.position.x, 0, transform.position.z);
-                arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude,goalVector);
+                Vector3 goalVector = new Vector3(_goal.x, 0, _goal.z) - new Vector3(transform.position.x, 0, transform.position.z);
+                arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
             }
             else if (debugArrow == false && usingArrow == true)
             {
@@ -165,16 +170,22 @@ namespace multiagent
 
         public override void OnEpisodeBegin()
         {
-            Debug.Log("OnEpisodeBeing()");
-
             CurrentEpisode++;
             CumulativeReward = 0f;
             // _renderer.material.color = Color.blue;
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             _rigidbody.linearVelocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;  
+            _rigidbody.angularVelocity = Vector3.zero;
+            accelerationVector = Vector3.zero;
+            rotationAccelerationVector = Vector3.zero;
             updateState();
+            GetGround();
+            _goal = Vector3.zero;
+            _goalID = -1;
+            goal_type = 0;
+            goalReached = false;
+            _ddstate = Vector3.zero;
         }
 
 
@@ -182,15 +193,19 @@ namespace multiagent
         {
 
 
-            float robotPosX_normalized = transform.localPosition.x / 69f;
-            float robotPosZ_normalized = transform.localPosition.z / 35f;
+            float robotPosX_normalized = transform.localPosition.x / boxSize.x;
+            float robotPosZ_normalized = transform.localPosition.z / boxSize.z;
 
-            float turtleRotation_normalized = (transform.localRotation.eulerAngles.y / 360f) * 2f - 1.5f;
+            float angleRotation = (transform.localRotation.eulerAngles.y + 180f) % 360f - 180f;
+            // float angleRotation_normalized = angleRotation/180f; // Normalize angle [-180, 180) -> [-1, 1)
+            float sinAngle = Mathf.Sin(angleRotation); // Sine of the angle ->[-180, 180) -> [-1, 1]
+            float cosAngle = Mathf.Cos(angleRotation); // Cosine of the angle ->[-180, 180) -> [-1, 1]
 
             sensor.AddObservation(robotPosX_normalized);
             sensor.AddObservation(robotPosZ_normalized);
-            sensor.AddObservation(turtleRotation_normalized);
-
+            sensor.AddObservation(sinAngle);
+            sensor.AddObservation(cosAngle);
+            // Debug.Log(robotPosX_normalized + " " + robotPosZ_normalized + " " + angleRotation);
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
@@ -201,22 +216,22 @@ namespace multiagent
             if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.LeftArrow))
             {
                 continuousActionsOut[0] = 1;
-                continuousActionsOut[1] = 1;
+                continuousActionsOut[1] = -1;
             }
             else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.RightArrow))
             {
                 continuousActionsOut[0] = 1;
-                continuousActionsOut[1] = -1;
+                continuousActionsOut[1] = 1;
             }
             else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.LeftArrow))
             {
                 continuousActionsOut[0] = -1;
-                continuousActionsOut[1] = 1;
+                continuousActionsOut[1] = -1;
             }
             else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.RightArrow))
             {
                 continuousActionsOut[0] = -1;
-                continuousActionsOut[1] = -1;
+                continuousActionsOut[1] = 1;
             }
             else if (Input.GetKey(KeyCode.UpArrow))
             {
@@ -224,11 +239,11 @@ namespace multiagent
             }
             else if (Input.GetKey(KeyCode.LeftArrow))
             {
-                continuousActionsOut[1] = 1;
+                continuousActionsOut[1] = -1;
             }
             else if (Input.GetKey(KeyCode.RightArrow))
             {
-                continuousActionsOut[1] = -1;
+                continuousActionsOut[1] = 1;
             }
             else if (Input.GetKey(KeyCode.DownArrow))
             {
@@ -272,6 +287,7 @@ namespace multiagent
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
                 float speedDifference = desiredSpeed - currentSpeed;
                 Vector3 velocityDifference = transform.right * speedDifference;
+                accelerationVector = velocityDifference / Time.deltaTime;
                 _rigidbody.AddForce(velocityDifference, ForceMode.VelocityChange);
 
                 float rotationCoefficent = action[1];
@@ -279,7 +295,8 @@ namespace multiagent
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
                 float rotationDifference = desiredRotation - currentRotationSpeed;
                 Vector3 angularDifference = transform.up * rotationDifference;
-                _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * angularDifference / Time.deltaTime, ForceMode.Force);
+                rotationAccelerationVector = angularDifference / Time.deltaTime;
+                _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
             }
             else // Acceleration Plant Model w/ Constraint
             {
@@ -312,11 +329,10 @@ namespace multiagent
                 }
                 U = U2;
 
-                Vector3 accelerationVector = transform.right * currentAcceleration;
-                Debug.Log(accelerationVector + " " + accelerationVector);
+                accelerationVector = transform.right * currentAcceleration;
                 _rigidbody.AddForce(accelerationVector, ForceMode.Acceleration);
 
-                Vector3 rotationAccelerationVector = transform.up * currentRotationAcceleration;
+                rotationAccelerationVector = transform.up * currentRotationAcceleration;
                 _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
             }
             U_constraint = U;
@@ -373,12 +389,13 @@ namespace multiagent
         {
             if (_absoluteCoordinate)
             {
-                _state = new Vector3(transform.position.x, transform.position.z, transform.rotation.eulerAngles.y * MathF.PI / 180);
+                _state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
                 _dstate = new Vector3(
                     _rigidbody.linearVelocity.x,
                     _rigidbody.linearVelocity.z,
                     _rigidbody.angularVelocity.y
                 );
+
             }
             else
             {
@@ -388,6 +405,7 @@ namespace multiagent
                     transform.InverseTransformDirection(_rigidbody.linearVelocity).z,
                     transform.InverseTransformDirection(_rigidbody.angularVelocity).y
                 );
+                _ddstate = (_dstate - _ddstate) / Time.deltaTime;
             }
         }
         private void Update()
@@ -398,20 +416,43 @@ namespace multiagent
         }
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Goal"))
+            if (other.gameObject.CompareTag("Goal") && goalObj == other.GetComponent<Goal>())
             {
                 GoalReached();
             }
         }
-        public void setGoal(Vector2 goal)
+        public void setGoal(Vector3 goal, int _goalID, int goal_type, Goal goalObj)
         {
             this._goal = goal;
+            this._goalID = _goalID;
+            this.goal_type = goal_type;
+            this.goalObj = goalObj;
+            goalReached = false;
         }
+
+        public (Vector3, int, int, bool) getGoal()
+        {
+            return (_goal, _goalID, goal_type, goalReached);
+        }
+
         private void GoalReached()
         {
-            AddReward(1.0f);
-            CumulativeReward = GetCumulativeReward();
-            EndEpisode();
+            // Vector2 pos = new Vector2(transform.position.x, transform.position.z);
+            // Vector2 goal = new Vector2(_goal.x, _goal.z);
+            // float distance = (goal - pos).magnitude;
+            // if (distance < _bodyRadius && goalReached == false)
+            // {
+            //     goalReached = true;
+            //     AddReward(1.0f);
+            //     CumulativeReward = GetCumulativeReward();
+            // }
+            if (goalReached == false)
+            {
+                goalReached = true;
+                AddReward(1.0f);
+                CumulativeReward = GetCumulativeReward();
+
+            }
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -454,7 +495,7 @@ namespace multiagent
             }
             return false;
         }
-        
+
 
         public void updateSpawnState(Vector3 position, Quaternion orientation)
         {
@@ -462,6 +503,27 @@ namespace multiagent
             newSpawnOrientation = orientation;
 
         }
+
+        public void GetGround()
+        {
+            Transform ground = transform.parent.transform.parent.Find("Ground").GetComponent<Transform>();
+            spawningOffset = ground.localPosition;
+            boxSize.x = 2 * Mathf.Abs(ground.localPosition.x);
+            boxSize.z = 2 * Mathf.Abs(ground.localPosition.z);
+        }
+
+        public (float, Vector3, Vector3) getState()
+        {
+            float currentTime = StepCount*Time.fixedDeltaTime;
+            Vector3 s = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
+            Vector3 ds = new Vector3(
+                _rigidbody.linearVelocity.x,
+                _rigidbody.linearVelocity.z,
+                _rigidbody.angularVelocity.y
+            );
+            return (currentTime,s, ds);
+        }
+
     }
 
 }

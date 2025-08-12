@@ -50,18 +50,20 @@
   <ItemGroup>
     <Compile Include="Assets/Scripts/lidar/LaserLine.cs" />
     <Compile Include="Assets/Scripts/Robot.cs" />
+    <Compile Include="Assets/Scripts/util/csv_exporter.cs" />
     <Compile Include="Assets/Scripts/controller/PID.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
+    <Compile Include="Assets/Scripts/Environment.cs" />
+    <Compile Include="Assets/Scripts/GUI_environment.cs" />
+    <Compile Include="Assets/Scripts/util/data.cs" />
     <Compile Include="Assets/Scripts/controller/Controller.cs" />
     <Compile Include="Assets/Scripts/lidar/Scanner.cs" />
-    <Compile Include="Assets/Scripts/GUI_Robot.cs" />
     <Compile Include="Assets/Scripts/lidar/PointCloud.cs" />
     <Compile Include="Assets/Scripts/Camera Movement.cs" />
     <Compile Include="Assets/Scripts/ArrowGenerator.cs" />
     <Compile Include="Assets/Scripts/goal/goal.cs" />
     <Compile Include="Assets/Scripts/util/util.cs" />
     <Compile Include="Assets/Scripts/LocalPlayerEnabler.cs" />
-    <Compile Include="Assets/Scripts/SpawnObject.cs" />
     <Compile Include="Assets/Scripts/controller/PurePursuit.cs" />
     <Compile Include="Assets/Scripts/lidar/ScannerData.cs" />
     <Compile Include="Assets/Scripts/controller/util.cs" />

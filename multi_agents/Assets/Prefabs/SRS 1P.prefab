@@ -434,7 +434,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
-  _goal: {x: 0, y: 0}
+  _goal: {x: 0, y: 0, z: 0}
   _groundRenderer: {fileID: 0}
   _maxSpeed: 0.7
   _maxRotationSpeed: 2.11
@@ -449,12 +449,17 @@ MonoBehaviour:
   currentRotationAcceleration: 0
   _state: {x: 0, y: 0, z: 0}
   _dstate: {x: 0, y: 0, z: 0}
+  _ddstate: {x: 0, y: 0, z: 0}
+  boxSize: {x: 0, y: 0, z: 0}
+  spawningOffset: {x: 0, y: 0, z: 0}
   _absoluteCoordinate: 0
   U_constraint: 0
   CurrentEpisode: 0
   CumulativeReward: 0
   arrow: {fileID: 415096288113428036, guid: f329cf2526ff25481934698b5d06f697, type: 3}
   debugArrow: 1
+  goal_type: 0
+  goalReached: 0
 --- !u!114 &7856453141020139538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -468,7 +473,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 3
+    VectorObservationSize: 4
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
