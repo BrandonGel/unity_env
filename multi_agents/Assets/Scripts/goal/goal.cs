@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine.Assertions;
+using multiagent.goal;
 
 
 public class Goal : MonoBehaviour
@@ -19,7 +20,12 @@ public class Goal : MonoBehaviour
     public int startTimeStep = 0;
     public int counter = 0;
     public int totalTimesteps = 1;
+    public float goalWait = 100f;
+    public float goalWaitProbability = 1f;
+    public int goalID = -1;
+    public int goalType = 0;
     public data history;
+    public goalClass goalData;
     public class data
     {
         public bool[] inUsed;

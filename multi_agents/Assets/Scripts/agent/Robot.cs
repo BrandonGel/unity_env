@@ -12,21 +12,13 @@ using multiagent.controller;
 using Unity.MLAgents.Policies;
 using UnityEditorInternal;
 using Unity.MLAgents.Integrations.Match3;
+using multiagent.goal;
 
-namespace multiagent
+namespace multiagent.agent
 {
-    public enum ctrlType
+
+    public class Robot : AgentTemplate
     {
-        Position, //Position input
-        Velocity, //Velocity input
-        Accleration, //acceleration input
-        Position_Velocity,
-            
-        }
-    public class Robot : Agent
-    {
-        [SerializeField] private Vector3 _goal;
-        [SerializeField] private Renderer _groundRenderer;
         [SerializeField] private float _maxSpeed = .7f; // meters per second
         [SerializeField] private float _maxRotationSpeed = 2.11f; // degrees per second
         [SerializeField] private float _maxAcceleration = 2.72f; // degrees per second
@@ -38,52 +30,34 @@ namespace multiagent
         public ctrlType _controllerType;
         private string _controllerTypeStr;
         private Rigidbody _rigidbody;
-        private Renderer _renderer;
         private bool isControllerInit = false;
         [SerializeField] private bool velocityControl = true;
 
-        [SerializeField] float currentSpeed;
-        [SerializeField] float currentRotationSpeed;
-        [SerializeField] float currentAcceleration;
-        [SerializeField] float currentRotationAcceleration;
+        [SerializeField] float currentSpeed = 0;
+        [SerializeField] float currentRotationSpeed = 0;
+        [SerializeField] float currentAcceleration = 0;
+        [SerializeField] float currentRotationAcceleration = 0;
 
-        [SerializeField] Vector3 _state;
-        [SerializeField] Vector3 _dstate;
-        [SerializeField] Vector3 _ddstate;
-        public Vector3 boxSize, spawningOffset;
+        [SerializeField] Vector3 _state = default;
+        [SerializeField] Vector3 _dstate = default;
+        [SerializeField] Vector3 _ddstate = default;
         [SerializeField] bool _absoluteCoordinate = false;
 
-        [SerializeField] float U_constraint;
-        [HideInInspector] public int CurrentEpisode = 0;
-        [HideInInspector] public float CumulativeReward = 0f;
-        private Color _defaultGroundColor, _robotColor;
-        private Coroutine _flashGroundCoroutine;
+        [SerializeField] float U_constraint = 0;
         public GameObject arrow;
         public bool debugArrow = false;
         private bool usingArrow = false;
         GameObject arrowObj, arrowObj2, arrowObj3, arrowObj4, arrowObj5;
         private Vector3 newSpawnPosition, accelerationVector, rotationAccelerationVector;
         private Quaternion newSpawnOrientation;
-        float[] minLim, maxLim;
-        public int goal_type = 0; // Define what goal is being assigned (0 - no goal, 1 to infty - goal type)
-        public bool goalReached = false;
-        private Goal goalObj = null;
-        private int _goalID = -1;
+
         public override void Initialize()
         {
-            // Debug.Log("Initialize()");
             _controllerNameStr = Enum.GetName(_controllerName.GetType(), _controllerName);
             _controllerTypeStr = Enum.GetName(_controllerType.GetType(), _controllerType);
             _rigidbody = GetComponent<Rigidbody>();
-            _renderer = GetComponent<Renderer>();
-            CurrentEpisode = 0;
-            CumulativeReward = 0f;
-
-            if (_groundRenderer != null)
-            {
-                _defaultGroundColor = _groundRenderer.material.color;
-            }
-
+            initExtra();
+            
             // Initialize the constraints
             if (velocityControl)
             {
@@ -112,10 +86,12 @@ namespace multiagent
             generateArrow();
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
+            setGoal();
         }
 
         private void generateArrow()
         {
+
             if (debugArrow == true && usingArrow == false)
             {
                 usingArrow = true;
@@ -154,7 +130,8 @@ namespace multiagent
                 arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
                 arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
 
-                Vector3 goalVector = new Vector3(_goal.x, 0, _goal.z) - new Vector3(transform.position.x, 0, transform.position.z);
+                Vector3 goalPos = getGoalPos();
+                Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
                 arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
             }
             else if (debugArrow == false && usingArrow == true)
@@ -172,7 +149,6 @@ namespace multiagent
         {
             CurrentEpisode++;
             CumulativeReward = 0f;
-            // _renderer.material.color = Color.blue;
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             _rigidbody.linearVelocity = Vector3.zero;
@@ -181,10 +157,6 @@ namespace multiagent
             rotationAccelerationVector = Vector3.zero;
             updateState();
             GetGround();
-            _goal = Vector3.zero;
-            _goalID = -1;
-            goal_type = 0;
-            goalReached = false;
             _ddstate = Vector3.zero;
         }
 
@@ -260,7 +232,17 @@ namespace multiagent
                 isControllerInit = true;
             }
 
-            MoveAgent(actions.ContinuousActions);
+            int decisionPeriod = GetComponent<DecisionRequester>().DecisionPeriod;
+            if (!checkWait(decisionPeriod))
+            {
+                MoveAgent(actions.ContinuousActions);
+            }
+            else
+            {
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+            
 
             AddReward(-2f / MaxStep);
             CumulativeReward = GetCumulativeReward();
@@ -342,7 +324,7 @@ namespace multiagent
             _rigidbody.linearVelocity = transform.TransformDirection(localVelocity);
         }
 
-        public void MoveAgent(ActionSegment<float> action)
+        public override void MoveAgent(ActionSegment<float> action)
         {
             Vector3[] act;
             if (_absoluteCoordinate)
@@ -410,83 +392,27 @@ namespace multiagent
         }
         private void Update()
         {
-
-            updateState();
             generateArrow();
         }
-        private void OnTriggerEnter(Collider other)
+
+        private void FixedUpdate()
         {
-            if (other.gameObject.CompareTag("Goal") && goalObj == other.GetComponent<Goal>())
-            {
-                GoalReached();
-            }
-        }
-        public void setGoal(Vector3 goal, int _goalID, int goal_type, Goal goalObj)
-        {
-            this._goal = goal;
-            this._goalID = _goalID;
-            this.goal_type = goal_type;
-            this.goalObj = goalObj;
-            goalReached = false;
+            updateState();
         }
 
-        public (Vector3, int, int, bool) getGoal()
+        public override void GoalReached()
         {
-            return (_goal, _goalID, goal_type, goalReached);
-        }
-
-        private void GoalReached()
-        {
-            // Vector2 pos = new Vector2(transform.position.x, transform.position.z);
-            // Vector2 goal = new Vector2(_goal.x, _goal.z);
-            // float distance = (goal - pos).magnitude;
-            // if (distance < _bodyRadius && goalReached == false)
-            // {
-            //     goalReached = true;
-            //     AddReward(1.0f);
-            //     CumulativeReward = GetCumulativeReward();
-            // }
-            if (goalReached == false)
+            if (getGoalReached() == false)
             {
-                goalReached = true;
+                setGoalReached(true);
                 AddReward(1.0f);
                 CumulativeReward = GetCumulativeReward();
-
+                startWaitCounter(); 
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
-            {
-                AddReward(-0.05f);
-                if (_renderer != null)
-                {
-                    _renderer.material.color = Color.red;
-                }
-            }
-        }
 
-        private void OnCollisionStay(Collision collision)
-        {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
-            {
-                AddReward(-0.01f * Time.fixedDeltaTime);
-            }
-        }
-
-        private void OnCollisionExit(Collision collision)
-        {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
-            {
-                if (_renderer != null)
-                {
-                    _renderer.material.color = _robotColor;
-                }
-            }
-        }
-
-        public bool checkTerminalCondition()
+        public override bool checkTerminalCondition()
         {
 
             if (StepCount == MaxStep - 1)
@@ -496,7 +422,6 @@ namespace multiagent
             return false;
         }
 
-
         public void updateSpawnState(Vector3 position, Quaternion orientation)
         {
             newSpawnPosition = position;
@@ -504,24 +429,16 @@ namespace multiagent
 
         }
 
-        public void GetGround()
-        {
-            Transform ground = transform.parent.transform.parent.Find("Ground").GetComponent<Transform>();
-            spawningOffset = ground.localPosition;
-            boxSize.x = 2 * Mathf.Abs(ground.localPosition.x);
-            boxSize.z = 2 * Mathf.Abs(ground.localPosition.z);
-        }
-
         public (float, Vector3, Vector3) getState()
         {
-            float currentTime = StepCount*Time.fixedDeltaTime;
+            float currentTime = StepCount * Time.fixedDeltaTime;
             Vector3 s = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
             Vector3 ds = new Vector3(
                 _rigidbody.linearVelocity.x,
                 _rigidbody.linearVelocity.z,
                 _rigidbody.angularVelocity.y
             );
-            return (currentTime,s, ds);
+            return (currentTime, s, ds);
         }
 
     }

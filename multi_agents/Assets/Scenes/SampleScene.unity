@@ -656,8 +656,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.37250382, y: -0.03495588, z: 0.013934943, w: 0.92726743}
-  m_LocalPosition: {x: 36.702408, y: 44.693638, z: -30.451246}
+  m_LocalRotation: {x: 0.33479097, y: -0.021260662, z: 0.007444079, w: 0.9420231}
+  m_LocalPosition: {x: 34.93392, y: 35.653595, z: -14.541373}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1437,10 +1437,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robot: {fileID: 7150906331766047852, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
   robots: []
-  robotsPosition: []
-  robotsQuaternion: []
   Ground: {fileID: 29770116}
-  spawnCount: 3
+  spawnCount: 1
   spawnRadius: 0
   num_spawn_tries: 100
   spawnShape: 1
@@ -1451,6 +1449,7 @@ MonoBehaviour:
   tol: 0.1
   CurrentEpisode: 1
   StepCount: 0
+  useCSVExporter: 0
 --- !u!114 &1532215653
 MonoBehaviour:
   m_ObjectHideFlags: 0
