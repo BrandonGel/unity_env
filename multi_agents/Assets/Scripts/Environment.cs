@@ -7,6 +7,7 @@ using UnityEditor.Callbacks;
 using multiagent.util;
 using multiagent.goal;
 using multiagent.palette;
+using multiagent.camera;
 
 public class Environment : MonoBehaviour
 {
@@ -33,14 +34,12 @@ public class Environment : MonoBehaviour
     public Vector2 boxSize = new Vector2(0, 0);
     public Vector3 spawningOffset = new Vector3(0, 0, 0);
     public NavMeshSurface navMeshSurface;
-    public bool debug_mesh = false;
     public float tol = 0.5f;
     public int CurrentEpisode = 1;
     public int StepCount = 0; 
     public Data dataClass;
     public csv_exporter CSVexporter;
     [SerializeField] public bool useCSVExporter = false;
-    public Material transparentMaterial;
     public void SpawnRobots(bool init = true)
     {
         Robot robotObj = robot.GetComponent<Robot>();
@@ -112,11 +111,11 @@ public class Environment : MonoBehaviour
             topBox.GetComponent<movingObject>().setOffset(firstWaypointtop);
             bottomBox.GetComponent<movingObject>().setOffset(firstWaypointbottom);
 
-            GameObject dummyPaletteObjFolder = new GameObject("Palette");
+            GameObject dummyPaletteObjFolder = new GameObject("Palette (" + (i+1) + ")");
             dummyPaletteObjFolder.GetComponent<Transform>().position = Vector3.zero;
             string robotName = robots[i].name;
 
-            dummyPaletteObjFolder.transform.parent = gameObject.transform.Find("Robots").Find("Palettes");
+            dummyPaletteObjFolder.transform.parent = gameObject.transform.Find("Palettes");
             topBox.transform.parent = dummyPaletteObjFolder.transform;
             bottomBox.transform.parent = dummyPaletteObjFolder.transform;
             palettes[i] = new palette(dummyPaletteObjFolder);

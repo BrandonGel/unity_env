@@ -43,7 +43,7 @@ public class ArrowGenerator : MonoBehaviour
         }
         else if (dir == "u")
         {
-            return (Vector3.up, Vector3.right);
+            return (Vector3.down, Vector3.right);
         }
         else if (dir == "f")
         {
