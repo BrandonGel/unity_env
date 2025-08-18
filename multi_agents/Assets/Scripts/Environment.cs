@@ -6,6 +6,7 @@ using multiagent.agent;
 using UnityEditor.Callbacks;
 using multiagent.util;
 using multiagent.goal;
+using multiagent.palette;
 
 public class Environment : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class Environment : MonoBehaviour
     private Vector3[] _robotsPosition, _robotsOldPosition;
     private Quaternion[] _robotsQuaternion, _robotsOldQuaternion;
     public GameObject Ground = null;
+    public GameObject topBoxPrefab = null;
+    public GameObject bottomBoxPrefab = null;
+    public palette[] palettes = null;
     public int spawnCount = 0;
     public float spawnRadius = 0;
     public int num_spawn_tries = 100;
@@ -36,6 +40,7 @@ public class Environment : MonoBehaviour
     public Data dataClass;
     public csv_exporter CSVexporter;
     [SerializeField] public bool useCSVExporter = false;
+    public Material transparentMaterial;
     public void SpawnRobots(bool init = true)
     {
         Robot robotObj = robot.GetComponent<Robot>();
@@ -54,6 +59,7 @@ public class Environment : MonoBehaviour
                     if (init)
                     {
                         GameObject robotInstance = Instantiate(robot, randomPoint, orientation);
+                        robotInstance.name = Util.getNewName(robotInstance,i+1);
                         robotInstance.transform.parent = gameObject.transform.Find("Robots").transform;
                         robotInstance.GetComponent<Robot>().setID(i);
                         robotInstance.GetComponent<Robot>().initExtra();
@@ -78,25 +84,66 @@ public class Environment : MonoBehaviour
         }
     }
 
+    public void SpawnBoxes()
+    {
+        Robot robotObj = robot.GetComponent<Robot>();
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Vector3 bottomBoxScale = bottomBoxPrefab.GetComponent<Transform>().localScale;
+            Vector3 bottomBoxCenter = bottomBoxPrefab.GetComponent<BoxCollider>().center;
+            Vector3 bottomBoxSize = bottomBoxPrefab.GetComponent<BoxCollider>().size;
+
+            Vector3 topBoxScale = topBoxPrefab.GetComponent<Transform>().localScale;
+            Vector3 topBoxCenter = topBoxPrefab.GetComponent<BoxCollider>().center;
+            Vector3 topBoxSize = topBoxPrefab.GetComponent<BoxCollider>().size;
+
+            Vector3 firstWaypointbottom = new Vector3(
+                bottomBoxCenter.x,
+                bottomBoxCenter.y+0.25f,
+                bottomBoxCenter.z
+            );
+
+            float y =  bottomBoxSize.y * bottomBoxScale.y + topBoxSize.y * topBoxScale.y;
+
+            Vector3 firstWaypointtop = firstWaypointbottom + new Vector3(0, y, 0);
+            GameObject topBox = Instantiate(topBoxPrefab, firstWaypointtop, Quaternion.identity);
+            GameObject bottomBox = Instantiate(bottomBoxPrefab, firstWaypointbottom, Quaternion.identity);
+
+            topBox.GetComponent<movingObject>().setOffset(firstWaypointtop);
+            bottomBox.GetComponent<movingObject>().setOffset(firstWaypointbottom);
+
+            GameObject dummyPaletteObjFolder = new GameObject("Palette");
+            dummyPaletteObjFolder.GetComponent<Transform>().position = Vector3.zero;
+            string robotName = robots[i].name;
+
+            dummyPaletteObjFolder.transform.parent = gameObject.transform.Find("Robots").Find("Palettes");
+            topBox.transform.parent = dummyPaletteObjFolder.transform;
+            bottomBox.transform.parent = dummyPaletteObjFolder.transform;
+            palettes[i] = new palette(dummyPaletteObjFolder);
+            palettes[i].assignRobot(robots[i]);
+        }
+    }
     
     public void InitGoals()
     {
         int ii = 0;
-        goals = new Dictionary<string,List<goalClass[]>>();
-        
+        goals = new Dictionary<string, List<goalClass[]>>();
+
         // Pickups
         goals.Add("Pickups", new List<goalClass[]>());
         ii = 0;
         foreach (Transform child in transform.Find("Pickups"))
         {
-            goalClass[] pickup =  new goalClass[2];
+            goalClass[] pickup = new goalClass[2];
 
+            // Drop Palette (Step 4)
             Goal paletteDropOff = child.transform.Find("Drop Palette").GetComponent<Goal>();
             paletteDropOff.goalID = ii;
             paletteDropOff.goalType = 4;
             paletteDropOff.goalWait = 5f;
             goalClass paletteDropOffClass = new goalClass(paletteDropOff);
 
+            // Get Battery (Step 1)
             Goal batteryPickUp = child.transform.Find("Get Battery").GetComponent<Goal>();
             batteryPickUp.goalID = ii;
             batteryPickUp.goalType = 1;
@@ -114,16 +161,18 @@ public class Environment : MonoBehaviour
         ii = 0;
         foreach (Transform child in transform.Find("Dropoffs"))
         {
+            // Pickup Palette (Step 3)
             goalClass[] dropoff = new goalClass[2];
             Goal palettePickUp = child.transform.Find("Get Palette").GetComponent<Goal>();
             palettePickUp.goalID = ii;
-            palettePickUp.goalType = 2;
+            palettePickUp.goalType = 3;
             palettePickUp.goalWait = 5f;
             goalClass palettePickUpClass = new goalClass(palettePickUp);
 
+            // Drop Battery (Step 2)
             Goal batteryDropOff = child.transform.Find("Drop Battery").GetComponent<Goal>();
             batteryDropOff.goalID = ii;
-            batteryDropOff.goalType = 3;
+            batteryDropOff.goalType = 2;
             batteryDropOff.goalWait = 5f;
             goalClass batteryDropOffClass = new goalClass(batteryDropOff);
 
@@ -134,11 +183,24 @@ public class Environment : MonoBehaviour
         }
     }
 
+    public void AnimatePalette(int i)
+    {
+        Robot robotComponent = robots[i].GetComponent<Robot>();
+        goalClass _goalClass = robotComponent.getGoal();
+        int goalType = _goalClass.goalType;
+        palettes[i].getPalette(robotComponent,_goalClass,goalType);
+    }
+
+    public void ResetPalette(int i)
+    {
+        palettes[i].resetParameters();
+    }
+
     public void AssignGoals(int i)
     {
         int numberDropoffs = transform.Find("Dropoffs").childCount;
         int numberPickUps = transform.Find("Pickups").childCount;
-        
+
         Robot robotComponent = robots[i].GetComponent<Robot>();
         goalClass _goalClass = robotComponent.getGoal();
         int goalID = robots[i].GetComponent<Robot>()._goalClass.goalID;
@@ -149,18 +211,18 @@ public class Environment : MonoBehaviour
                 goalID = Random.Range(0, numberPickUps - 1);
                 _goalClass = goals["Pickups"][goalID][1];
                 break;
-            case 1:
+            case 1: // Step 1 -> Step 2: Drop Battery & Palette
                 goalID = Random.Range(0, numberDropoffs - 1);
                 _goalClass = goals["Dropoff"][goalID][1];
                 break;
-            case 2:
+            case 2: // Step 2 -> Step 3: Get Palette 
                 _goalClass = goals["Dropoff"][goalID][0];
                 break;
-            case 3:
+            case 3: // Step 3 -> Step 4: Drop Palette
                 goalID = Random.Range(0, numberPickUps - 1);
                 _goalClass = goals["Pickups"][goalID][0];
                 break;
-            case 4:
+            case 4: // Step 4 -> Step 1: Get Battery
                 _goalClass = goals["Pickups"][goalID][1];
                 break;
             default:
@@ -327,6 +389,7 @@ public class Environment : MonoBehaviour
     {
         Debug.Log("OnEpisodeBeing()");
         robots = new GameObject[spawnCount];
+        palettes = new palette[spawnCount];
         _robotsPosition = new Vector3[spawnCount];
         _robotsQuaternion = new Quaternion[spawnCount];
         _robotsOldPosition = new Vector3[spawnCount];
@@ -336,6 +399,7 @@ public class Environment : MonoBehaviour
         GetGround();
         StartMesh();
         SpawnRobots();
+        SpawnBoxes();
         InitGoals();
         CSVexporter = new csv_exporter();
         dataClass = new Data(spawnCount);
@@ -376,6 +440,7 @@ public class Environment : MonoBehaviour
             // Goal Assignment Condition
             if (robotComponent.getGoalReached())
             {
+                AnimatePalette(i);
                 AssignGoals(i);
             }
         }
@@ -408,6 +473,7 @@ public class Environment : MonoBehaviour
                     Robot robotComponent = robots[i].GetComponent<Robot>();
                     robotComponent.initExtra();
                     AssignGoals(i);
+                    ResetPalette(i);
                     robotComponent.EndEpisode();
                     if (useCSVExporter)
                 {

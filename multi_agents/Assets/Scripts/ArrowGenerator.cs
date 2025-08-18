@@ -59,7 +59,7 @@ public class ArrowGenerator : MonoBehaviour
         trianglesList = new List<int>();
 
         //stem setup
-        stemOrigin = new Vector3(0, 0.5f, 0);
+        stemOrigin = new Vector3(0, 1f, 0);
 
         // directional vector
         (directionalVector, normalVector) = getDirection(dir);

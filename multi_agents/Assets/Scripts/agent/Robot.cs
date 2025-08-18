@@ -233,7 +233,7 @@ namespace multiagent.agent
             }
 
             int decisionPeriod = GetComponent<DecisionRequester>().DecisionPeriod;
-            if (!checkWait(decisionPeriod))
+            if (!checkWait())
             {
                 MoveAgent(actions.ContinuousActions);
             }
@@ -398,6 +398,11 @@ namespace multiagent.agent
         private void FixedUpdate()
         {
             updateState();
+            if (checkWait())
+            {
+                incrementWaitCounter();    
+            }
+            
         }
 
         public override void GoalReached()

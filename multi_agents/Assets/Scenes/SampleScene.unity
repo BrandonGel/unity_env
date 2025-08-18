@@ -1335,6 +1335,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1146037291}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1333141865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1333141866}
+  m_Layer: 0
+  m_Name: Palettes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1333141866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333141865}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1532215650}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1408802527
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,6 +1452,7 @@ Transform:
   - {fileID: 1828171159}
   - {fileID: 200224412}
   - {fileID: 897614170}
+  - {fileID: 1333141866}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1532215652
@@ -1438,6 +1470,8 @@ MonoBehaviour:
   robot: {fileID: 7150906331766047852, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
   robots: []
   Ground: {fileID: 29770116}
+  topBoxPrefab: {fileID: 135798, guid: 12263925bd92ff44a998598877e693a9, type: 3}
+  bottomBoxPrefab: {fileID: 1000010367924706, guid: f3a2bdf629453a94da066a94851ba2ba, type: 3}
   spawnCount: 1
   spawnRadius: 0
   num_spawn_tries: 100
@@ -1450,6 +1484,7 @@ MonoBehaviour:
   CurrentEpisode: 1
   StepCount: 0
   useCSVExporter: 0
+  transparentMaterial: {fileID: 0}
 --- !u!114 &1532215653
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -137,13 +137,14 @@ namespace multiagent.agent
             }
         }
 
-        public virtual bool checkWait(int counter = 1)
+        public virtual bool checkWait()
         {
-            if (_wait)
-            {
-                incrementWaitCounter(counter);
-            }
             return _wait;
+        }
+
+        public virtual int getWaitCounter()
+        {
+            return _waitCounter;
         }
 
         private void OnTriggerEnter(Collider other)

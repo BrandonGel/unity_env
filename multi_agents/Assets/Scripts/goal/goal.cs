@@ -1,6 +1,3 @@
-//Author: Angel Ortiz
-//Date: 08/15/17
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +17,7 @@ public class Goal : MonoBehaviour
     public int startTimeStep = 0;
     public int counter = 0;
     public int totalTimesteps = 1;
-    public float goalWait = 100f;
+    public float goalWait = 1000f;
     public float goalWaitProbability = 1f;
     public int goalID = -1;
     public int goalType = 0;
