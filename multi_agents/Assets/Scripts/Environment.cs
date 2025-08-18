@@ -17,6 +17,7 @@ public class Environment : MonoBehaviour
         Box,
     }
 
+    public GameObject camera;
     public GameObject robot = null;
     public GameObject[] robots;
     public Dictionary<string,List<goalClass[]>> goals;
@@ -400,6 +401,7 @@ public class Environment : MonoBehaviour
         SpawnRobots();
         SpawnBoxes();
         InitGoals();
+        camera.GetComponent<Camera_Follow>().getPlayers(robots);
         CSVexporter = new csv_exporter();
         dataClass = new Data(spawnCount);
         List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();

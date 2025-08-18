@@ -2141,6 +2141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 747ab59a214cd5b12aede1861a7b666a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  camera: {fileID: 966193863}
   robot: {fileID: 7150906331766047852, guid: d14f3b16437aecdeba0fc04b21cbb2d8, type: 3}
   robots: []
   Ground: {fileID: 29770116}

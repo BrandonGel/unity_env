@@ -20,7 +20,7 @@ namespace multiagent.camera
         void Start()
         {
             players = null;
-            directionVector = new Vector3(1,0,1);
+            directionVector = Vector3.forward;
             directionVector = directionVector/directionVector.magnitude;
             newpos = Vector3.zero;
         }
@@ -29,7 +29,7 @@ namespace multiagent.camera
         {
             if (players != null)
             {
-                playerIndex = Mathf.Clamp(playerIndex,0,players.Length-1);
+                playerIndex = Mathf.Clamp(playerIndex,0,Mathf.Max(0,players.Length-1));
                 GameObject player = players[playerIndex];
                 Quaternion rotation = Quaternion.Euler(-pitchAngle, yawAngle, 0);
                 newpos = rotation*directionVector;
