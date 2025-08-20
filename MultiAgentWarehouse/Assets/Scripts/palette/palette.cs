@@ -34,10 +34,6 @@ namespace multiagent.palette
             );
             enableRenderer(topBox, false);
             enableRenderer(bottomBox, false);
-            // MeshRenderer render = topBox.GetComponent<MeshRenderer>();
-            // render.enabled = false;
-            // render = bottomBox.GetComponent<MeshRenderer>();
-            // render.enabled = false;
         }
 
         public void resetParameters()
@@ -67,8 +63,6 @@ namespace multiagent.palette
             switch (goalType)
             {
                 case 1:
-                    // enableRenderer(topBox, true);
-                    // enableRenderer(bottomBox, true);
                     waypoints = new Vector3[3];
                     waypoints[0] = new Vector3(
                         goalPosition.x - 1,

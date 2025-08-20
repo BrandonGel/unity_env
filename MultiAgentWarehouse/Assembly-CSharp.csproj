@@ -52,6 +52,7 @@
     <Compile Include="Assets/Scripts/util/csv_exporter.cs" />
     <Compile Include="Assets/Scripts/goal/goalClass.cs" />
     <Compile Include="Assets/Scripts/controller/PID.cs" />
+    <Compile Include="Assets/Scripts/receiveMessage.cs" />
     <Compile Include="Assets/Scripts/camera/Camera_Follow.cs" />
     <Compile Include="Assets/Scripts/palette/palette.cs" />
     <Compile Include="Assets/Scripts/Environment.cs" />
@@ -63,13 +64,17 @@
     <Compile Include="Assets/Scripts/lidar/PointCloud.cs" />
     <Compile Include="Assets/Scripts/agent/Robot.cs" />
     <Compile Include="Assets/Scripts/ArrowGenerator.cs" />
+    <Compile Include="Assets/Scripts/util/parameters.cs" />
     <Compile Include="Assets/Scripts/goal/goal.cs" />
     <Compile Include="Assets/Scripts/util/util.cs" />
     <Compile Include="Assets/Scripts/util/movePos.cs" />
     <Compile Include="Assets/Scripts/agent/Agent.cs" />
     <Compile Include="Assets/Scripts/LocalPlayerEnabler.cs" />
+    <Compile Include="Assets/Scripts/util/pathVisualize.cs" />
     <Compile Include="Assets/Scripts/controller/PurePursuit.cs" />
+    <Compile Include="Assets/Scripts/register.cs" />
     <Compile Include="Assets/Scripts/GUI_camera.cs" />
+    <Compile Include="Assets/Scripts/palette/box.cs" />
     <Compile Include="Assets/Scripts/lidar/ScannerData.cs" />
     <Compile Include="Assets/Scripts/controller/util.cs" />
   </ItemGroup>

@@ -1,0 +1,10 @@
+{
+  "num_of_agents": 1,
+  "num_spawn_tries": 100,
+  "maxSpeed": 7,
+  "maxRotationSpeed": 2.11,
+  "maxAcceleration": 2.72,
+  "maxRotationAccleration": 8.23,
+  "velocityControl": true,
+  "absoluteCoordinate": false
+}

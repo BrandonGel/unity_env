@@ -6,8 +6,8 @@ namespace multiagent
     public class GUI_environment : MonoBehaviour
     {
         [SerializeField] private Environment _env;
-
         [SerializeField] private GameObject _camera;
+        [SerializeField] private RegisterStringLogSideChannel _register;
         Vector3 envCameraPos;
         Quaternion envCameraRot;
         private GUIStyle _defaultStyle = new GUIStyle();
@@ -35,12 +35,21 @@ namespace multiagent
         private void OnGUI()
         {
             string debugEpisode = "Episode: " + _env.CurrentEpisode + " - Step: " + _env.StepCount;
+
+            string debugPlayers = "Players: ";
+            if (_env.robots != null)
+            {
+                debugPlayers += _env.robots.Length;
+            }
+            // string debugMessage = "Message: " + _register.getIncomingMsg();
             // string debugReward = "Reward: " + _env.CumulativeReward.ToString();
 
             // GUIStyle rewardStyle = _robot.CumulativeReward < 0 ? _negativeStyle : _positivieStyle;
 
 
             GUI.Label(new Rect(20, 20, 500, 30), debugEpisode, _defaultStyle);
+            GUI.Label(new Rect(20, 60, 500, 30), debugPlayers, _defaultStyle);
+            // GUI.Label(new Rect(20, 100, 500, 30), debugMessage, _defaultStyle);
             // GUI.Label(new Rect(20, 60 , 500, 30), debugReward, rewardStyle);
         }
 

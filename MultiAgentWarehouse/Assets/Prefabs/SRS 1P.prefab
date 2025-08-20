@@ -10182,6 +10182,7 @@ GameObject:
   - component: {fileID: 7856453141020139538}
   - component: {fileID: 3034502893001568435}
   - component: {fileID: 5648629996685109488}
+  - component: {fileID: 6382965467727965985}
   m_Layer: 6
   m_Name: SRS 1P
   m_TagString: Player
@@ -10336,10 +10337,10 @@ MonoBehaviour:
   CumulativeReward: 0
   minLim: []
   maxLim: []
-  _maxSpeed: 7
-  _maxRotationSpeed: 2.11
-  _maxAcceleration: 2.72
-  _maxRotationAccleration: 8.23
+  maxSpeed: 0.7
+  maxRotationSpeed: 2.11
+  maxAcceleration: 2.72
+  maxRotationAccleration: 8.23
   _controllerName: 2
   _controllerType: 1
   velocityControl: 1
@@ -10350,7 +10351,7 @@ MonoBehaviour:
   _state: {x: 0, y: 0, z: 0}
   _dstate: {x: 0, y: 0, z: 0}
   _ddstate: {x: 0, y: 0, z: 0}
-  _absoluteCoordinate: 0
+  absoluteCoordinate: 0
   U_constraint: 0
   arrow: {fileID: 415096288113428036, guid: f329cf2526ff25481934698b5d06f697, type: 3}
   debugArrow: 1
@@ -10414,6 +10415,20 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &6382965467727965985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7150906331766047852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e86010268ca183995f20457de359c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trackerTransform: {fileID: 7229497533641514905}
+  lineRenderer: {fileID: 3351676238696043559, guid: 06404605b8e5cf418b7c5d1f1a9454f9, type: 3}
 --- !u!1 &7574183815446568481
 GameObject:
   m_ObjectHideFlags: 0

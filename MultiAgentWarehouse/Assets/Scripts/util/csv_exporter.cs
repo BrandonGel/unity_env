@@ -9,7 +9,6 @@ namespace multiagent.util
 
         public void transferData(Data dataclass,int CurrentEpisode = 1)
         {
-            Debug.Log("Length: " + dataclass.size);
             for (int ii = 0; ii < dataclass.size; ii++)
             {
                 dataToExport = new List<string[]>();

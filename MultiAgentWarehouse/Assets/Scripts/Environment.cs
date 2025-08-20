@@ -7,6 +7,9 @@ using multiagent.util;
 using multiagent.goal;
 using multiagent.palette;
 using multiagent.camera;
+using System.Collections;
+
+
 
 public class Environment : MonoBehaviour
 {
@@ -20,14 +23,17 @@ public class Environment : MonoBehaviour
     public GameObject robot = null;
     public GameObject[] robots;
     public Dictionary<string,List<goalClass[]>> goals;
-    private Vector3[] _robotsPosition, _robotsOldPosition;
-    private Quaternion[] _robotsQuaternion, _robotsOldQuaternion;
+    private Vector3[] _robotsPosition;
+    private Quaternion[] _robotsQuaternion;
     public GameObject Ground = null;
-    public GameObject topBoxPrefab = null;
-    public GameObject bottomBoxPrefab = null;
+    public int debugAnimateBoxOption = 0; //0 - None, 1 - box with opacity, 2 - palette & crate gameobjects
+    public GameObject boxPrefab = null; 
+    public GameObject[] boxes = null; 
+    public GameObject topBoxPrefab = null; // Used for SpawnBoxes (visual the crate)
+    public GameObject bottomBoxPrefab = null; // Used for SpawnBoxes (visual the palette)
     public palette[] palettes = null;
-    public int spawnCount = 0;
-    public float spawnRadius = 0;
+    public int num_of_agents = 1;
+    public float spawn_radius = 0;
     public int num_spawn_tries = 100;
 
     public SpawnShape spawnShape = SpawnShape.Box; // Default to be a box
@@ -43,13 +49,13 @@ public class Environment : MonoBehaviour
     public void SpawnRobots(bool init = true)
     {
         Robot robotObj = robot.GetComponent<Robot>();
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             bool isOverlapping = false;
 
             for (int j = 0; j < num_spawn_tries; j++)
             {
-                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(spawningOffset + transform.localPosition, spawnRadius);
+                (Vector3 randomPoint, Quaternion orientation) = FindValidNavMeshSpawnPoint(spawningOffset + transform.localPosition, spawn_radius);
                 Vector3 halfExtents = robotObj.transform.localScale * (0.5f + tol); // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
                 halfExtents.y = 0; // Set the height to be zero (don't care any overlap in height)
                 isOverlapping = Physics.CheckBox(randomPoint, halfExtents, orientation);
@@ -85,44 +91,65 @@ public class Environment : MonoBehaviour
 
     public void SpawnBoxes()
     {
-        Robot robotObj = robot.GetComponent<Robot>();
-        for (int i = 0; i < spawnCount; i++)
+        switch (debugAnimateBoxOption)
         {
-            Vector3 bottomBoxScale = bottomBoxPrefab.GetComponent<Transform>().localScale;
-            Vector3 bottomBoxCenter = bottomBoxPrefab.GetComponent<BoxCollider>().center;
-            Vector3 bottomBoxSize = bottomBoxPrefab.GetComponent<BoxCollider>().size;
+            case 1:
+                for (int i = 0; i < num_of_agents; i++)
+                {
+                    Vector3 position = new Vector3(
+                       boxPrefab.transform.position.x,
+                       boxPrefab.transform.position.y + 0.25f,
+                       boxPrefab.transform.position.z
+                   );
+                    GameObject box = Instantiate(boxPrefab, position, Quaternion.identity);
 
-            Vector3 topBoxScale = topBoxPrefab.GetComponent<Transform>().localScale;
-            Vector3 topBoxCenter = topBoxPrefab.GetComponent<BoxCollider>().center;
-            Vector3 topBoxSize = topBoxPrefab.GetComponent<BoxCollider>().size;
+                    box.transform.parent = gameObject.transform.Find("Robots").Find(robots[i].name);
+                    boxes[i] = box;
+                }
+                break;
+            case 2:
+                for (int i = 0; i < num_of_agents; i++)
+                {
+                    Vector3 bottomBoxScale = bottomBoxPrefab.GetComponent<Transform>().localScale;
+                    Vector3 bottomBoxCenter = bottomBoxPrefab.GetComponent<BoxCollider>().center;
+                    Vector3 bottomBoxSize = bottomBoxPrefab.GetComponent<BoxCollider>().size;
 
-            Vector3 firstWaypointbottom = new Vector3(
-                bottomBoxCenter.x,
-                bottomBoxCenter.y+0.25f,
-                bottomBoxCenter.z
-            );
+                    Vector3 topBoxScale = topBoxPrefab.GetComponent<Transform>().localScale;
+                    Vector3 topBoxCenter = topBoxPrefab.GetComponent<BoxCollider>().center;
+                    Vector3 topBoxSize = topBoxPrefab.GetComponent<BoxCollider>().size;
 
-            float y =  bottomBoxSize.y * bottomBoxScale.y + topBoxSize.y * topBoxScale.y;
+                    Vector3 firstWaypointbottom = new Vector3(
+                        bottomBoxCenter.x,
+                        bottomBoxCenter.y + 0.25f,
+                        bottomBoxCenter.z
+                    );
 
-            Vector3 firstWaypointtop = firstWaypointbottom + new Vector3(0, y, 0);
-            GameObject topBox = Instantiate(topBoxPrefab, firstWaypointtop, Quaternion.identity);
-            GameObject bottomBox = Instantiate(bottomBoxPrefab, firstWaypointbottom, Quaternion.identity);
+                    float y = bottomBoxSize.y * bottomBoxScale.y + topBoxSize.y * topBoxScale.y;
 
-            topBox.GetComponent<movingObject>().setOffset(firstWaypointtop);
-            bottomBox.GetComponent<movingObject>().setOffset(firstWaypointbottom);
+                    Vector3 firstWaypointtop = firstWaypointbottom + new Vector3(0, y, 0);
+                    GameObject topBox = Instantiate(topBoxPrefab, firstWaypointtop, Quaternion.identity);
+                    GameObject bottomBox = Instantiate(bottomBoxPrefab, firstWaypointbottom, Quaternion.identity);
 
-            GameObject dummyPaletteObjFolder = new GameObject("Palette (" + (i+1) + ")");
-            dummyPaletteObjFolder.GetComponent<Transform>().position = Vector3.zero;
-            string robotName = robots[i].name;
+                    topBox.GetComponent<movingObject>().setOffset(firstWaypointtop);
+                    bottomBox.GetComponent<movingObject>().setOffset(firstWaypointbottom);
 
-            dummyPaletteObjFolder.transform.parent = gameObject.transform.Find("Palettes");
-            topBox.transform.parent = dummyPaletteObjFolder.transform;
-            bottomBox.transform.parent = dummyPaletteObjFolder.transform;
-            palettes[i] = new palette(dummyPaletteObjFolder);
-            palettes[i].assignRobot(robots[i]);
+                    GameObject dummyPaletteObjFolder = new GameObject("Palette (" + (i + 1) + ")");
+                    dummyPaletteObjFolder.GetComponent<Transform>().position = Vector3.zero;
+                    string robotName = robots[i].name;
+
+                    dummyPaletteObjFolder.transform.parent = gameObject.transform.Find("Palettes");
+                    topBox.transform.parent = dummyPaletteObjFolder.transform;
+                    bottomBox.transform.parent = dummyPaletteObjFolder.transform;
+                    palettes[i] = new palette(dummyPaletteObjFolder);
+                    palettes[i].assignRobot(robots[i]);
+                }
+                break;
+            default:
+                break;
         }
+        
     }
-    
+
     public void InitGoals()
     {
         int ii = 0;
@@ -187,12 +214,29 @@ public class Environment : MonoBehaviour
         Robot robotComponent = robots[i].GetComponent<Robot>();
         goalClass _goalClass = robotComponent.getGoal();
         int goalType = _goalClass.goalType;
-        palettes[i].getPalette(robotComponent,_goalClass,goalType);
+        switch (debugAnimateBoxOption)
+        {
+            case 1:
+                boxes[i].GetComponent<VirtualBox>().getPalette(goalType);
+                break;
+            case 2:
+                palettes[i].getPalette(robotComponent, _goalClass, goalType);
+                break;
+        }
     }
 
     public void ResetPalette(int i)
     {
-        palettes[i].resetParameters();
+        switch (debugAnimateBoxOption)
+        {
+            case 1:
+                boxes[i].GetComponent<VirtualBox>().resetParameters();
+                break;
+            case 2:
+                palettes[i].resetParameters();
+                break;
+        }
+        
     }
 
     public void AssignGoals(int i)
@@ -270,7 +314,7 @@ public class Environment : MonoBehaviour
         switch (spawnShape)
         {
             case SpawnShape.Circle:
-                Gizmos.DrawWireSphere(transform.localPosition + spawningOffset, spawnRadius);
+                Gizmos.DrawWireSphere(transform.localPosition + spawningOffset, spawn_radius);
                 break;
             case SpawnShape.Box:
                 Vector3 size = new Vector3(boxSize.x, 0, boxSize.y);
@@ -334,7 +378,7 @@ public class Environment : MonoBehaviour
             spawningOffset = ground.localPosition;
             boxSize.x = 2 * Mathf.Abs(spawningOffset.x);
             boxSize.y = 2 * Mathf.Abs(spawningOffset.z);
-            spawnRadius = Mathf.Max(boxSize.x, boxSize.y) / 2;
+            spawn_radius = Mathf.Max(boxSize.x, boxSize.y) / 2;
         }
         else
         {
@@ -346,7 +390,7 @@ public class Environment : MonoBehaviour
     {
         Vector3 position;
         Quaternion orientation;
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             if (positions == default)
             {
@@ -374,7 +418,7 @@ public class Environment : MonoBehaviour
     void getPosition()
     {
         
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             Rigidbody robotRigidBody = robots[i].GetComponent<Rigidbody>();
             _robotsPosition[i] = robotRigidBody.position;
@@ -382,17 +426,19 @@ public class Environment : MonoBehaviour
         }
     }
 
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Debug.Log("OnEpisodeBeing()");
-        robots = new GameObject[spawnCount];
-        palettes = new palette[spawnCount];
-        _robotsPosition = new Vector3[spawnCount];
-        _robotsQuaternion = new Quaternion[spawnCount];
-        _robotsOldPosition = new Vector3[spawnCount];
-        _robotsOldQuaternion = new Quaternion[spawnCount];
+        Parameters.readConfigFile();
+        Parameters.setParam(this);
+        robots = new GameObject[num_of_agents];
+        palettes = new palette[num_of_agents];
+        boxes = new GameObject[num_of_agents];
+        _robotsPosition = new Vector3[num_of_agents];
+        _robotsQuaternion = new Quaternion[num_of_agents];
         StepCount = 0;
         CurrentEpisode = 1;
         GetGround();
@@ -402,22 +448,16 @@ public class Environment : MonoBehaviour
         InitGoals();
         camera.GetComponent<Camera_Follow>().getPlayers(robots);
         CSVexporter = new csv_exporter();
-        dataClass = new Data(spawnCount);
+        dataClass = new Data(num_of_agents);
         List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             AssignGoals(i);
             Robot robotComponent = robots[i].GetComponent<Robot>();
-            if (useCSVExporter)
-            {
-                (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-                entries.Add((currentTime,s, ds));    
-            }
+            (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+            entries.Add((currentTime,s, ds));    
         }
-        if (useCSVExporter)
-        {
-            dataClass.addEntry(entries);    
-        }
+        dataClass.addEntry(entries);    
         
     }
 
@@ -427,14 +467,11 @@ public class Environment : MonoBehaviour
         StepCount += 1;
 
         List<(float, Vector3,Vector3)> entries = new List<(float, Vector3,Vector3)>();
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             Robot robotComponent = robots[i].GetComponent<Robot>();
-            if (useCSVExporter)
-            {
-                (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-                entries.Add((currentTime, s, ds));
-            }
+            (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+            entries.Add((currentTime, s, ds));
             
 
             // Goal Assignment Condition
@@ -444,15 +481,11 @@ public class Environment : MonoBehaviour
                 AssignGoals(i);
             }
         }
-
-        if (useCSVExporter)
-        {
-            dataClass.addEntry(entries);
-        }
+        dataClass.addEntry(entries);
 
         // Termination Condition
         bool allRobotTerminalCond = false;
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < num_of_agents; i++)
         {
             Robot robotComponent = robots[i].GetComponent<Robot>();
             allRobotTerminalCond |= robotComponent.checkTerminalCondition();
@@ -465,22 +498,19 @@ public class Environment : MonoBehaviour
             if (useCSVExporter)
             {
                 CSVexporter.transferData(dataClass, CurrentEpisode);
-                dataClass.clear();
             }
-            for (int i = 0; i < spawnCount; i++)
-                {
-                    
-                    Robot robotComponent = robots[i].GetComponent<Robot>();
-                    robotComponent.initExtra();
-                    AssignGoals(i);
-                    ResetPalette(i);
-                    robotComponent.EndEpisode();
-                    if (useCSVExporter)
-                {
-                    (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-                    entries.Add((currentTime, s, ds));
-                }
-                }
+            dataClass.clear();
+            for (int i = 0; i < num_of_agents; i++)
+            {
+
+                Robot robotComponent = robots[i].GetComponent<Robot>();
+                robotComponent.initExtra();
+                AssignGoals(i);
+                ResetPalette(i);
+                robotComponent.EndEpisode();
+                (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
+                entries.Add((currentTime, s, ds));
+            }
             Debug.Log("Episode " + CurrentEpisode + " is over!");
             StepCount = 0;
             CurrentEpisode += 1;

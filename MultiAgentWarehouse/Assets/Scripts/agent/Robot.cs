@@ -10,10 +10,10 @@ namespace multiagent.agent
 
     public class Robot : AgentTemplate
     {
-        [SerializeField] private float _maxSpeed = .7f; // meters per second
-        [SerializeField] private float _maxRotationSpeed = 2.11f; // degrees per second
-        [SerializeField] private float _maxAcceleration = 2.72f; // degrees per second
-        [SerializeField] private float _maxRotationAccleration = 8.23f; // degrees per second
+        [SerializeField] public float maxSpeed = .7f; // meters per second
+        [SerializeField] public float maxRotationSpeed = 2.11f; // degrees per second
+        [SerializeField] public float maxAcceleration = 2.72f; // degrees per second
+        [SerializeField] public float maxRotationAccleration = 8.23f; // degrees per second
         private float _bodyRadius = 0.331f; // meters
         private Controller control = new Controller();
         public ctrlOption _controllerName;
@@ -22,7 +22,7 @@ namespace multiagent.agent
         private string _controllerTypeStr;
         private Rigidbody _rigidbody;
         private bool isControllerInit = false;
-        [SerializeField] private bool velocityControl = true;
+        [SerializeField] public bool velocityControl = true;
 
         [SerializeField] float currentSpeed = 0;
         [SerializeField] float currentRotationSpeed = 0;
@@ -32,7 +32,7 @@ namespace multiagent.agent
         [SerializeField] Vector3 _state = default;
         [SerializeField] Vector3 _dstate = default;
         [SerializeField] Vector3 _ddstate = default;
-        [SerializeField] bool _absoluteCoordinate = false;
+        [SerializeField] public bool absoluteCoordinate = false;
 
         [SerializeField] float U_constraint = 0;
         public GameObject arrow;
@@ -53,23 +53,23 @@ namespace multiagent.agent
             if (velocityControl)
             {
                 minLim = new float[] {
-                -_maxSpeed,
-                -_maxRotationSpeed,
+                -maxSpeed,
+                -maxRotationSpeed,
                 };
                 maxLim = new float[] {
-                    _maxSpeed,
-                    _maxRotationSpeed,
+                    maxSpeed,
+                    maxRotationSpeed,
                 };
             }
             else
             {
                 minLim = new float[] {
-                -_maxAcceleration,
-                -_maxRotationAccleration
+                -maxAcceleration,
+                -maxRotationAccleration
                 };
                 maxLim = new float[] {
-                    _maxAcceleration,
-                    _maxRotationAccleration
+                    maxAcceleration,
+                    maxRotationAccleration
                 };
             }
 
@@ -91,22 +91,22 @@ namespace multiagent.agent
 
                 // Linear Velocity Arrow
                 arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -_maxSpeed, _maxSpeed, Color.red);
+                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red);
                 arrowObj.transform.parent = gameObject.transform;
 
                 // Angular Velocity Arrow
                 arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -_maxRotationSpeed, _maxRotationSpeed, Color.red, true);
+                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, true);
                 arrowObj2.transform.parent = gameObject.transform;
 
                 // Linear Acceleration Arrow
                 arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -_maxAcceleration, _maxAcceleration, Color.blue);
+                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue);
                 arrowObj3.transform.parent = gameObject.transform;
 
                 // Angular Velocity Arrow
                 arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -_maxRotationAccleration, _maxRotationAccleration, Color.blue, true);
+                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, true);
                 arrowObj4.transform.parent = gameObject.transform;
 
                 // Goal Arrow
@@ -256,7 +256,7 @@ namespace multiagent.agent
             if (velocityControl) // Velocity Plant Model
             {
                 float speedCoefficent = action[0];
-                float desiredSpeed = _maxSpeed * speedCoefficent;
+                float desiredSpeed = maxSpeed * speedCoefficent;
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
                 float speedDifference = desiredSpeed - currentSpeed;
                 Vector3 velocityDifference = transform.right * speedDifference;
@@ -264,7 +264,7 @@ namespace multiagent.agent
                 _rigidbody.AddForce(velocityDifference, ForceMode.VelocityChange);
 
                 float rotationCoefficent = action[1];
-                float desiredRotation = _maxRotationSpeed * rotationCoefficent;
+                float desiredRotation = maxRotationSpeed * rotationCoefficent;
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
                 float rotationDifference = desiredRotation - currentRotationSpeed;
                 Vector3 angularDifference = transform.up * rotationDifference;
@@ -274,29 +274,29 @@ namespace multiagent.agent
             else // Acceleration Plant Model w/ Constraint
             {
                 float acceleartionCoefficent = action[0];
-                currentAcceleration = _maxAcceleration * acceleartionCoefficent;
+                currentAcceleration = maxAcceleration * acceleartionCoefficent;
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
                 float projectedSpeed = currentSpeed + currentAcceleration * Time.deltaTime;
-                if (MathF.Abs(projectedSpeed) > _maxSpeed)
+                if (MathF.Abs(projectedSpeed) > maxSpeed)
                 {
-                    projectedSpeed = MathF.Sign(projectedSpeed) * _maxSpeed;
+                    projectedSpeed = MathF.Sign(projectedSpeed) * maxSpeed;
                     currentAcceleration = (projectedSpeed - currentSpeed) / Time.deltaTime;
                 }
 
                 float rotationAcceleartionCoefficent = action[1];
-                currentRotationAcceleration = _maxRotationAccleration * rotationAcceleartionCoefficent;
+                currentRotationAcceleration = maxRotationAccleration * rotationAcceleartionCoefficent;
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
                 float projectedRotationSpeed = currentRotationSpeed + currentRotationAcceleration * Time.deltaTime;
-                if (Math.Abs(projectedRotationSpeed) > _maxRotationSpeed)
+                if (Math.Abs(projectedRotationSpeed) > maxRotationSpeed)
                 {
-                    projectedRotationSpeed = MathF.Sign(projectedRotationSpeed) * _maxRotationSpeed;
+                    projectedRotationSpeed = MathF.Sign(projectedRotationSpeed) * maxRotationSpeed;
                     currentRotationAcceleration = (projectedRotationSpeed - currentSpeed) / Time.deltaTime;
                 }
-                (float[] projectedAction, float U2) = checkConstraint(projectedSpeed / _maxSpeed, projectedRotationSpeed / _maxRotationSpeed);
+                (float[] projectedAction, float U2) = checkConstraint(projectedSpeed / maxSpeed, projectedRotationSpeed / maxRotationSpeed);
                 if (U2 > 1f)
                 {
-                    projectedSpeed = projectedAction[0] * _maxSpeed;
-                    projectedRotationSpeed = projectedAction[1] * _maxRotationSpeed;
+                    projectedSpeed = projectedAction[0] * maxSpeed;
+                    projectedRotationSpeed = projectedAction[1] * maxRotationSpeed;
                     currentAcceleration = (projectedSpeed - currentSpeed) / Time.deltaTime;
                     currentRotationAcceleration = (projectedRotationSpeed - currentRotationSpeed) / Time.deltaTime;
                 }
@@ -318,7 +318,7 @@ namespace multiagent.agent
         public override void MoveAgent(ActionSegment<float> action)
         {
             Vector3[] act;
-            if (_absoluteCoordinate)
+            if (absoluteCoordinate)
             {
                 act = new Vector3[] {
                     new Vector3(_state[0], _state[1], 0),
@@ -343,7 +343,7 @@ namespace multiagent.agent
             // Debug.Log("Act: " + act[0] + " " + act[1] );
 
             // Vector2 u;
-            // if (_absoluteCoordinate)
+            // if (absoluteCoordinate)
             // {
             //     u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
             // }
@@ -360,7 +360,7 @@ namespace multiagent.agent
 
         private void updateState()
         {
-            if (_absoluteCoordinate)
+            if (absoluteCoordinate)
             {
                 _state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
                 _dstate = new Vector3(
