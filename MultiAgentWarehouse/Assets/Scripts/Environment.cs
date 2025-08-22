@@ -158,23 +158,28 @@ public class Environment : MonoBehaviour
         // Pickups
         goals.Add("Pickups", new List<goalClass[]>());
         ii = 0;
+        Transform childTransform;
         foreach (Transform child in transform.Find("Pickups"))
         {
             goalClass[] pickup = new goalClass[2];
 
             // Drop Palette (Step 4)
-            Goal paletteDropOff = child.transform.Find("Drop Palette").GetComponent<Goal>();
+            childTransform = child.transform.Find("Drop Palette");
+            Goal paletteDropOff = childTransform.GetComponent<Goal>();
             paletteDropOff.goalID = ii;
             paletteDropOff.goalType = 4;
             paletteDropOff.goalWait = 5f;
             goalClass paletteDropOffClass = new goalClass(paletteDropOff);
+            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
 
             // Get Battery (Step 1)
-            Goal batteryPickUp = child.transform.Find("Get Battery").GetComponent<Goal>();
+            childTransform = child.transform.Find("Get Battery");
+            Goal batteryPickUp = childTransform.GetComponent<Goal>();
             batteryPickUp.goalID = ii;
             batteryPickUp.goalType = 1;
             batteryPickUp.goalWait = 5f;
             goalClass batteryPickUpClass = new goalClass(batteryPickUp);
+            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
 
             pickup[0] = paletteDropOffClass;
             pickup[1] = batteryPickUpClass;
@@ -187,20 +192,25 @@ public class Environment : MonoBehaviour
         ii = 0;
         foreach (Transform child in transform.Find("Dropoffs"))
         {
-            // Pickup Palette (Step 3)
             goalClass[] dropoff = new goalClass[2];
-            Goal palettePickUp = child.transform.Find("Get Palette").GetComponent<Goal>();
+
+            // Pickup Palette (Step 3)
+            childTransform = child.transform.Find("Get Palette");
+            Goal palettePickUp = childTransform.GetComponent<Goal>();
             palettePickUp.goalID = ii;
             palettePickUp.goalType = 3;
             palettePickUp.goalWait = 5f;
             goalClass palettePickUpClass = new goalClass(palettePickUp);
+            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
 
             // Drop Battery (Step 2)
-            Goal batteryDropOff = child.transform.Find("Drop Battery").GetComponent<Goal>();
+            childTransform = child.transform.Find("Drop Battery");
+            Goal batteryDropOff = childTransform.GetComponent<Goal>();
             batteryDropOff.goalID = ii;
             batteryDropOff.goalType = 2;
             batteryDropOff.goalWait = 5f;
             goalClass batteryDropOffClass = new goalClass(batteryDropOff);
+            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
 
             dropoff[0] = palettePickUpClass;
             dropoff[1] = batteryDropOffClass;

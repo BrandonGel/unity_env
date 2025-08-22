@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 8654863428445383684}
   m_Layer: 0
   m_Name: SRS 1P 3.0
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -245,7 +245,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7480742319778785494}
-  - {fileID: 2336992081824339194}
   - {fileID: 6055485250063285512}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -340,7 +339,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &3719997794439734444
 MonoBehaviour:
@@ -409,7 +408,8 @@ MonoBehaviour:
   CumulativeReward: 0
   minLim: []
   maxLim: []
-  maxSpeed: 0.7
+  collisionMaterial: {fileID: 2100000, guid: 4fde156e5346c6bfca64afa32a7d9d9b, type: 2}
+  maxSpeed: 7
   maxRotationSpeed: 2.11
   maxAcceleration: 2.72
   maxRotationAccleration: 8.23
@@ -10251,13 +10251,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3656437271572139848}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.26, z: 0}
-  m_LocalScale: {x: 0.19999999, y: 0.15, z: 0.19999999}
+  m_LocalScale: {x: 0.19999994, y: 0.15, z: 0.19999991}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 556334068263654726}
-  m_Father: {fileID: 2999045015337985028}
+  m_Father: {fileID: 7480742319778785494}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6937252576067577145
 MeshFilter:
@@ -10397,6 +10397,7 @@ Transform:
   - {fileID: 4195748719222567317}
   - {fileID: 4827722901800369263}
   - {fileID: 299414040552915680}
+  - {fileID: 2336992081824339194}
   m_Father: {fileID: 2999045015337985028}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &4302715231364742453

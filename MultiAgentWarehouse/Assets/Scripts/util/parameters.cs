@@ -11,6 +11,12 @@ namespace multiagent.util
     public static class Parameters
     {
         [System.Serializable]
+        public class config
+        {
+            public string filepath = "";
+        }
+
+        [System.Serializable]
         public class parameters
         {
             public int num_of_agents = 1;
@@ -24,27 +30,33 @@ namespace multiagent.util
         }
 
         static parameters param;
+        static config conf;
 
         // Read a config file and update the parameters of the environment
         public static void readConfigFile(string fileName = "config.json")
         {
             string jsonText = "";
             string filepath = fileName;
-            if (!fileName.Contains("/") && !fileName.Contains("\\")) // Convert char to string for Contains()
-            {
-                string assetsPath = Application.streamingAssetsPath;
-                string projectPath = Directory.GetParent(assetsPath).FullName;
-                filepath = Path.Combine(projectPath, "Scripts", fileName);
-            }
-
             if (File.Exists(filepath))
             {
                 jsonText = File.ReadAllText(filepath);
             }
             else
             {
-                Debug.Log("file locanum_of_agentstion: " + filepath);
-                Debug.LogError("File not found and no defaultJson assigned in the inspector");
+                Debug.Log("File: " + filepath);
+                Debug.LogError("Config filepath was not found!!!!");
+            }
+            conf = JsonUtility.FromJson<config>(jsonText);
+
+            filepath = conf.filepath;
+            if (File.Exists(filepath))
+            {
+                jsonText = File.ReadAllText(filepath);
+            }
+            else
+            {
+                Debug.Log("File: " + filepath);
+                Debug.LogError("Parameter filepath in the config file was not found!!!");
             }
             param = JsonUtility.FromJson<parameters>(jsonText);
         }

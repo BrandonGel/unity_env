@@ -3,6 +3,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using multiagent.goal;
+using System.Collections.Generic;
 
 namespace multiagent.agent
 {
@@ -32,6 +33,8 @@ namespace multiagent.agent
         private int _waitCounter = 0;
         private float _collisionEnterReward = -0.05f;
         private float _collisionStayReward = -0.01f;
+        public Material collisionMaterial;
+        private Dictionary<Renderer, Material> originalColors = new Dictionary<Renderer, Material>();
 
 
         public override void Initialize()
@@ -137,9 +140,10 @@ namespace multiagent.agent
             return _waitCounter;
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.CompareTag("Goal") && _goalClass.goalObj == other.GetComponent<Goal>())
+            bool isCenterInside = other.bounds.Contains(transform.position);
+            if (other.gameObject.CompareTag("Goal") && _goalClass.goalObj == other.GetComponent<Goal>() && isCenterInside)
             {
                 GoalReached();
             }
@@ -150,9 +154,13 @@ namespace multiagent.agent
             if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
                 AddReward(_collisionEnterReward);
-                if (_renderer != null)
+                // Get all Renderer components in children (including inactive ones if desired)
+                foreach (KeyValuePair<Renderer, Material> entry in originalColors)
                 {
-                    _renderer.material.color = Color.red;
+                    if (entry.Key != null && entry.Key.material != null)
+                    {
+                        entry.Key.material = collisionMaterial;
+                    }
                 }
             }
         }
@@ -169,9 +177,12 @@ namespace multiagent.agent
         {
             if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
-                if (_renderer != null)
+                foreach (KeyValuePair<Renderer, Material> entry in originalColors)
                 {
-                    _renderer.material.color = _robotColor;
+                    if (entry.Key != null && entry.Key.material != null)
+                    {
+                        entry.Key.material = entry.Value;
+                    }
                 }
             }
         }
@@ -198,6 +209,13 @@ namespace multiagent.agent
         {
             _renderer = GetComponent<Renderer>();
             _goalClass = new goalClass();
+            foreach (Renderer childRenderer in transform.Find("Body").GetComponentsInChildren<Renderer>())
+            {
+                if (childRenderer.material != null && !childRenderer.name.Contains("Particle System"))
+                {
+                    originalColors[childRenderer] = childRenderer.material;
+                }
+            }
         }
 
         public void setID(int id)

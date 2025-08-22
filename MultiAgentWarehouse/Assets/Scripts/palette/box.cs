@@ -58,6 +58,7 @@ public class VirtualBox : MonoBehaviour
     public void resetParameters()
     {
         changeColor(0);
+        enableRenderer(false);
     }
 
     public void changeColor(int colorCase)
