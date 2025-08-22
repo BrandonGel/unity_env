@@ -118,6 +118,7 @@ public class ArrowGenerator : MonoBehaviour
         mesh.triangles = trianglesList.ToArray();
         MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
         meshRenderer.material.SetColor("_Color", color); 
+        meshRenderer.material.SetColor("_BaseColor", color); 
 
         cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         cylinder.transform.parent = gameObject.transform;
