@@ -388,7 +388,12 @@ namespace multiagent.agent
 
         private void FixedUpdate()
         {
-            updateState();   
+            updateState();
+            if (checkWait())
+            {
+                incrementWaitCounter();    
+            }
+            
         }
 
         public override void GoalReached()
@@ -398,6 +403,7 @@ namespace multiagent.agent
                 setGoalReached(true);
                 AddReward(1.0f);
                 CumulativeReward = GetCumulativeReward();
+                startWaitCounter(); 
             }
         }
 

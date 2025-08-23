@@ -12,6 +12,7 @@ public class VirtualBox : MonoBehaviour
     public Material paletteMaterial;
     public Material paletteBoxMaterial;
     private Renderer _renderer;
+    private int _goalType=-1;
 
     void Start()
     {
@@ -31,7 +32,10 @@ public class VirtualBox : MonoBehaviour
 
 
     public void getPalette(int goalType)
-    {
+    {   
+        if(_goalType == goalType)
+            return;
+        _goalType = goalType;
         switch (goalType)
         {
             case 0:

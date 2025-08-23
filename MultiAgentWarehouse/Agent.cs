@@ -26,10 +26,11 @@ namespace multiagent.agent
         private Color _robotColor;
         public float[] minLim, maxLim;
         private bool _goalReached = false;
-        public Goal _goalClass = null;
+        public goalClass _goalClass = new goalClass();
         private int _id = -1;
         
         private bool _wait = false;
+        private int _waitCounter = 0;
         private float _collisionEnterReward = -0.05f;
         private float _collisionStayReward = -0.01f;
         public Material collisionMaterial;
@@ -67,7 +68,7 @@ namespace multiagent.agent
             ;
         }
 
-        public virtual void setGoal(Goal _goalClass = null)
+        public virtual void setGoal(goalClass _goalClass = null)
         {
             
             this._goalClass = _goalClass;
@@ -82,7 +83,7 @@ namespace multiagent.agent
             _goalReached = false;
         }
 
-        public virtual Goal getGoal()
+        public virtual goalClass getGoal()
         {
             return _goalClass;
         }
@@ -106,8 +107,6 @@ namespace multiagent.agent
         public void setGoalReached(bool b)
         {
             _goalReached = b;
-            _wait = true;
-            _goalClass.completed(_id);
         }
 
         public Vector3 getGoalPos()
@@ -115,21 +114,36 @@ namespace multiagent.agent
             return _goal;
         }
 
+        public virtual void startWaitCounter()
+        {
+            _wait = true;
+            _waitCounter = 0;
+        }
+
+        public virtual void incrementWaitCounter(int counter = 1)
+        {
+            _waitCounter += counter;
+            if (_waitCounter*Time.fixedDeltaTime >= _goalClass.goalWait)
+            {
+                _wait = false;
+                _waitCounter = 0;
+            }
+        }
 
         public virtual bool checkWait()
         {
-            if(_wait && _goalClass != null)
-            {
-                _wait = _wait & _goalClass.isBusy();
-                return _wait;
-            }
             return _wait;
+        }
+
+        public virtual int getWaitCounter()
+        {
+            return _waitCounter;
         }
 
         private void OnTriggerStay(Collider other)
         {
             bool isCenterInside = other.bounds.Contains(transform.position);
-            if (other.gameObject.CompareTag("Goal") && _goalClass== other.GetComponent<Goal>() && isCenterInside)
+            if (other.gameObject.CompareTag("Goal") && _goalClass.goalObj == other.GetComponent<Goal>() && isCenterInside)
             {
                 GoalReached();
             }
@@ -194,6 +208,7 @@ namespace multiagent.agent
         public void initExtra()
         {
             _renderer = GetComponent<Renderer>();
+            _goalClass = new goalClass();
             foreach (Renderer childRenderer in transform.Find("Body").GetComponentsInChildren<Renderer>())
             {
                 if (childRenderer.material != null && !childRenderer.name.Contains("Particle System"))

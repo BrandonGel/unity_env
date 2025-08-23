@@ -111,7 +111,8 @@ namespace multiagent.palette
                 }
 
                 // Sync up with the robot wait time
-                currentMovingStep = robotObj.GetComponent<Robot>().getWaitCounter();
+                currentMovingStep = 0;
+                // currentMovingStep = robotObj.GetComponent<Robot>().getWaitCounter();
 
                 // Move onto the next path
                 if (currentMovingStep > pathIdx[currentPathIdx + 1])

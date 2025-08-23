@@ -6,5 +6,33 @@
   "maxAcceleration": 2.72,
   "maxRotationAccleration": 8.23,
   "velocityControl": true,
-  "absoluteCoordinate": false
+  "absoluteCoordinate": false,
+  "seed": 42,
+  "goalParams":
+  {
+    "dropPalette":
+    {
+      "goalWait": [1,2],
+      "goalWaitProbability": [0,0],
+      "goalWaitPenalty": [0,0]
+    },
+    "getbattery":
+    {
+      "goalWait": [1,2],
+      "goalWaitProbability": [0,0],
+      "goalWaitPenalty": [0,0]
+    },
+    "getPalette":
+    {
+      "goalWait": [1,2],
+      "goalWaitProbability": [0,0],
+      "goalWaitPenalty": [0,0]
+    },
+    "dropBattery":
+    {
+      "goalWait": [1,2],
+      "goalWaitProbability": [0,0],
+      "goalWaitPenalty": [0,0]
+    }
+  }
 }

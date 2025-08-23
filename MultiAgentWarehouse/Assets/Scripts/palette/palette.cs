@@ -14,6 +14,7 @@ namespace multiagent.palette
         public GameObject combinedTopBottom, topBox, bottomBox;
 
         public Vector3 bottomBoxOffset, topBoxOffset;
+        private int _goalType = -1;
 
         public palette(GameObject combinedTopBottom)
         {
@@ -48,8 +49,12 @@ namespace multiagent.palette
             bottomBox.GetComponent<movingObject>().assignRobot(robot);
         }
 
-        public void getPalette(Robot robotComponent, goalClass _goalClass, int goalType)
+        public void getPalette(Robot robotComponent, Goal _goalClass, int goalType)
         {
+            if(_goalType == goalType)
+                return;
+            _goalType = goalType;
+
             float goalWait = _goalClass.goalWait;
             Vector3 goalPosition = _goalClass.position;
 

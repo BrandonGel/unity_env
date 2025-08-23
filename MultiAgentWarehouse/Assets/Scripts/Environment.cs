@@ -22,7 +22,8 @@ public class Environment : MonoBehaviour
     public GameObject camera;
     public GameObject robot = null;
     public GameObject[] robots;
-    public Dictionary<string,List<goalClass[]>> goals;
+    public Dictionary<string,List<Goal[]>> goals;
+    private goalClass _goalClass;
     private Vector3[] _robotsPosition;
     private Quaternion[] _robotsQuaternion;
     public GameObject Ground = null;
@@ -150,79 +151,10 @@ public class Environment : MonoBehaviour
         
     }
 
-    public void InitGoals()
-    {
-        int ii = 0;
-        goals = new Dictionary<string, List<goalClass[]>>();
-
-        // Pickups
-        goals.Add("Pickups", new List<goalClass[]>());
-        ii = 0;
-        Transform childTransform;
-        foreach (Transform child in transform.Find("Pickups"))
-        {
-            goalClass[] pickup = new goalClass[2];
-
-            // Drop Palette (Step 4)
-            childTransform = child.transform.Find("Drop Palette");
-            Goal paletteDropOff = childTransform.GetComponent<Goal>();
-            paletteDropOff.goalID = ii;
-            paletteDropOff.goalType = 4;
-            paletteDropOff.goalWait = 5f;
-            goalClass paletteDropOffClass = new goalClass(paletteDropOff);
-            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
-
-            // Get Battery (Step 1)
-            childTransform = child.transform.Find("Get Battery");
-            Goal batteryPickUp = childTransform.GetComponent<Goal>();
-            batteryPickUp.goalID = ii;
-            batteryPickUp.goalType = 1;
-            batteryPickUp.goalWait = 5f;
-            goalClass batteryPickUpClass = new goalClass(batteryPickUp);
-            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
-
-            pickup[0] = paletteDropOffClass;
-            pickup[1] = batteryPickUpClass;
-            goals["Pickups"].Add(pickup);
-            ii += 1;
-        }
-
-        // Dropouts
-        goals.Add("Dropoff", new List<goalClass[]>());
-        ii = 0;
-        foreach (Transform child in transform.Find("Dropoffs"))
-        {
-            goalClass[] dropoff = new goalClass[2];
-
-            // Pickup Palette (Step 3)
-            childTransform = child.transform.Find("Get Palette");
-            Goal palettePickUp = childTransform.GetComponent<Goal>();
-            palettePickUp.goalID = ii;
-            palettePickUp.goalType = 3;
-            palettePickUp.goalWait = 5f;
-            goalClass palettePickUpClass = new goalClass(palettePickUp);
-            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
-
-            // Drop Battery (Step 2)
-            childTransform = child.transform.Find("Drop Battery");
-            Goal batteryDropOff = childTransform.GetComponent<Goal>();
-            batteryDropOff.goalID = ii;
-            batteryDropOff.goalType = 2;
-            batteryDropOff.goalWait = 5f;
-            goalClass batteryDropOffClass = new goalClass(batteryDropOff);
-            Util.enableRenderer(childTransform.GetComponent<Renderer>(), false);
-
-            dropoff[0] = palettePickUpClass;
-            dropoff[1] = batteryDropOffClass;
-            goals["Dropoff"].Add(dropoff);
-            ii += 1;
-        }
-    }
-
     public void AnimatePalette(int i)
     {
         Robot robotComponent = robots[i].GetComponent<Robot>();
-        goalClass _goalClass = robotComponent.getGoal();
+        Goal _goalClass = robotComponent.getGoal();
         int goalType = _goalClass.goalType;
         switch (debugAnimateBoxOption)
         {
@@ -247,42 +179,6 @@ public class Environment : MonoBehaviour
                 break;
         }
         
-    }
-
-    public void AssignGoals(int i)
-    {
-        int numberDropoffs = transform.Find("Dropoffs").childCount;
-        int numberPickUps = transform.Find("Pickups").childCount;
-
-        Robot robotComponent = robots[i].GetComponent<Robot>();
-        goalClass _goalClass = robotComponent.getGoal();
-        int goalID = robots[i].GetComponent<Robot>()._goalClass.goalID;
-        int goalType = _goalClass.goalType;
-        switch (goalType)
-        {
-            case 0:
-                goalID = Random.Range(0, numberPickUps - 1);
-                _goalClass = goals["Pickups"][goalID][1];
-                break;
-            case 1: // Step 1 -> Step 2: Drop Battery & Palette
-                goalID = Random.Range(0, numberDropoffs - 1);
-                _goalClass = goals["Dropoff"][goalID][1];
-                break;
-            case 2: // Step 2 -> Step 3: Get Palette 
-                _goalClass = goals["Dropoff"][goalID][0];
-                break;
-            case 3: // Step 3 -> Step 4: Drop Palette
-                goalID = Random.Range(0, numberPickUps - 1);
-                _goalClass = goals["Pickups"][goalID][0];
-                break;
-            case 4: // Step 4 -> Step 1: Get Battery
-                _goalClass = goals["Pickups"][goalID][1];
-                break;
-            default:
-                break;
-        }
-        robotComponent.setGoal(_goalClass);
-
     }
 
     public (Vector3, Quaternion) FindValidNavMeshSpawnPoint(Vector3 center, float radius)
@@ -449,20 +345,22 @@ public class Environment : MonoBehaviour
         boxes = new GameObject[num_of_agents];
         _robotsPosition = new Vector3[num_of_agents];
         _robotsQuaternion = new Quaternion[num_of_agents];
+        _goalClass = new goalClass();
+        _goalClass.initialize(transform, Parameters.param.goalParams);
         StepCount = 0;
         CurrentEpisode = 1;
         GetGround();
         StartMesh();
         SpawnRobots();
         SpawnBoxes();
-        InitGoals();
+        _goalClass.InitGoals();
         camera.GetComponent<Camera_Follow>().getPlayers(robots);
         CSVexporter = new csv_exporter();
         dataClass = new Data(num_of_agents);
         List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();
         for (int i = 0; i < num_of_agents; i++)
         {
-            AssignGoals(i);
+            _goalClass.AssignGoals(i, robots[i]);
             Robot robotComponent = robots[i].GetComponent<Robot>();
             (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
             entries.Add((currentTime,s, ds));    
@@ -482,13 +380,17 @@ public class Environment : MonoBehaviour
             Robot robotComponent = robots[i].GetComponent<Robot>();
             (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
             entries.Add((currentTime, s, ds));
-            
+
 
             // Goal Assignment Condition
             if (robotComponent.getGoalReached())
             {
                 AnimatePalette(i);
-                AssignGoals(i);
+                if (!robotComponent.checkWait())
+                {
+                    Debug.Log("Complete: " + i);
+                    _goalClass.AssignGoals(i, robots[i]);
+                }
             }
         }
         dataClass.addEntry(entries);
@@ -505,6 +407,7 @@ public class Environment : MonoBehaviour
             getPosition();
             setPosition(default,default,10f);
             SpawnRobots(false);
+            _goalClass.InitGoals();
             if (useCSVExporter)
             {
                 CSVexporter.transferData(dataClass, CurrentEpisode);
@@ -515,7 +418,7 @@ public class Environment : MonoBehaviour
 
                 Robot robotComponent = robots[i].GetComponent<Robot>();
                 robotComponent.initExtra();
-                AssignGoals(i);
+                _goalClass.AssignGoals(i, robots[i]);
                 ResetPalette(i);
                 robotComponent.EndEpisode();
                 (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
