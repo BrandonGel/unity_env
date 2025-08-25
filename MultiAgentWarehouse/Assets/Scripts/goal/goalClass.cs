@@ -12,17 +12,20 @@ namespace multiagent.goal
     {
         public goalParameters goalParams;
         public Transform transform;
-        private int num_of_goals = 1;
-        private float task_frequency = 1;
-        private int num_of_goals_started = 0;
-        private int num_of_goals_completed = 0;
-
-        public Dictionary<string, List<Goal[]>> goals = new Dictionary<string, List<Goal[]>>();
+        private int num_of_goals = 1; // Total number of goals to be completed in the environment
+        private float task_frequency = 1;  // Hz (number of tasks per second per goal)
+        private float intermediate_time = 1; // seconds (time between tasks per goal)
+        private int num_of_goals_started = 0; // Number of goals that have been started
+        private int num_of_goals_completed = 0; // Number of goals that have been completed
+        public Dictionary<string, List<Goal[]>> goals = new Dictionary<string, List<Goal[]>>(); // Dictionary of goals categorized by "Pickups" and "Dropoffs"
 
         public void initialize(Transform transform, goalParameters goalParams)
         {
             this.transform = transform;
             this.goalParams = goalParams;
+            this.num_of_goals = goalParams.num_of_goals;
+            this.task_frequency = goalParams.task_frequency;
+            intermediate_time = 1f / task_frequency;
             InitGoals();
         }
 
