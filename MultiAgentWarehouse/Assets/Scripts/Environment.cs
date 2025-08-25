@@ -44,7 +44,6 @@ public class Environment : MonoBehaviour
     public float tol = 0.5f;
     public int CurrentEpisode = 1;
     public int StepCount = 0; 
-    public Data dataClass;
     public csv_exporter CSVexporter;
     [SerializeField] public bool useCSVExporter = false;
     public void SpawnRobots(bool init = true)
@@ -332,8 +331,6 @@ public class Environment : MonoBehaviour
         }
     }
 
-    
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -356,17 +353,14 @@ public class Environment : MonoBehaviour
         _goalClass.InitGoals();
         camera.GetComponent<Camera_Follow>().getPlayers(robots);
         CSVexporter = new csv_exporter();
-        dataClass = new Data(num_of_agents);
         List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();
         for (int i = 0; i < num_of_agents; i++)
         {
-            _goalClass.AssignGoals(i, robots[i]);
+            _goalClass.AssignGoals(i, robots[i], true);
             Robot robotComponent = robots[i].GetComponent<Robot>();
             (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
             entries.Add((currentTime,s, ds));    
-        }
-        dataClass.addEntry(entries);    
-        
+        }    
     }
 
     // Check terminal conditions
@@ -388,12 +382,10 @@ public class Environment : MonoBehaviour
                 AnimatePalette(i);
                 if (!robotComponent.checkWait())
                 {
-                    Debug.Log("Complete: " + i);
                     _goalClass.AssignGoals(i, robots[i]);
                 }
             }
         }
-        dataClass.addEntry(entries);
 
         // Termination Condition
         bool allRobotTerminalCond = false;
@@ -408,17 +400,17 @@ public class Environment : MonoBehaviour
             setPosition(default,default,10f);
             SpawnRobots(false);
             _goalClass.InitGoals();
-            if (useCSVExporter)
-            {
-                CSVexporter.transferData(dataClass, CurrentEpisode);
-            }
-            dataClass.clear();
             for (int i = 0; i < num_of_agents; i++)
             {
 
                 Robot robotComponent = robots[i].GetComponent<Robot>();
+                if (useCSVExporter)
+                {
+                    CSVexporter.transferData(robotComponent.aData, CurrentEpisode);
+                }
+
                 robotComponent.initExtra();
-                _goalClass.AssignGoals(i, robots[i]);
+                _goalClass.AssignGoals(i, robots[i],true);
                 ResetPalette(i);
                 robotComponent.EndEpisode();
                 (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
@@ -430,6 +422,5 @@ public class Environment : MonoBehaviour
         }
 
     }
-
 
 }

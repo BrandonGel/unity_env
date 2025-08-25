@@ -56,6 +56,7 @@
     <Compile Include="Assets/Scripts/controller/Controller.cs" />
     <Compile Include="Assets/Scripts/lidar/Scanner.cs" />
     <Compile Include="Assets/Scripts/lidar/PointCloud.cs" />
+    <Compile Include="Assets/Scripts/agent/Data.cs" />
     <Compile Include="Assets/Scripts/agent/Robot.cs" />
     <Compile Include="Assets/Scripts/ArrowGenerator.cs" />
     <Compile Include="Assets/Scripts/goal/goal.cs" />
@@ -86,6 +87,7 @@
     <None Include="Assets/Scripts/controller/control.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro_Mobile.cginc" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF SSD.shader" />
+    <None Include="Assets/link.xml" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/SDFFunctions.hlsl" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />

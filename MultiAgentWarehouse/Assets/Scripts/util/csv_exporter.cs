@@ -1,35 +1,30 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using multiagent.agent;
+using System.Linq;
+
 namespace multiagent.util
 {
     public class csv_exporter 
     {
         public List<string[]> dataToExport = new List<string[]>(); // Example data structure
 
-        public void transferData(Data dataclass,int CurrentEpisode = 1)
+        public void transferData(agentData dataclass, int CurrentEpisode = 1)
         {
-            for (int ii = 0; ii < dataclass.size; ii++)
+            // Initalize the data export
+            dataToExport = new List<string[]>();
+            dataToExport.Add(new string[] { "time", "x", "y", "theta, vx, vy, omega" });
+
+            // Iterate through the time step of the agent data
+            for (int tt = 0; tt < dataclass.size; tt++)
             {
-                dataToExport = new List<string[]>();
-                Data.subData dataSubClass = dataclass.readEntry(ii);
-                dataToExport.Add(new string[] { "time","x", "y", "theta, vx, vy, omega" });
-                for (int tt = 0; tt < dataSubClass.size; tt++)
-                {
-                    (float t, Vector3 s, Vector3 ds) = dataSubClass.getEntry(tt);
-                    dataToExport.Add(new string[]{
-                    t.ToString(),
-                    s.x.ToString(),
-                    s.y.ToString(),
-                    s.z.ToString(),
-                    ds.x.ToString(),
-                    ds.y.ToString(),
-                    ds.z.ToString(),
-                    });
-                }
-                ExportToCSV($"robot{ii}_episode{CurrentEpisode}");
-                
+                subAgentData dataSubClass = dataclass.readEntry(tt);
+                List<float> entry = dataSubClass.get();
+                string[] stringEntry = entry.Select(f => f.ToString()).ToArray();
+                dataToExport.Add(stringEntry);
             }
+            ExportToCSV($"robot{dataclass.id}_episode{CurrentEpisode}");
             
         }
 

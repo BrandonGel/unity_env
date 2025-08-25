@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using multiagent.agent;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class PathTracker : MonoBehaviour
 {
     [SerializeField] private Transform trackerTransform;
     [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private Robot _robot = null;
 
     public int maxPathPositionListCount = 20;
     LineRenderer _lineRenderer;
@@ -26,12 +28,24 @@ public class PathTracker : MonoBehaviour
         _lineRenderer.transform.parent = transform.parent.parent.Find("Paths"); //Go from Robot to Robots to Environment to then Paths
         _lineRenderer.transform.position = Vector3.zero;
         _lineRenderer.transform.rotation = Quaternion.identity;
+        Reset();
+    }
+
+    public void Reset()
+    {
+        pathPositionList.Clear();
         pathPositionList.Add(trackerTransform.position);
         RefreshVisual();
+        trackTimer = 0;
     }
 
     void Update()
     {
+        if (_robot != null && _robot.StepCount == 0)
+        {
+            Reset();
+        }
+
         trackTimer -= Time.deltaTime;
         if (trackTimer <= 0f)
         {

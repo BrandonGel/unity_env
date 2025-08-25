@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.IO.Enumeration;
 using System.IO;
-using SimpleJSON;
-using multiagent;
 using multiagent.agent;
+using NUnit.Framework;
 namespace multiagent.util
 {
     public static class Parameters
@@ -23,7 +19,7 @@ namespace multiagent.util
             public float[] goalWaitProbability = new float[2] { 1f, 1f };
             public float[] goalWaitPenalty = new float[2] { 1f, 1f };
 
-            System.Random random;
+            System.Random random = new System.Random();
 
             public float sampleGoalWait()
             {
@@ -51,6 +47,8 @@ namespace multiagent.util
         [System.Serializable]
         public class goalParameters
         {
+            public int num_of_goals = 1;
+            public float task_frequency = 1;
             public goalParameter dropPalette = new goalParameter();
             public goalParameter getbattery = new goalParameter();
             public goalParameter getPalette = new goalParameter();
@@ -69,6 +67,8 @@ namespace multiagent.util
             public bool velocityControl = true;
             public bool absoluteCoordinate = false;
             public int seed = 42;
+            public int maxTimeSteps = 5001;
+            public int decisionPeriod = 5;
             public Parameters.goalParameters goalParams;
 
         }
@@ -115,7 +115,9 @@ namespace multiagent.util
             _env.robot.GetComponent<Robot>().maxAcceleration = param.maxAcceleration;
             _env.robot.GetComponent<Robot>().maxRotationAccleration = param.maxRotationAccleration;
             _env.robot.GetComponent<Robot>().velocityControl = param.velocityControl;
-            _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;            
+            _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
+            _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
+            _env.robot.GetComponent<Robot>().setDecisionRequestParams(param.maxTimeSteps, param.decisionPeriod);
         }
     }
     

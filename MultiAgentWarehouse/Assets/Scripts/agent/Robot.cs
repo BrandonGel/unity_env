@@ -22,6 +22,7 @@ namespace multiagent.agent
         private string _controllerTypeStr;
         private Rigidbody _rigidbody;
         private bool isControllerInit = false;
+        [SerializeField] public Vector2 actionInput;
         [SerializeField] public bool velocityControl = true;
 
         [SerializeField] float currentSpeed = 0;
@@ -34,6 +35,7 @@ namespace multiagent.agent
         [SerializeField] Vector3 _ddstate = default;
         [SerializeField] public bool absoluteCoordinate = false;
 
+        public agentData aData;
         [SerializeField] float U_constraint = 0;
         public GameObject arrow;
         public bool debugArrow = false;
@@ -41,6 +43,8 @@ namespace multiagent.agent
         GameObject arrowObj, arrowObj2, arrowObj3, arrowObj4, arrowObj5;
         private Vector3 newSpawnPosition, accelerationVector, rotationAccelerationVector;
         private Quaternion newSpawnOrientation;
+        RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
+
 
         public override void Initialize()
         {
@@ -48,7 +52,7 @@ namespace multiagent.agent
             _controllerTypeStr = Enum.GetName(_controllerType.GetType(), _controllerType);
             _rigidbody = GetComponent<Rigidbody>();
             initExtra();
-            
+
             // Initialize the constraints
             if (velocityControl)
             {
@@ -78,6 +82,8 @@ namespace multiagent.agent
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
             setGoal();
+            aData = new agentData(getID());
+            m_rayPerceptionSensorComponent3D= transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
         }
 
         private void generateArrow()
@@ -149,6 +155,8 @@ namespace multiagent.agent
             updateState();
             GetGround();
             _ddstate = Vector3.zero;
+            aData.clear();
+            addInfo();
         }
 
 
@@ -168,7 +176,28 @@ namespace multiagent.agent
             sensor.AddObservation(robotPosZ_normalized);
             sensor.AddObservation(sinAngle);
             sensor.AddObservation(cosAngle);
-            // Debug.Log(robotPosX_normalized + " " + robotPosZ_normalized + " " + angleRotation);
+
+            // var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
+            // int lengthOfRayOutputs = rayOutputs.Length;
+            // for (int i = 0; i < lengthOfRayOutputs; i++)
+            // {
+            //     GameObject goHit = rayOutputs[i].HitGameObject;
+            //     if (goHit != null)
+            //     {
+            //         var rayDirection = rayOutputs[i].EndPositionWorld - rayOutputs[i].StartPositionWorld;
+            //         var scaledRayLength = rayDirection.magnitude;
+            //         float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
+
+            //         // Print info:
+            //         string dispStr = "";
+            //         dispStr = dispStr + "__RayPerceptionSensor - HitInfo__:\r\n";
+            //         dispStr = dispStr + "GameObject name: " + goHit.name + "\r\n";
+            //         dispStr = dispStr + "Hit distance of Ray: " + rayHitDistance + "\r\n";
+            //         dispStr = dispStr + "GameObject tag: " + goHit.tag + "\r\n";
+            //         Debug.Log(dispStr);
+            //     }
+            // }
+
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
@@ -317,6 +346,7 @@ namespace multiagent.agent
 
         public override void MoveAgent(ActionSegment<float> action)
         {
+            actionInput =new Vector2(action[0],action[1]) ;
             Vector3[] act;
             if (absoluteCoordinate)
             {
@@ -388,7 +418,30 @@ namespace multiagent.agent
 
         private void FixedUpdate()
         {
-            updateState();   
+            updateState();
+            addInfo(); 
+        }
+
+        public void addInfo()
+        {
+            subAgentData sData = new subAgentData();
+            sData.add(StepCount * Time.deltaTime);
+            sData.add(_state);
+            sData.add(_dstate);
+            sData.add(actionInput);
+            sData.add(getGoalPos());
+            if (_goalClass != null)
+            {
+                sData.add(_goalClass.goalType);
+                sData.add(_goalClass.goalID);
+            }
+            else
+            {
+                sData.add(0);
+                sData.add(-1);
+            }
+            
+            aData.addEntry(sData);
         }
 
         public override void GoalReached()

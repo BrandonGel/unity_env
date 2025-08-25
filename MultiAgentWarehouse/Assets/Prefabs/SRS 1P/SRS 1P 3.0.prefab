@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 3828897173944926755}
   - component: {fileID: -3195125127519133270}
   - component: {fileID: 8654863428445383684}
+  - component: {fileID: 5176213049490561077}
   m_Layer: 0
   m_Name: SRS 1P 3.0
   m_TagString: Player
@@ -400,7 +401,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 5001
+  MaxStep: 501
   _goal: {x: 0, y: 0, z: 0}
   boxSize: {x: 0, y: 0, z: 0}
   spawningOffset: {x: 0, y: 0, z: 0}
@@ -408,6 +409,7 @@ MonoBehaviour:
   CumulativeReward: 0
   minLim: []
   maxLim: []
+  _goalClass: {fileID: 0}
   collisionMaterial: {fileID: 2100000, guid: 4fde156e5346c6bfca64afa32a7d9d9b, type: 2}
   maxSpeed: 7
   maxRotationSpeed: 2.11
@@ -415,6 +417,7 @@ MonoBehaviour:
   maxRotationAccleration: 8.23
   _controllerName: 2
   _controllerType: 1
+  actionInput: {x: 0, y: 0}
   velocityControl: 1
   currentSpeed: 0
   currentRotationSpeed: 0
@@ -457,7 +460,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trackerTransform: {fileID: 2999045015337985028}
   lineRenderer: {fileID: 3351676238696043559, guid: 06404605b8e5cf418b7c5d1f1a9454f9, type: 3}
+  _robot: {fileID: 3828897173944926755}
   maxPathPositionListCount: 20
+--- !u!114 &5176213049490561077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610991913526610428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8012d5925524537b27131fef517017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: BufferSensor
+  m_ObservableSize: 0
+  m_MaxNumObservables: 0
 --- !u!1 &696009349590233120
 GameObject:
   m_ObjectHideFlags: 0
@@ -10347,7 +10366,7 @@ MonoBehaviour:
   m_DetectableTags:
   - Wall
   - Player
-  m_RaysPerDirection: 18
+  m_RaysPerDirection: 0
   m_MaxRayDegrees: 180
   m_SphereCastRadius: 0.5
   m_RayLength: 25

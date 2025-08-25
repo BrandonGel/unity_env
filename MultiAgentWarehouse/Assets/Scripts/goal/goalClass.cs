@@ -11,6 +11,9 @@ namespace multiagent.goal
     {
         public goalParameters goalParams;
         public Transform transform;
+        private int num_of_goals = 1;
+        private float task_frequency = 1;
+        private int num_of_goals_started = 0;
 
         public Dictionary<string, List<Goal[]>> goals = new Dictionary<string, List<Goal[]>>();
 
@@ -24,6 +27,7 @@ namespace multiagent.goal
 
         public void InitGoals()
         {
+            num_of_goals_started = 0;
             int ii = 0;
             goals = new Dictionary<string, List<Goal[]>>();
 
@@ -59,9 +63,6 @@ namespace multiagent.goal
                 pickup[1] = batteryPickUp;
                 goals["Pickups"].Add(pickup);
                 ii += 1;
-                Debug.Log(ii + "1: " + paletteDropOff.goalWait + " " + batteryPickUp.goalWait);
-                Debug.Log(ii + "2: " + paletteDropOff.goalWaitProbability + " " + batteryPickUp.goalWaitProbability);
-                Debug.Log(ii + "3: " + paletteDropOff.goalDelayPenalty + " " + batteryPickUp.goalDelayPenalty);
             }
 
             // Dropouts
@@ -95,9 +96,6 @@ namespace multiagent.goal
                 dropoff[1] = batteryDropOff;
                 goals["Dropoff"].Add(dropoff);
                 ii += 1;
-                Debug.Log(ii + "4: " + palettePickUp.goalWait + " " + batteryDropOff.goalWait);
-                Debug.Log(ii + "5: " + palettePickUp.goalWaitProbability + " " + batteryDropOff.goalWaitProbability);
-                Debug.Log(ii + "6: " + palettePickUp.goalDelayPenalty + " " + batteryDropOff.goalDelayPenalty);
             }
         }
 
@@ -111,16 +109,22 @@ namespace multiagent.goal
         
             int goalID = -1;
             int goalType = 0;
-            if (robot.GetComponent<Robot>()._goalClass != null)
+            if (robot.GetComponent<Robot>()._goalClass != null && !reset)
             {
                 goalID = robot.GetComponent<Robot>()._goalClass.goalID;
                 goalType = _goal.goalType;
+            }
+            if (num_of_goals_started >= num_of_goals && (goalType == 0 | goalType == 4))
+            {
+                robotComponent.setGoal(null);
+                return;
             }
             switch (goalType)
             {
                 case 0:
                     goalID = Random.Range(0, numberPickUps);
                     _goal = goals["Pickups"][goalID][1];
+                    num_of_goals_started+=1;
                     break;
                 case 1: // Step 1 -> Step 2: Drop Battery & Palette
                     goalID = Random.Range(0, numberDropoffs);
@@ -135,6 +139,7 @@ namespace multiagent.goal
                     break;
                 case 4: // Step 4 -> Step 1: Get Battery
                     _goal = goals["Pickups"][goalID][1];
+                    num_of_goals_started+=1;
                     break;
                 default:
                     break;

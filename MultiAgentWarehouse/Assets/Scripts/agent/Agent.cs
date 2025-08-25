@@ -18,12 +18,9 @@ namespace multiagent.agent
     public class AgentTemplate : Agent
     {
         [SerializeField] private Vector3 _goal;
-        private Renderer _renderer;
-
         public Vector3 boxSize, spawningOffset;
         [HideInInspector] public int CurrentEpisode = 0;
         [HideInInspector] public float CumulativeReward = 0f;
-        private Color _robotColor;
         public float[] minLim, maxLim;
         private bool _goalReached = false;
         public Goal _goalClass = null;
@@ -35,6 +32,11 @@ namespace multiagent.agent
         public Material collisionMaterial;
         private Dictionary<Renderer, Material> originalColors = new Dictionary<Renderer, Material>();
 
+        public void setDecisionRequestParams(int maxTimeSteps, int decisionPeriod)
+        {
+            MaxStep = maxTimeSteps;
+            GetComponent<DecisionRequester>().DecisionPeriod = decisionPeriod;
+        }
 
         public override void Initialize()
         {
@@ -193,7 +195,6 @@ namespace multiagent.agent
 
         public void initExtra()
         {
-            _renderer = GetComponent<Renderer>();
             foreach (Renderer childRenderer in transform.Find("Body").GetComponentsInChildren<Renderer>())
             {
                 if (childRenderer.material != null && !childRenderer.name.Contains("Particle System"))

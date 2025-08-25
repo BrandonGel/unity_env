@@ -23,7 +23,6 @@ namespace multiagent.goal
         public float goalWaitProbability = 1f;
         public int goalID = -1;
         public int goalType = 0;
-        public int seed = 42;
         System.Random random;
 
         void Start()
