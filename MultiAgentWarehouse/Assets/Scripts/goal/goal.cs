@@ -34,6 +34,28 @@ namespace multiagent.goal
         {
             return _counter;
         }
+        public int getLastRobotID()
+        {
+            return _lastRobotID;
+        }
+        public void exchange(int oldRobotID, int newRobotID)
+        {
+            UnityEngine.Assertions.Assert.IsTrue(oldRobotID >= 0);
+            UnityEngine.Assertions.Assert.IsTrue(newRobotID >= 0);
+            anyAssigned.Remove(oldRobotID);
+            anyAssigned[newRobotID] = true;
+        }
+
+        public void removed(int robotID)
+        {
+            UnityEngine.Assertions.Assert.IsTrue(robotID >= 0);
+            anyAssigned.Remove(robotID);
+            // Turn off the renderer when there is no robot assigned to this goal location
+            if (anyAssigned.Count == 0)
+            {
+                Util.enableRenderer(GetComponent<Renderer>(), false);
+            }
+        }   
 
         public void assigned(int robotID)
         {

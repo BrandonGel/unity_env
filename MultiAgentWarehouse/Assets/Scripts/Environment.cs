@@ -389,15 +389,18 @@ public class Environment : MonoBehaviour
 
         // Termination Condition
         bool allRobotTerminalCond = false;
+        allRobotTerminalCond |= _goalClass.allGoalsCompleted();
         for (int i = 0; i < num_of_agents; i++)
         {
             Robot robotComponent = robots[i].GetComponent<Robot>();
             allRobotTerminalCond |= robotComponent.checkTerminalCondition();
         }
+        
+
         if (allRobotTerminalCond)
         {
             getPosition();
-            setPosition(default,default,10f);
+            setPosition(default, default, 10f);
             SpawnRobots(false);
             _goalClass.InitGoals();
             for (int i = 0; i < num_of_agents; i++)
@@ -410,7 +413,7 @@ public class Environment : MonoBehaviour
                 }
 
                 robotComponent.initExtra();
-                _goalClass.AssignGoals(i, robots[i],true);
+                _goalClass.AssignGoals(i, robots[i], true);
                 ResetPalette(i);
                 robotComponent.EndEpisode();
                 (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
