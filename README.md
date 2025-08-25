@@ -8,3 +8,12 @@
   - A way to fix it is to click on the import asset, look for the option "normal", click on it, and then change "import" to "calculate"
   - Click on "Apply" at the end.
 - Congrats, you imported your CAD model into Unity.
+
+
+## Note for future Unity Programmer
+- Adding "Assert.IsTrue(false);" will cause the build to fail, so DO NOT ADD IT TO THE SCRIPT
+- The error will be
+```
+Build completed with a result of 'Failed' in 8 seconds (8360 ms)
+Building Library/Bee/artifacts/LinuxPlayerBuildProgram/ManagedStripped failed with output:
+```
