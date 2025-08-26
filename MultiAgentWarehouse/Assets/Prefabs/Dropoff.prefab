@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7911662071499451825}
   - component: {fileID: 1222680281928655338}
   - component: {fileID: 6370174465852425835}
+  - component: {fileID: 528480314561642373}
   m_Layer: 0
   m_Name: Drop Battery
   m_TagString: Goal
@@ -122,16 +123,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0, z: 0}
-  position2D: {x: 0, y: 0}
-  inUsed: 0
-  robotID: -1
-  startTimeStep: 0
-  counter: 0
-  totalTimesteps: 1
   goalWait: 1000
+  goalDelayWait: 0
+  goalDelayPenalty: 0
   goalWaitProbability: 1
   goalID: -1
   goalType: 0
+--- !u!208 &528480314561642373
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 457977612477472930}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1252247841507572303
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,6 +411,7 @@ GameObject:
   - component: {fileID: 2929665775416427446}
   - component: {fileID: 4857231906227085040}
   - component: {fileID: 104606721599517953}
+  - component: {fileID: 3621365675379518368}
   m_Layer: 0
   m_Name: Get Palette
   m_TagString: Goal
@@ -507,16 +521,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0, z: 0}
-  position2D: {x: 0, y: 0}
-  inUsed: 0
-  robotID: -1
-  startTimeStep: 0
-  counter: 0
-  totalTimesteps: 1
   goalWait: 1000
+  goalDelayWait: 0
+  goalDelayPenalty: 0
   goalWaitProbability: 1
   goalID: -1
   goalType: 0
+--- !u!208 &3621365675379518368
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3870388338049013965}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &6359470431192082469
 GameObject:
   m_ObjectHideFlags: 0

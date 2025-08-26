@@ -165,6 +165,11 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+<<<<<<< HEAD
+=======
+  - {fileID: 0}
+  - {fileID: 0}
+>>>>>>> ab284e53 (Add obstacle mesh to the dropoff and pickup location so AMR don't spawn there)
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
