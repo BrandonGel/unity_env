@@ -29,6 +29,11 @@ namespace multiagent.camera
         {
             if (players != null)
             {
+                 if (GetComponent<Camera>().enabled && Input.GetKeyDown(KeyCode.Tab)) {
+                    playerIndex +=1;
+                    playerIndex %= players.Length;
+                }
+
                 playerIndex = Mathf.Clamp(playerIndex,0,Mathf.Max(0,players.Length-1));
                 GameObject player = players[playerIndex];
                 Quaternion rotation = Quaternion.Euler(-pitchAngle, yawAngle, 0);

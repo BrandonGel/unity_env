@@ -14,9 +14,11 @@ public class ArrowGenerator : MonoBehaviour
     public float minLim = -1;
     public float maxLim = 1;
     public string dir = "r";
+    public float yOffset = 0;
     public bool noShowZero = false;
     Vector3 directionalVector,normalVector,stemOrigin,tipOrigin;
     [Range(2, 360)] public int numberAxialPoints = 36;
+    
 
     [System.NonSerialized]
     public List<Vector3> verticesList;
@@ -59,7 +61,7 @@ public class ArrowGenerator : MonoBehaviour
         trianglesList = new List<int>();
 
         //stem setup
-        stemOrigin = new Vector3(0, 1f, 0);
+        stemOrigin = new Vector3(0, yOffset+1f, 0);
 
         // directional vector
         (directionalVector, normalVector) = getDirection(dir);
@@ -130,13 +132,14 @@ public class ArrowGenerator : MonoBehaviour
         cylinder.GetComponent<Renderer>().material.color = color;
     }
 
-    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, bool noShowZero = false)
+    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, float yOffset = 0, bool noShowZero = false)
     {
         this.dir = dir;
         this.minLim = minLim;
         this.maxLim = maxLim;
-        this.noShowZero = noShowZero;
         this.color = color;
+        this.yOffset= yOffset;
+        this.noShowZero = noShowZero;
     }
     public void scaleArrow(float dummyValue, Vector3 direction = default)
     {

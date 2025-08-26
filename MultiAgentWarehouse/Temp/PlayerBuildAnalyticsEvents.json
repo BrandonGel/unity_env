@@ -3,21 +3,21 @@
     {
       "type": "playerBuildTimingData",
       "msg": {
-        "build_event_id": "4062436bb238626629576cdc99b9fe1b",
-        "build_player": 18243,
-        "preprocess_player": 54,
-        "produce_player_script_assemblies": 3605,
-        "build_scripts_dlls": 16,
-        "writing_asset_files": 892,
-        "postprocess_built_player": 11228,
+        "build_event_id": "90b93ec8dc6ea821e8ebff8342e735b9",
+        "build_player": 11933,
+        "preprocess_player": 118,
+        "produce_player_script_assemblies": 3379,
+        "build_scripts_dlls": 7,
+        "writing_asset_files": 615,
+        "postprocess_built_player": 6260,
         "node_summary_table": [
           {
             "name": "Csc",
-            "duration": 198
+            "duration": 87
           },
           {
             "name": "UnityLinker.exe",
-            "duration": 7102
+            "duration": 3879
           }
         ]
       },
@@ -26,13 +26,13 @@
     {
       "type": "unityLinkerData",
       "msg": {
-        "build_event_id": "4062436bb238626629576cdc99b9fe1b",
+        "build_event_id": "90b93ec8dc6ea821e8ebff8342e735b9",
         "node_executed": true,
         "attribute_marked_count_always_link_assembly": 1,
         "attribute_swept_count_always_link_assembly": 0,
         "attribute_total_count_always_link_assembly": 1,
-        "attribute_marked_count_preserve": 47,
-        "attribute_total_count_preserve": 44,
+        "attribute_marked_count_preserve": 51,
+        "attribute_total_count_preserve": 48,
         "attribute_total_count_preserve_body": 0,
         "attribute_marked_count_required_member": 250,
         "attribute_swept_count_required_member": 25,
@@ -49,23 +49,23 @@
         "attribute_total_count_dynamic_dependency": 0,
         "attribute_marked_count_dynamic_dependency": 141,
         "attribute_swept_count_dynamic_dependency": -141,
-        "assembly_counts_total_in": 115,
+        "assembly_counts_total_in": 119,
         "assembly_counts_link": 49,
-        "assembly_counts_copy": 20,
+        "assembly_counts_copy": 24,
         "assembly_counts_delete": 46,
-        "assembly_counts_total_out": 69,
+        "assembly_counts_total_out": 73,
         "unresolved_stubbing_total_count": 0,
         "unresolved_stubbing_missing_interface_method_count": 0,
         "unresolved_stubbing_missing_abstract_class_method_count": 0,
         "unresolved_stubbing_missing_type_count": 0,
         "unresolved_stubbing_missing_method_count": 0,
-        "unrecognized_reflection_access_total_count": 944,
-        "unrecognized_reflection_access_core_count": 788,
-        "unrecognized_reflection_access_unity_count": 141,
+        "unrecognized_reflection_access_total_count": 985,
+        "unrecognized_reflection_access_core_count": 789,
+        "unrecognized_reflection_access_unity_count": 181,
         "unrecognized_reflection_access_user_count": 15,
-        "recognized_reflection_access_total_count": 216,
+        "recognized_reflection_access_total_count": 225,
         "recognized_reflection_access_core_count": 195,
-        "recognized_reflection_access_unity_count": 17,
+        "recognized_reflection_access_unity_count": 26,
         "recognized_reflection_access_user_count": 4,
         "link_xml_total_count": 13,
         "link_xml_embedded_count": 1,

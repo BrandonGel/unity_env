@@ -4,6 +4,7 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using multiagent.goal;
 using System.Collections.Generic;
+using System;
 
 namespace multiagent.agent
 {
@@ -27,8 +28,10 @@ namespace multiagent.agent
         private int _id = -1;
         
         private bool _wait = false;
-        private float _collisionEnterReward = -0.05f;
-        private float _collisionStayReward = -0.01f;
+        [SerializeField] private float _collisionEnterReward = -1f;
+        [SerializeField] private float _collisionStayReward = -0.05f;
+        [SerializeField] private float _timeReward = -2f;
+        [SerializeField]private float _goalReward = 1f;
         public Material collisionMaterial;
         private Dictionary<Renderer, Material> originalColors = new Dictionary<Renderer, Material>();
 
@@ -69,6 +72,16 @@ namespace multiagent.agent
             ;
         }
 
+        public void addTimeReward()
+        {
+            AddReward(_timeReward / MaxStep);
+        }
+
+        public void addGoalReward()
+        {
+            AddReward(_goalReward);
+        }
+
         public virtual void setGoal(Goal _goalClass = null)
         {
             
@@ -94,7 +107,7 @@ namespace multiagent.agent
             if (_goalReached == false)
             {
                 _goalReached = true;
-                AddReward(1.0f);
+                AddReward(_goalReward);
                 CumulativeReward = GetCumulativeReward();
 
             }
@@ -143,13 +156,7 @@ namespace multiagent.agent
             {
                 AddReward(_collisionEnterReward);
                 // Get all Renderer components in children (including inactive ones if desired)
-                foreach (KeyValuePair<Renderer, Material> entry in originalColors)
-                {
-                    if (entry.Key != null && entry.Key.material != null)
-                    {
-                        entry.Key.material = collisionMaterial;
-                    }
-                }
+                changeMaterialColor("c");
             }
         }
 
@@ -165,14 +172,27 @@ namespace multiagent.agent
         {
             if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
             {
-                foreach (KeyValuePair<Renderer, Material> entry in originalColors)
+                changeMaterialColor();
+            }
+        }
+
+        public void changeMaterialColor(String c = default)
+        {
+            foreach (KeyValuePair<Renderer, Material> entry in originalColors)
                 {
                     if (entry.Key != null && entry.Key.material != null)
                     {
-                        entry.Key.material = entry.Value;
+                        if(c == default)
+                        {
+                            entry.Key.material = entry.Value;
+                        }
+                        else if (c == "c")
+                        {
+                            entry.Key.material = collisionMaterial;
+                        }
+                        
                     }
                 }
-            }
         }
 
         public virtual bool checkTerminalCondition()
@@ -213,6 +233,15 @@ namespace multiagent.agent
         {
             return _id;
         }
+
+        public void modifyReward(float collisionEnterReward =-1f, float collisionStayReward=-0.05f, float timeReward = -2f, float goalReward =1f)
+        {
+            _collisionEnterReward = collisionEnterReward;
+            _collisionStayReward = collisionStayReward;
+            _timeReward = timeReward;
+            _goalReward = goalReward;
+        }
+
     }
 
 }

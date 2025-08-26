@@ -44,6 +44,7 @@ public class Environment : MonoBehaviour
     public float tol = 0.5f;
     public int CurrentEpisode = 1;
     public int StepCount = 0; 
+    public float CumulativeMeanReward = 0; 
     public csv_exporter CSVexporter;
     [SerializeField] public bool useCSVExporter = false;
     public void SpawnRobots(bool init = true)
@@ -98,7 +99,7 @@ public class Environment : MonoBehaviour
                 {
                     Vector3 position = new Vector3(
                        boxPrefab.transform.position.x,
-                       boxPrefab.transform.position.y + 0.25f,
+                       boxPrefab.transform.position.y,
                        boxPrefab.transform.position.z
                    );
                     GameObject box = Instantiate(boxPrefab, position, Quaternion.identity);
@@ -120,7 +121,7 @@ public class Environment : MonoBehaviour
 
                     Vector3 firstWaypointbottom = new Vector3(
                         bottomBoxCenter.x,
-                        bottomBoxCenter.y + 0.25f,
+                        bottomBoxCenter.y,
                         bottomBoxCenter.z
                     );
 
@@ -331,6 +332,11 @@ public class Environment : MonoBehaviour
         }
     }
 
+    public float getReward(int ii)
+    {
+        return robots[ii].GetComponent<Robot>().GetCumulativeReward();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -345,6 +351,7 @@ public class Environment : MonoBehaviour
         _goalClass = new goalClass();
         _goalClass.initialize(transform, Parameters.param.goalParams);
         StepCount = 0;
+        CumulativeMeanReward = 0;
         CurrentEpisode = 1;
         GetGround();
         StartMesh();
@@ -353,13 +360,11 @@ public class Environment : MonoBehaviour
         _goalClass.InitGoals();
         camera.GetComponent<Camera_Follow>().getPlayers(robots);
         CSVexporter = new csv_exporter();
-        List<(float,Vector3, Vector3)> entries = new List<(float, Vector3, Vector3)>();
         for (int i = 0; i < num_of_agents; i++)
         {
             _goalClass.AssignGoals(i, robots[i], true);
             Robot robotComponent = robots[i].GetComponent<Robot>();
             (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-            entries.Add((currentTime,s, ds));    
         }    
     }
 
@@ -367,14 +372,11 @@ public class Environment : MonoBehaviour
     void FixedUpdate()
     {
         StepCount += 1;
-
-        List<(float, Vector3,Vector3)> entries = new List<(float, Vector3,Vector3)>();
+        float CumulativeReward = 0;
         for (int i = 0; i < num_of_agents; i++)
         {
             Robot robotComponent = robots[i].GetComponent<Robot>();
             (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-            entries.Add((currentTime, s, ds));
-
 
             // Goal Assignment Condition
             if (robotComponent.getGoalReached())
@@ -385,7 +387,9 @@ public class Environment : MonoBehaviour
                     _goalClass.AssignGoals(i, robots[i]);
                 }
             }
+            CumulativeReward += getReward(i);
         }
+        CumulativeMeanReward = CumulativeReward/num_of_agents;
 
         // Termination Condition
         bool allRobotTerminalCond = false;
@@ -411,16 +415,14 @@ public class Environment : MonoBehaviour
                 {
                     CSVexporter.transferData(robotComponent.aData, CurrentEpisode);
                 }
-
-                robotComponent.initExtra();
                 _goalClass.AssignGoals(i, robots[i], true);
                 ResetPalette(i);
                 robotComponent.EndEpisode();
                 (float currentTime, Vector3 s, Vector3 ds) = robotComponent.getState();
-                entries.Add((currentTime, s, ds));
             }
             Debug.Log("Episode " + CurrentEpisode + " is over!");
             StepCount = 0;
+            CumulativeMeanReward = 0;
             CurrentEpisode += 1;
         }
 

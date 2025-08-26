@@ -56,6 +56,16 @@ namespace multiagent.util
         }
 
         [System.Serializable]
+        public class rewardParameters
+        {
+            public float collisionEnterReward = -1f;
+            public float collisionStayReward = -0.05f;
+            public float timeReward = -2f;
+            public float goalReward = 1f;
+        }
+
+
+        [System.Serializable]
         public class parameters
         {
             public int num_of_agents = 1;
@@ -66,9 +76,11 @@ namespace multiagent.util
             public float maxRotationAccleration = 8.23f;
             public bool velocityControl = true;
             public bool absoluteCoordinate = false;
+            public bool debugArrow = false;
             public int seed = 42;
             public int maxTimeSteps = 5001;
             public int decisionPeriod = 5;
+            public Parameters.rewardParameters rewardParams;
             public Parameters.goalParameters goalParams;
 
         }
@@ -117,7 +129,11 @@ namespace multiagent.util
             _env.robot.GetComponent<Robot>().velocityControl = param.velocityControl;
             _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
             _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
+            _env.robot.GetComponent<Robot>().debugArrow = param.debugArrow;
             _env.robot.GetComponent<Robot>().setDecisionRequestParams(param.maxTimeSteps, param.decisionPeriod);
+            Parameters.rewardParameters rewardParams = param.rewardParams;
+            _env.robot.GetComponent<Robot>().modifyReward(rewardParams.collisionEnterReward,rewardParams.collisionStayReward,rewardParams.timeReward,rewardParams.goalReward);
+            
         }
     }
     

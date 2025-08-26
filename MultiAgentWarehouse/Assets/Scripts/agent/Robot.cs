@@ -76,7 +76,7 @@ namespace multiagent.agent
                     maxRotationAccleration
                 };
             }
-
+            changeMaterialColor();
             updateState();
             generateArrow();
             newSpawnPosition = transform.position;
@@ -91,33 +91,37 @@ namespace multiagent.agent
 
             if (debugArrow == true && usingArrow == false)
             {
+                Vector3 robotSize = GetComponent<BoxCollider>().size;
+                Vector3 robotScale = GetComponent<Transform>().localScale;
+                float yoffset = robotSize.y * robotScale.y / 2;
+
                 usingArrow = true;
                 Vector3 arrowPosition = transform.position;
                 Quaternion arrowOrientation = transform.rotation;
 
                 // Linear Velocity Arrow
                 arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red);
+                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red,yoffset);
                 arrowObj.transform.parent = gameObject.transform;
 
                 // Angular Velocity Arrow
                 arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, true);
+                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red,yoffset, true);
                 arrowObj2.transform.parent = gameObject.transform;
 
                 // Linear Acceleration Arrow
                 arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue);
+                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue,yoffset);
                 arrowObj3.transform.parent = gameObject.transform;
 
                 // Angular Velocity Arrow
                 arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, true);
+                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue,yoffset, true);
                 arrowObj4.transform.parent = gameObject.transform;
 
                 // Goal Arrow
                 arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green);
+                arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green,yoffset);
                 arrowObj5.transform.parent = gameObject.transform;
             }
             else if (debugArrow == true && usingArrow == true)
@@ -154,6 +158,7 @@ namespace multiagent.agent
             rotationAccelerationVector = Vector3.zero;
             updateState();
             GetGround();
+            changeMaterialColor();
             _ddstate = Vector3.zero;
             aData.clear();
             addInfo();
@@ -263,8 +268,7 @@ namespace multiagent.agent
                 _rigidbody.angularVelocity = Vector3.zero;
             }
             
-
-            AddReward(-2f / MaxStep);
+            addTimeReward();
             CumulativeReward = GetCumulativeReward();
         }
 
@@ -449,7 +453,7 @@ namespace multiagent.agent
             if (getGoalReached() == false)
             {
                 setGoalReached(true);
-                AddReward(1.0f);
+                addGoalReward();
                 CumulativeReward = GetCumulativeReward();
             }
         }

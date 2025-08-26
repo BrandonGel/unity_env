@@ -1,5 +1,5 @@
 {
-  "num_of_agents": 1,
+  "num_of_agents": 10,
   "num_spawn_tries": 100,
   "maxSpeed": 7,
   "maxRotationSpeed": 2.11,
@@ -7,9 +7,17 @@
   "maxRotationAccleration": 8.23,
   "velocityControl": true,
   "absoluteCoordinate": false,
+  "debugArrow": true,
   "seed": 42,
   "maxTimeSteps": 5001,
-  "decisionPeriod": 1,
+  "decisionPeriod": 5,
+  "rewardParams":
+  {
+    "collisionEnterReward": -10,
+    "collisionStayReward": -0.05,
+    "timeReward": -2,
+    "goalReward": 1
+  },
   "goalParams":
   {
     "num_of_goals": 2,
