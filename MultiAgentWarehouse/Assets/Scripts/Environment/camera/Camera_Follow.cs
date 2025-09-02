@@ -29,10 +29,30 @@ namespace multiagent.camera
         {
             if (players != null)
             {
-                 if (GetComponent<Camera>().enabled && Input.GetKeyDown(KeyCode.Tab)) {
+                if (GetComponent<Camera>().enabled && Input.GetKeyDown(KeyCode.Tab)) {
                     playerIndex +=1;
                     playerIndex %= players.Length;
                 }
+
+                if(Input.GetKey(KeyCode.A))
+                {
+                    yawAngle += -0.5f;
+                }
+                else if(Input.GetKey(KeyCode.D))
+                {
+                    yawAngle += 0.5f;
+                }
+                if(Input.GetKey(KeyCode.W))
+                {
+                    pitchAngle += -0.5f;
+                }
+                else if(Input.GetKey(KeyCode.S))
+                {
+                    pitchAngle += 0.5f;
+                }
+                yawAngle %= 360;
+                pitchAngle %= 360;
+
 
                 playerIndex = Mathf.Clamp(playerIndex,0,Mathf.Max(0,players.Length-1));
                 GameObject player = players[playerIndex];

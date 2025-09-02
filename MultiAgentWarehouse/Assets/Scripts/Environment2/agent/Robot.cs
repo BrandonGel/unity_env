@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Policies;
 using System;
 using multiagent.controller;
 using multiagent.agent;
@@ -39,6 +40,7 @@ namespace multiagent.robot
         [SerializeField] public bool absoluteCoordinate = false;
 
         public agentData aData;
+        public Vector2 u;
         [SerializeField] float U_constraint = 0;
         public GameObject arrow;
         public bool debugArrow = false;
@@ -87,6 +89,7 @@ namespace multiagent.robot
             setGoal();
             aData = new agentData(getID());
             m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
+            behaviorParams = GetComponent<BehaviorParameters>();
         }
 
         private void generateArrow()
@@ -293,47 +296,46 @@ namespace multiagent.robot
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
                 float speedDifference = desiredSpeed - currentSpeed;
                 Vector3 velocityDifference = transform.right * speedDifference;
-                accelerationVector = velocityDifference / Time.deltaTime;
+                accelerationVector = velocityDifference / Time.fixedDeltaTime;
                 _rigidbody.AddForce(velocityDifference, ForceMode.VelocityChange);
 
                 float rotationCoefficent = action[1];
                 float desiredRotation = maxRotationSpeed * rotationCoefficent;
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
                 float rotationDifference = desiredRotation - currentRotationSpeed;
-                Vector3 angularDifference = transform.up * rotationDifference;
-                rotationAccelerationVector = angularDifference / Time.deltaTime;
-                Debug.Log(rotationAccelerationVector);
+                Vector3 angularDifference = transform.InverseTransformDirection(transform.up) * rotationDifference;
+                rotationAccelerationVector = angularDifference / Time.fixedDeltaTime;
                 _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
-                // _rigidbody.AddTorque(angularDifference, ForceMode.VelocityChange);
+                
             }
             else // Acceleration Plant Model w/ Constraint
             {
                 float acceleartionCoefficent = action[0];
                 currentAcceleration = maxAcceleration * acceleartionCoefficent;
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
-                float projectedSpeed = currentSpeed + currentAcceleration * Time.deltaTime;
+                float projectedSpeed = currentSpeed + currentAcceleration * Time.fixedDeltaTime;
                 if (MathF.Abs(projectedSpeed) > maxSpeed)
                 {
                     projectedSpeed = MathF.Sign(projectedSpeed) * maxSpeed;
-                    currentAcceleration = (projectedSpeed - currentSpeed) / Time.deltaTime;
+                    currentAcceleration = (projectedSpeed - currentSpeed) / Time.fixedDeltaTime;
                 }
 
                 float rotationAcceleartionCoefficent = action[1];
                 currentRotationAcceleration = maxRotationAccleration * rotationAcceleartionCoefficent;
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
-                float projectedRotationSpeed = currentRotationSpeed + currentRotationAcceleration * Time.deltaTime;
+                float projectedRotationSpeed = currentRotationSpeed + currentRotationAcceleration * Time.fixedDeltaTime;
                 if (Math.Abs(projectedRotationSpeed) > maxRotationSpeed)
                 {
                     projectedRotationSpeed = MathF.Sign(projectedRotationSpeed) * maxRotationSpeed;
-                    currentRotationAcceleration = (projectedRotationSpeed - currentSpeed) / Time.deltaTime;
+                    currentRotationAcceleration = (projectedRotationSpeed - currentSpeed) / Time.fixedDeltaTime;
                 }
                 (float[] projectedAction, float U2) = checkConstraint(projectedSpeed / maxSpeed, projectedRotationSpeed / maxRotationSpeed);
                 if (U2 > 1f)
                 {
                     projectedSpeed = projectedAction[0] * maxSpeed;
                     projectedRotationSpeed = projectedAction[1] * maxRotationSpeed;
-                    currentAcceleration = (projectedSpeed - currentSpeed) / Time.deltaTime;
-                    currentRotationAcceleration = (projectedRotationSpeed - currentRotationSpeed) / Time.deltaTime;
+                    currentAcceleration = (projectedSpeed - currentSpeed) / Time.fixedDeltaTime;
+                    currentRotationAcceleration = (projectedRotationSpeed - currentRotationSpeed) / Time.fixedDeltaTime;
                 }
                 U = U2;
 
@@ -388,14 +390,15 @@ namespace multiagent.robot
             //     u = new Vector2( action[0], action[1]);
             // }
 
-            Vector2 u = control.GetControl(act, S, ddesS, dS);
+            u = control.GetControl(act, S, ddesS, dS);
             // Debug.Log("u: " + u[0] + " " + u[1] );
-            plant(u);
+            
             // Debug.Log($"Goal: {act[0]}, {act[1]} | Control {u}");
         }
 
         private void updateState()
         {
+            plant(u);
             if (absoluteCoordinate)
             {
                 _state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
@@ -487,6 +490,7 @@ namespace multiagent.robot
             velocityControl = param.agentParams.velocityControl;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             debugArrow = param.agentParams.debugArrow;
+            setDecisionRequestParams(param.agentParams.maxTimeSteps, param.agentParams.decisionPeriod);
             modifyReward(
                 param.agentParams.rewardParams.collisionEnterReward,
                 param.agentParams.rewardParams.collisionStayReward,

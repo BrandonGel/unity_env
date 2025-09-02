@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using multiagent.parameterJson;
 using multiagent.robot;
+using multiagent.camera;
 public class Environment2 : MonoBehaviour
 {
+    public GameObject camera;
     public MakeObstacles mo;
     public MakeStartsGoals msg;
     public environmentJson envJson = new environmentJson();
@@ -54,6 +56,8 @@ public class Environment2 : MonoBehaviour
         mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing,boxSize);
         mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
         mr.updateRobotParameters(param);
+
+        camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
 
     }
 

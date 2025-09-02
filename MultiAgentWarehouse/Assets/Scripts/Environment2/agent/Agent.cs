@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Policies;
 using multiagent.goal;
 using System.Collections.Generic;
 using System;
@@ -31,6 +32,7 @@ namespace multiagent.robot
         [SerializeField] private float _collisionStayReward = -0.05f;
         [SerializeField] private float _timeReward = -2f;
         [SerializeField] private float _goalReward = 1f;
+        public BehaviorParameters behaviorParams;
         public Material collisionMaterial;
         private Dictionary<Renderer, Material> originalColors = new Dictionary<Renderer, Material>();
 
@@ -226,6 +228,7 @@ namespace multiagent.robot
         public void setID(int id)
         {
             _id = id;
+            GetComponent<BehaviorParameters>().TeamId = id;
         }
 
         public int getID()
