@@ -1,3 +1,4 @@
 {
-  "filepath":  "parameters.json"
+  "filepath":  "parameters.json",
+  "envpath":  "env.json"
 }

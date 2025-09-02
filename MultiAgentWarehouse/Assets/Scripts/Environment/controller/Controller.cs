@@ -20,9 +20,8 @@ namespace multiagent.controller
         public Dictionary<string, float> parameters = new Dictionary<string, float>();
         private string ctrlName = "";
         private int ctrlLength = 0;
-        private void getParameters()
+        private void getParameters(string path = "control.txt")
         {
-            string path = Path.Combine("Assets", "Scripts", "controller", "control.txt");
             if (File.Exists(path))
             {
                 var lines = File.ReadAllLines(path);
@@ -56,11 +55,11 @@ namespace multiagent.controller
             }
         }
 
-        public void InitControl(int ctrlLength, float[] minLim, float[] maxLim, string ctrlName = "")
+        public void InitControl(int ctrlLength, float[] minLim, float[] maxLim, string ctrlName = "",string controlPath="control.txt")
         {
             this.ctrlName = ctrlName;
             this.ctrlLength = ctrlLength;
-            getParameters();
+            getParameters(controlPath);
             switch (ctrlName)
             {
                 case "PID":
@@ -89,7 +88,7 @@ namespace multiagent.controller
                 case "PID":
                     S = state[0];
                     (float angle, bool equalRefAngle) = Util.perform_angle(action, new Vector2(S.x, S.y), Vector2.right, desState[desState.Length - 1].z);
-                    Debug.Log($"action {action} | equalRefAngle {equalRefAngle}");
+                    // Debug.Log($"action {action} | equalRefAngle {equalRefAngle}");
                     if (equalRefAngle)
                     {
                         desS = new Vector3(S.x, S.y, angle); //The angle is fixed in the getCtrl
@@ -112,7 +111,7 @@ namespace multiagent.controller
                         action = pidController.getCtrl(S, desS);
 
                     }
-                    Debug.Log($"Angle: {angle} | State {S} | desS {desS} | action {action}");
+                    // Debug.Log($"Angle: {angle} | State {S} | desS {desS} | action {action}");
                     break;
                 case "PurePursuit":
                     Assert.IsTrue(desState.Length > 1);

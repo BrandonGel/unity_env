@@ -128,7 +128,6 @@ namespace multiagent.util
             _env.robot.GetComponent<Robot>().maxRotationAccleration = param.maxRotationAccleration;
             _env.robot.GetComponent<Robot>().velocityControl = param.velocityControl;
             _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
-            _env.robot.GetComponent<Robot>().absoluteCoordinate = param.absoluteCoordinate;
             _env.robot.GetComponent<Robot>().debugArrow = param.debugArrow;
             _env.robot.GetComponent<Robot>().setDecisionRequestParams(param.maxTimeSteps, param.decisionPeriod);
             Parameters.rewardParameters rewardParams = param.rewardParams;

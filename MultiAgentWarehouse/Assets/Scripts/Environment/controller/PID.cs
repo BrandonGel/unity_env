@@ -77,7 +77,7 @@ namespace multiagent.controller
             }
 
             ctrl = Kp * error + Ki * ierror + Kd * derror;
-            Debug.Log($"P: {Kp * error} | I: {Ki * ierror} | D: {Kd * derror}");
+            // Debug.Log($"P: {Kp * error} | I: {Ki * ierror} | D: {Kd * derror}");
             return ctrl;
         }
     }

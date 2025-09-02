@@ -1,0 +1,127 @@
+using UnityEngine;
+using System.IO;
+using NUnit.Framework;
+using System.Collections.Generic;
+
+namespace multiagent.parameterJson
+{
+    [System.Serializable]
+    public class goalParameter
+    {
+        public float[] goalWait = new float[2] { 5f, 5f };
+        public float[] goalWaitProbability = new float[2] { 1f, 1f };
+        public float[] goalWaitPenalty = new float[2] { 1f, 1f };
+
+        System.Random random = new System.Random();
+
+        public float sampleGoalWait()
+        {
+            float x = (float)random.NextDouble();
+            float wait = goalWait[0] + x * (goalWait[1] - goalWait[0]);
+            return wait;
+        }
+
+        public float sampleGoalProb()
+        {
+            float x = (float)random.NextDouble();
+            float waitProb = goalWaitProbability[0] + x * (goalWaitProbability[1] - goalWaitProbability[0]);
+            return waitProb;
+        }
+
+        public float sampleGoalPenalty()
+        {
+            float x = (float)random.NextDouble();
+            float waitPenalty = goalWaitPenalty[0] + x * (goalWaitPenalty[1] - goalWaitProbability[0]);
+            return waitPenalty;
+        }
+
+    }
+
+    [System.Serializable]
+    public class goalParameters
+    {
+        public int num_of_goals = 1;
+        public float task_freq = 1;
+        public List<goalParameter> goals = new List<goalParameter>();
+        public List<goalParameter> starts = new List<goalParameter>();
+    }
+
+    [System.Serializable]
+    public class rewardParameters
+    {
+        public float collisionEnterReward = -1f;
+        public float collisionStayReward = -0.05f;
+        public float timeReward = -2f;
+        public float goalReward = 1f;
+    }
+
+    [System.Serializable]
+    public class agentsParameters
+    {
+        public int num_of_agents = 1;
+        public float min_spacing = 0.1f;
+        public int num_spawn_tries = 100;
+        public float maxSpeed = 0.7f;
+        public float maxRotationSpeed = 2.11f;
+        public float maxAcceleration = 2.72f;
+        public float maxRotationAccleration = 8.23f;
+        public bool velocityControl = true;
+        public bool absoluteCoordinate = false;
+        public bool debugArrow = false;
+        public int seed = 42;
+        public int maxTimeSteps = 5001;
+        public int decisionPeriod = 5;
+        public rewardParameters rewardParams = new rewardParameters();
+    }
+
+    [System.Serializable]
+    public class parameters
+    {
+        public int seed = 42;
+        public agentsParameters agentParams = new agentsParameters();
+        public goalParameters goalParams = new goalParameters();
+
+    }
+
+    public class parameterJson
+    {
+        public parameters param;
+        config conf;
+
+        // Read a config file and update the parameters of the environment
+        public void ReadJson(string fileName = "config2.json")
+        {
+            string jsonText = "";
+            string filepath = fileName;
+            if (File.Exists(filepath))
+            {
+                jsonText = File.ReadAllText(filepath);
+            }
+            else
+            {
+                Debug.Log("File: " + filepath);
+                Debug.LogError("Config filepath was not found!!!!");
+            }
+            conf = JsonUtility.FromJson<config>(jsonText);
+
+            filepath = conf.filepath;
+            if (File.Exists(filepath))
+            {
+                jsonText = File.ReadAllText(filepath);
+            }
+            else
+            {
+                Debug.Log("File: " + filepath);
+                Debug.LogError("Parameter filepath in the config file was not found!!!");
+            }
+            param = JsonUtility.FromJson<parameters>(jsonText);
+            Random.InitState(param.seed);
+        }
+
+        public parameters GetParameter()
+        {
+            return param;
+        }
+    }
+}
+

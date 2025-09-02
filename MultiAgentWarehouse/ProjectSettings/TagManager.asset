@@ -8,6 +8,7 @@ TagManager:
   - Goal
   - Wall
   - BottomBox
+  - Safe
   layers:
   - Default
   - TransparentFX
