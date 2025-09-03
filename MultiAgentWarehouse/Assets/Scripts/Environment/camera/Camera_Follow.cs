@@ -20,7 +20,7 @@ namespace multiagent.camera
         void Start()
         {
             players = null;
-            directionVector = Vector3.forward;
+            directionVector = Vector3.right;
             directionVector = directionVector/directionVector.magnitude;
             newpos = Vector3.zero;
         }
@@ -33,22 +33,24 @@ namespace multiagent.camera
                     playerIndex +=1;
                     playerIndex %= players.Length;
                 }
+                
+                float yawOffset = players[playerIndex].transform.localRotation.eulerAngles.y +180f;
 
-                if(Input.GetKey(KeyCode.A))
+                if (Input.GetKey(KeyCode.A))
                 {
                     yawAngle += -0.5f;
                 }
-                else if(Input.GetKey(KeyCode.D))
+                else if (Input.GetKey(KeyCode.D))
                 {
                     yawAngle += 0.5f;
                 }
                 if(Input.GetKey(KeyCode.W))
                 {
-                    pitchAngle += -0.5f;
+                    pitchAngle += 0.5f;
                 }
                 else if(Input.GetKey(KeyCode.S))
                 {
-                    pitchAngle += 0.5f;
+                    pitchAngle += -0.5f;
                 }
                 yawAngle %= 360;
                 pitchAngle %= 360;
@@ -56,7 +58,7 @@ namespace multiagent.camera
 
                 playerIndex = Mathf.Clamp(playerIndex,0,Mathf.Max(0,players.Length-1));
                 GameObject player = players[playerIndex];
-                Quaternion rotation = Quaternion.Euler(-pitchAngle, yawAngle, 0);
+                Quaternion rotation = Quaternion.Euler(0, (yawOffset+yawAngle)%360f, pitchAngle);
                 newpos = rotation*directionVector;
 
                 transform.rotation = Quaternion.LookRotation(-newpos);

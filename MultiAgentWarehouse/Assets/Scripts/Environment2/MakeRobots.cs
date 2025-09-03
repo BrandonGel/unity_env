@@ -6,6 +6,7 @@ using System;
 using multiagent.robot;
 using multiagent.parameterJson;
 using Unity.VisualScripting.Dependencies.NCalc;
+using UnityEngine.PlayerLoop;
 public class MakeRobots : MonoBehaviour
 {
     public List<List<int[]>> spawnlocations = new List<List<int[]>>();
@@ -87,6 +88,16 @@ public class MakeRobots : MonoBehaviour
         this.boxSize = boxSize;
     }
 
+    public List<float> getReward()
+    {
+        List<float> rewards = new List<float>();
+        foreach (GameObject robot in robots)
+        {
+            rewards.Add(robot.GetComponent<Robot>().GetCumulativeReward());
+        }
+        return rewards;
+    }   
+    
     public List<GameObject> getRobots()
     {
         return robots;

@@ -1,7 +1,8 @@
 using UnityEngine;
-using System.IO;
 using System.Collections.Generic;
 using multiagent.robot;
+using multiagent.task;
+using multiagent.taskgoal;
 public class TaskGeneration
 {
     int n_tasks_started = 0;
@@ -10,8 +11,8 @@ public class TaskGeneration
     List<List<GameObject>> starts;
     List<List<GameObject>> goals;
     // List<List<GameObject>> goals;
-    List<task> tasks = new List<task>();
-    List<task> available_tasks = new List<task>();
+    List<Task> tasks = new List<Task>();
+    List<Task> available_tasks = new List<Task>();
     System.Random random = new System.Random();
 
 
@@ -25,7 +26,7 @@ public class TaskGeneration
 
     public void GenerateTasks()
     {
-        tasks = new List<task>();
+        tasks = new List<Task>();
         for (int i = 0; i < n_tasks; i++)
         {
             int x = Random.Range(0, starts.Count);
@@ -38,7 +39,7 @@ public class TaskGeneration
                 goals[y][1],
                 starts[x][1]
             };
-            task new_task = new task(
+            Task new_task = new Task(
                 i * task_freq,
                 "task_" + i.ToString(),
                 taskpoint);
@@ -49,28 +50,32 @@ public class TaskGeneration
     public void DownloadTasks(List<TaskData> tasksData)
     {
         // TO DO
-        tasks = new List<task>();
+        tasks = new List<Task>();
+        Dictionary<(int,int), int> start_dict = new Dictionary<(int,int), int>();
+        Dictionary<(int,int), int> goal_dict = new Dictionary<(int,int), int>();
+        for (int j = 0; j < starts.Count; j++)
+        {
+            int[] tileArr = starts[j][0].GetComponent<Goal>().getTile();
+            (int,int) key = (tileArr[0], tileArr[1]);
+            start_dict[key] = j;
+        }
+        for (int j = 0; j < goals.Count; j++)
+        {
+            int[] tileArr = goals[j][0].GetComponent<Goal>().getTile();
+            (int,int) key = (tileArr[0], tileArr[1]);
+            goal_dict[key] = j;
+        }
+
+
         for (int i = 0; i < n_tasks; i++)
         {
             List<int[]> waypoints = tasksData[i].waypoints;
-            int x = 0;
-            int y = 0;
-            for (int j = 0; j < starts.Count; j++)
-            {
-                if (waypoints[0][0] == starts[j][0].transform.position.x && waypoints[0][1] == starts[j][0].transform.position.z)
-                {
-                    x = j;
-                    break;
-                }
-            }
-            for (int j = 0; j < goals.Count; j++)
-            {
-                if (waypoints[1][0] == goals[j][0].transform.position.x && waypoints[1][1] == goals[j][0].transform.position.z)
-                {
-                    y = j;
-                    break;
-                }
-            }
+            (int,int) startKey = (waypoints[0][0], waypoints[0][1]);
+            (int,int) goalKey = (waypoints[1][0], waypoints[1][1]);
+            // Debug.Log(start_dict[key]);
+            int x = start_dict[startKey];
+            int y = goal_dict[goalKey];
+
             List<GameObject> taskpoint = new List<GameObject>
             {
                 starts[x][0],
@@ -80,7 +85,7 @@ public class TaskGeneration
             };
 
 
-            task new_task = new task(
+            Task new_task = new Task(
                 tasksData[i].start_time,
                 tasksData[i].task_name,
                 taskpoint);
@@ -109,21 +114,18 @@ public class TaskGeneration
             robotComponent.setGoal(null);
             return;
         }
-
-        for (int i = 0; i < available_tasks.Count; i++)
-        {
-            robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
-            available_tasks[0].assigned(robotComponent.getID());
-            available_tasks.RemoveAt(0);
-        }
+        Debug.Log(available_tasks.Count + " available tasks");
+        robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
+        available_tasks[0].assigned(robotComponent.getID());
+        available_tasks.RemoveAt(0);
     }
 
-    public List<task> getAllTasks()
+    public List<Task> getAllTasks()
     {
         return tasks;
     }
 
-    public List<task> getAvailableTasks()
+    public List<Task> getAvailableTasks()
     {
         return available_tasks;
     }

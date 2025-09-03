@@ -292,6 +292,7 @@ MonoBehaviour:
   _collisionStayReward: -0.05
   _timeReward: -2
   _goalReward: 1
+  behaviorParams: {fileID: 0}
   collisionMaterial: {fileID: 2100000, guid: 4fde156e5346c6bfca64afa32a7d9d9b, type: 2}
   maxSpeed: 0.7
   maxRotationSpeed: 2.11

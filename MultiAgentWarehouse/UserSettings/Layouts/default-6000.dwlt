@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 1746
+    x: 3906
     y: 69
     width: 1854
     height: 985
@@ -39,9 +39,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 768
+    x: 767
     y: 0
-    width: 633
+    width: 634
     height: 687
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
@@ -119,7 +119,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 252
+    width: 251
     height: 687
   m_MinSize: {x: 201, y: 226}
   m_MaxSize: {x: 4001, y: 4026}
@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 252
+    x: 251
     y: 0
     width: 516
     height: 687
@@ -371,7 +371,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 04ca9a3b
     m_LastClickedID: 1000000004
-    m_ExpandedIDs: 00000000bad10000bcd10000bed10000c0d10000
+    m_ExpandedIDs: 000000005ecc000060cc000062cc000064cc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -400,7 +400,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000bad10000bcd10000bed10000c0d10000
+    m_ExpandedIDs: 000000005ecc000060cc000062cc000064cc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -530,7 +530,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 24
-    width: 251
+    width: 250
     height: 661
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -594,7 +594,7 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 253
+    x: 252
     y: 24
     width: 514
     height: 661
@@ -1096,9 +1096,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 54.61035, y: -0.0000038146973, z: 2.4457672}
+    m_Target: {x: 18.276447, y: 2.2275255, z: 11.710306}
     speed: 2
-    m_Value: {x: -0.6303545, y: 0.34801236, z: -0.956514}
+    m_Value: {x: 54.61035, y: -0.0000038146973, z: 2.4457672}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1144,17 +1144,17 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.54438204, y: -0.0074224058, z: 0.004817044, w: -0.83878964}
+    m_Target: {x: -0.22624171, y: -0.13421431, z: 0.03146283, w: -0.96427965}
     speed: 2
-    m_Value: {x: -0.11526617, y: 0.5456958, z: -0.07612454, w: -0.8265311}
+    m_Value: {x: -0.54438204, y: -0.0074224053, z: 0.004817044, w: -0.8387896}
   m_Size:
-    m_Target: 16.87102
+    m_Target: 6.974097
     speed: 2
-    m_Value: 2.2921388
+    m_Value: 16.87102
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 1
+    m_Value: 0
   m_CameraSettings:
     m_Speed: 1
     m_SpeedNormalized: 0.5
@@ -1205,9 +1205,9 @@ MonoBehaviour:
     m_TextWithWhitespace: "Game\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 769
+    x: 768
     y: 24
-    width: 631
+    width: 632
     height: 661
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -1226,7 +1226,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 631, y: 640}
+  m_TargetSize: {x: 632, y: 640}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -1241,8 +1241,8 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -315.5
-    m_HBaseRangeMax: 315.5
+    m_HBaseRangeMin: -316
+    m_HBaseRangeMax: 316
     m_VBaseRangeMin: -320
     m_VBaseRangeMax: 320
     m_HAllowExceedBaseRangeMin: 1
@@ -1262,23 +1262,23 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 631
+      width: 632
       height: 640
     m_Scale: {x: 1, y: 1}
-    m_Translation: {x: 315.5, y: 320}
+    m_Translation: {x: 316, y: 320}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -315.5
+      x: -316
       y: -320
-      width: 631
+      width: 632
       height: 640
     m_MinimalGUI: 1
   m_defaultScale: 1
-  m_LastWindowPixelSize: {x: 631, y: 661}
+  m_LastWindowPixelSize: {x: 632, y: 661}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000

@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Linq;
 using System;
 using multiagent.parameterJson;
+using multiagent.task;
+using multiagent.taskgoal;
 
 public class MakeStartsGoals : MonoBehaviour
 {
@@ -45,7 +47,7 @@ public class MakeStartsGoals : MonoBehaviour
                 float goalDelayPenalty = goalParams != default ? goalParams.starts[j].sampleGoalPenalty(): 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.starts[j].sampleGoalProb(): 0f; 
 
-                start.GetComponent<goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
+                start.GetComponent<Goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
                 start.transform.localScale = scaling;
                 start.transform.parent = gameObject.transform.Find("Starts").transform;
                 gameobject_list.Add(start);
@@ -73,7 +75,7 @@ public class MakeStartsGoals : MonoBehaviour
                 float goalWait = goalParams != default ? goalParams.goals[j].sampleGoalWait(): 0f;
                 float goalDelayPenalty = goalParams != default ? goalParams.goals[j].sampleGoalPenalty(): 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.goals[j].sampleGoalProb(): 0f; 
-                goal.GetComponent<goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
+                goal.GetComponent<Goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
                 goal.transform.localScale = scaling;
                 goal.transform.parent = gameObject.transform.Find("Goals").transform;
                 gameobject_list.Add(goal);

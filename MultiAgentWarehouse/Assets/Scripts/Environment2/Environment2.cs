@@ -7,7 +7,7 @@ using multiagent.robot;
 using multiagent.camera;
 public class Environment2 : MonoBehaviour
 {
-    public GameObject camera;
+    public new GameObject camera;
     public MakeObstacles mo;
     public MakeStartsGoals msg;
     public environmentJson envJson = new environmentJson();
@@ -16,6 +16,7 @@ public class Environment2 : MonoBehaviour
     public MakeNavMesh mn;
     public parameterJson paramJson = new parameterJson();
     public float t = 0f;
+
 
     void Start()
     {
@@ -51,11 +52,13 @@ public class Environment2 : MonoBehaviour
         Vector3 mapCenter = new Vector3((dims[0] * scale[0]) / 2, 0, (dims[1] * scale[1]) / 2);
         mn.setParameters(MakeNavMesh.SpawnShape.Box, boxSize, mapCenter, 0);
         mn.StartMesh();
+        
+        mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing,boxSize);
         // mr.initStartLocation(root.agents.Count, root.agents,mn.FindValidNavMeshSpawnPoint, scaling);
         // mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling);
-        mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing,boxSize);
         mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
         mr.updateRobotParameters(param);
+        List<float> rewards = mr.getReward();
 
         camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
 

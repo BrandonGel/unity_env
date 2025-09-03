@@ -20,9 +20,9 @@ namespace multiagent.robot
         private float _bodyRadius = 0.331f; // meters
         private Controller control = new Controller();
         public ctrlOption _controllerName;
-        private string _controllerNameStr = "None";
+        private string _controllerNameStr;
         public ctrlType _controllerType;
-        private string _controllerTypeStr = "Position";
+        private string _controllerTypeStr;
         private string controlPath = "control.txt";
         private Rigidbody _rigidbody;
         private bool isControllerInit = false;
@@ -267,8 +267,7 @@ namespace multiagent.robot
             }
             else
             {
-                _rigidbody.linearVelocity = Vector3.zero;
-                _rigidbody.angularVelocity = Vector3.zero;
+                u = Vector2.zero;
             }
 
             addTimeReward();

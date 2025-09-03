@@ -19,7 +19,7 @@ public class Environment : MonoBehaviour
         Box,
     }
 
-    public GameObject camera;
+    public new GameObject camera;
     public GameObject robot = null;
     public GameObject[] robots;
     public Dictionary<string,List<Goal[]>> goals;

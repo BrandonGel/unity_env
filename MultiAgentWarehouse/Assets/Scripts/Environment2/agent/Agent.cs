@@ -3,9 +3,10 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Policies;
-using multiagent.goal;
 using System.Collections.Generic;
 using System;
+using multiagent.task;
+using multiagent.taskgoal;
 
 namespace multiagent.robot
 {
@@ -15,8 +16,8 @@ namespace multiagent.robot
         Velocity, //Velocity input
         Accleration, //acceleration input
         Position_Velocity,
-            
-        }
+
+    }
     public class AgentTemplate : Agent
     {
         [SerializeField] private Vector3 _goal;
@@ -25,7 +26,7 @@ namespace multiagent.robot
         [HideInInspector] public float CumulativeReward = 0f;
         public float[] minLim, maxLim;
         private int _id = -1;
-        public task taskClass = null;
+        public Task taskClass = null;
         private bool _goalReached = false;
         private bool _wait = false;
         [SerializeField] private float _collisionEnterReward = -1f;
@@ -83,7 +84,7 @@ namespace multiagent.robot
             AddReward(_goalReward);
         }
 
-        public virtual void setGoal(task taskClass = null)
+        public virtual void setGoal(Task taskClass = null)
         {
 
             this.taskClass = taskClass;
@@ -106,6 +107,7 @@ namespace multiagent.robot
                 AddReward(_goalReward);
                 CumulativeReward = GetCumulativeReward();
                 taskClass.reachGoal();
+                _wait = true;
             }
         }
 
@@ -135,13 +137,24 @@ namespace multiagent.robot
             if (taskClass == null)
             {
                 _wait = false;
+                _goalReached = false;
                 return false;
             }
 
             // If already waiting, return true
             if (_wait == true && taskClass.isBusy() == false)
             {
-                this._goal = taskClass.getCurrentGoal().transform.position;
+                if (taskClass.isCompleted())
+                {
+                    setGoal(null);
+                }
+                else
+                {
+                    _goal = taskClass.getCurrentGoal().transform.position;
+                }
+                _goalReached = false;
+                _wait = false;
+                return false;
             }
             _wait = taskClass.isBusy();
             return _wait;
@@ -151,9 +164,18 @@ namespace multiagent.robot
         private void OnTriggerStay(Collider other)
         {
             bool isCenterInside = other.bounds.Contains(transform.position);
-            if (other.gameObject.CompareTag("Goal") && taskClass.getCurrentGoal().GetComponent<GameObject>() == other.GetComponent<GameObject>() && isCenterInside)
+            bool isIDmatched = false;
+            bool isTypeMatched = false;
+            bool isNameMatched = false;
+            if (other.gameObject.GetComponent<Goal>() != null && taskClass != null)
             {
-                Debug.Log("Goal Reached");
+                isIDmatched = other.gameObject.GetComponent<Goal>().goalID == taskClass.getCurrentGoal().GetComponent<Goal>().goalID;
+                isTypeMatched = other.gameObject.GetComponent<Goal>().goalType == taskClass.getCurrentGoal().GetComponent<Goal>().goalType;
+                isNameMatched = other.gameObject.name == taskClass.getCurrentGoal().name;
+            }
+            
+            if (other.gameObject.CompareTag("Goal") && isIDmatched && isTypeMatched && isNameMatched && isCenterInside)
+            {
                 GoalReached();
             }
         }
@@ -243,8 +265,8 @@ namespace multiagent.robot
             _timeReward = timeReward;
             _goalReward = goalReward;
         }
-        
-        
+
+
 
     }
 
