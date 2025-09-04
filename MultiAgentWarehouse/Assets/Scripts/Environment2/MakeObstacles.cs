@@ -7,7 +7,8 @@ public class MakeObstacles : MonoBehaviour
     public GameObject obstaclePrefab; // Assign your obstacle prefab here
     private GameObject ground;
     private Vector3  scale;
-    private int worldX,worldY,worldZ;
+    private environmentJson envJson = new environmentJson();
+    private int worldX, worldY, worldZ;
 
     Texture2D LoadTexture(string path)
     {
@@ -37,7 +38,6 @@ public class MakeObstacles : MonoBehaviour
             Debug.LogError("Failed to load texture from " + path);
             return;
         }
-
 
         Color[] pixels = texture.GetPixels();
         worldX = texture.width;
@@ -80,14 +80,47 @@ public class MakeObstacles : MonoBehaviour
 
         CreateBorderObstacles(new int[] { -1, worldX }, new int[] { -1, worldZ });
         CreateGround();
-        // ScaleEnvironment(this.scale);
+    }
 
+    public void CreateWorld(string path)
+    {
+        if(path == "" || path == null)
+        {
+            Debug.LogError("No path provided for environment texture");
+            return;
+        }
+        envJson.ReadJson(path);
+        List<int[]>  obs = envJson.root.map.obstacles;
+        int[] dimensions = envJson.root.map.dimensions;
+        float[] scale = envJson.root.map.scale;
+
+        worldX = dimensions[0];
+        worldY = 1;
+        worldZ = dimensions[1];
+
+        this.scale = new Vector3(
+                scale[0],
+                1,
+                scale[1] 
+            );
+
+        // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
+        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+
+        for (int i = 0; i < obs.Count; i++)
+        {
+            int[] loc = obs[i];
+            Vector3 pos = new Vector3(loc[0], 0, loc[1]) + startingSpawnPosition;
+            CreateObstacle(pos);
+        }
+        CreateBorderObstacles(new int[] { -1, worldX }, new int[] { -1, worldZ });
+        CreateGround();
     }
 
     private void CreateBorderObstacles(int[] xRange, int[] zRange)
     {
         // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
-        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y / 2, 0.5f);
         Vector3 position = new Vector3();
 
         // Bottom and top borders

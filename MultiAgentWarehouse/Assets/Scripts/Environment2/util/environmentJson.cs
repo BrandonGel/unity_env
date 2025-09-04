@@ -8,6 +8,7 @@ public class config
 {
     public string envpath = "";
     public string filepath = "";
+    public string imagepath = "";
 }
 
 [System.Serializable]
@@ -51,6 +52,7 @@ public class Root
 public class environmentJson
 {
     public Root root;
+    public config conf;
     // Read the JSON file and deserialize it into the Root object
     public void ReadJson(string fileName = "config2.json")
     {
@@ -65,7 +67,7 @@ public class environmentJson
             Debug.Log("File: " + filepath);
             Debug.LogError("Config filepath was not found!!!!");
         }
-        config conf = JsonUtility.FromJson<config>(jsonText);
+        conf = JsonUtility.FromJson<config>(jsonText);
 
 
         string filePath = conf.envpath;

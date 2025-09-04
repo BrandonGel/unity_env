@@ -45,7 +45,7 @@ public class MakeRobots : MonoBehaviour
                 i += 1;
             }
         }
-        else
+        else if (num_of_agents > 0 && findValidPoint != default)
         {
             robots = new List<GameObject>();
             for (int i = 0; i < num_of_agents; i++)
@@ -97,7 +97,7 @@ public class MakeRobots : MonoBehaviour
         }
         return rewards;
     }   
-    
+
     public List<GameObject> getRobots()
     {
         return robots;

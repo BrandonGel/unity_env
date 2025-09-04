@@ -24,28 +24,31 @@ public class Environment2 : MonoBehaviour
         paramJson.ReadJson();
 
         Root root = envJson.GetRoot();
-        int[] dims = root.map.dimensions;
         parameters param = paramJson.GetParameter();
+         
+        int[] dims = root.map.dimensions;
+        
         float[] scale = root.map.scale;
         Vector3 Imagescaling = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
         Vector3 scaling = new Vector3(scale[0], 1, scale[1]);
-
-        mo.GenerateWorld("Processed_image.png", Imagescaling);
+        mo.GenerateWorld(envJson.conf.imagepath, Imagescaling);
+        // mo.CreateWorld("config2.json");
 
         Map envMap = envJson.GetMap();
 
         msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling);
+
         tg = new TaskGeneration(
-            envJson.root.n_tasks,
-            envJson.root.task_freq[0],
+            root.n_tasks,
+            root.task_freq[0],
             msg.getStartLocations(),
             msg.getGoalLocations()
         );
 
 
+        tg.GenerateTasks();
 
         List<TaskData> tasks = root.tasks;
-        tg.GenerateTasks();
         tg.DownloadTasks(tasks);
 
         Vector3 boxSize = new Vector3(dims[0] * scale[0],1, dims[1] * scale[1]);
@@ -54,9 +57,9 @@ public class Environment2 : MonoBehaviour
         mn.StartMesh();
         
         mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing,boxSize);
-        // mr.initStartLocation(root.agents.Count, root.agents,mn.FindValidNavMeshSpawnPoint, scaling);
+        mr.initStartLocation(0, root.agents,default, scaling);
         // mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling);
-        mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
+        // mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
         mr.updateRobotParameters(param);
         List<float> rewards = mr.getReward();
 

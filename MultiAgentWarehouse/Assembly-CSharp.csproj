@@ -70,6 +70,7 @@
     <Compile Include="Assets/Scripts/Environment/GUI_camera.cs" />
     <Compile Include="Assets/Scripts/Environment/LocalPlayerEnabler.cs" />
     <Compile Include="Assets/Scripts/Environment/util/csv_exporter.cs" />
+    <Compile Include="Assets/Scripts/Environment2/Environment2Agent.cs" />
     <Compile Include="Assets/Scripts/Environment/controller/util.cs" />
     <Compile Include="Assets/Scripts/Environment2/MakeNavMesh.cs" />
     <Compile Include="Assets/Scripts/Environment/register.cs" />

@@ -1,4 +1,5 @@
 {
   "filepath":  "parameters.json",
-  "envpath":  "env.json"
+  "envpath":  "env.json",
+  "imagepath":  "Processed_image.png"
 }
