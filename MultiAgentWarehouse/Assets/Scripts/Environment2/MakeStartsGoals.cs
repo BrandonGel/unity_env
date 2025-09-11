@@ -25,13 +25,13 @@ public class MakeStartsGoals : MonoBehaviour
     public float goalDelayPenalty = 0f;
     public float goalWaitProbability = 1f;
 
-    public void initStartLocation(List<List<int[]>> start_locations, List<List<int[]>> goal_locations, List<int[]> non_task_endpoints = default, goalParameters goalParams = default,  Vector3 scaling = default)
+    public void initStartLocation(List<List<int[]>> start_locations, List<List<int[]>> goal_locations, List<int[]> non_task_endpoints = default, goalParameters goalParams = default, Vector3 scaling = default)
     {
         int i;
         this.start_locations = start_locations;
-        starts = new List<List<GameObject>>();
         // Vector3 startingSpawnPosition = start_prefab.transform.localScale / 2;
-        Vector3 startingSpawnPosition = new Vector3(0.5f,start_prefab.transform.localScale.y/2, 0.5f);
+        // Vector3 startingSpawnPosition = new Vector3(0.5f,start_prefab.transform.localScale.y/2, 0.5f);
+        Vector3 startingSpawnPosition = new Vector3(0f, start_prefab.transform.localScale.y / 2, 0f);
         scaling = scaling == default ? Vector3.one : scaling;
         i = 0;
         foreach (List<int[]> locs in start_locations)
@@ -43,11 +43,11 @@ public class MakeStartsGoals : MonoBehaviour
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + startingSpawnPosition;
                 pos = Vector3.Scale(pos, scaling);
                 GameObject start = Instantiate(start_prefab, pos, Quaternion.identity);
-                float goalWait = goalParams != default ? goalParams.starts[j].sampleGoalWait(): 0f;
-                float goalDelayPenalty = goalParams != default ? goalParams.starts[j].sampleGoalPenalty(): 0f;
-                float goalWaitProbability = goalParams != default ? goalParams.starts[j].sampleGoalProb(): 0f; 
+                float goalWait = goalParams != default ? goalParams.starts[j].sampleGoalWait() : 0f;
+                float goalDelayPenalty = goalParams != default ? goalParams.starts[j].sampleGoalPenalty() : 0f;
+                float goalWaitProbability = goalParams != default ? goalParams.starts[j].sampleGoalProb() : 0f;
 
-                start.GetComponent<Goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
+                start.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 start.transform.localScale = scaling;
                 start.transform.parent = gameObject.transform.Find("Starts").transform;
                 gameobject_list.Add(start);
@@ -59,9 +59,9 @@ public class MakeStartsGoals : MonoBehaviour
 
 
         this.goal_locations = goal_locations;
-        goals = new List<List<GameObject>>();
         // Vector3 endingSpawnPosition = goal_prefab.transform.localScale / 2;
-        Vector3 endingSpawnPosition = new Vector3(0.5f, goal_prefab.transform.localScale.y/2, 0.5f);
+        // Vector3 endingSpawnPosition = new Vector3(0.5f, goal_prefab.transform.localScale.y/2, 0.5f);
+        Vector3 endingSpawnPosition = new Vector3(0f, goal_prefab.transform.localScale.y / 2, 0f);
         i = 0;
         foreach (List<int[]> locs in goal_locations)
         {
@@ -72,10 +72,10 @@ public class MakeStartsGoals : MonoBehaviour
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + endingSpawnPosition;
                 pos = Vector3.Scale(pos, scaling);
                 GameObject goal = Instantiate(goal_prefab, pos, Quaternion.identity);
-                float goalWait = goalParams != default ? goalParams.goals[j].sampleGoalWait(): 0f;
-                float goalDelayPenalty = goalParams != default ? goalParams.goals[j].sampleGoalPenalty(): 0f;
-                float goalWaitProbability = goalParams != default ? goalParams.goals[j].sampleGoalProb(): 0f; 
-                goal.GetComponent<Goal>().setParameters(i, j, loc,goalWait, goalDelayPenalty, goalWaitProbability);
+                float goalWait = goalParams != default ? goalParams.goals[j].sampleGoalWait() : 0f;
+                float goalDelayPenalty = goalParams != default ? goalParams.goals[j].sampleGoalPenalty() : 0f;
+                float goalWaitProbability = goalParams != default ? goalParams.goals[j].sampleGoalProb() : 0f;
+                goal.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 goal.transform.localScale = scaling;
                 goal.transform.parent = gameObject.transform.Find("Goals").transform;
                 gameobject_list.Add(goal);
@@ -86,9 +86,9 @@ public class MakeStartsGoals : MonoBehaviour
         }
 
         this.non_task_endpoints = non_task_endpoints;
-        non_tasks = new List<GameObject>();
         // Vector3 nontaskSpawnPosition = non_task_prefab.transform.localScale / 2;
-        Vector3 nontaskSpawnPosition = new Vector3(0.5f, non_task_prefab.transform.localScale.y / 2, 0.5f);
+        // Vector3 nontaskSpawnPosition = new Vector3(0.5f, non_task_prefab.transform.localScale.y / 2, 0.5f);
+        Vector3 nontaskSpawnPosition = new Vector3(0f, non_task_prefab.transform.localScale.y / 2, 0f);
         i = 0;
         foreach (int[] loc in non_task_endpoints)
         {
@@ -116,5 +116,24 @@ public class MakeStartsGoals : MonoBehaviour
     public List<GameObject> getNontaskLocations()
     {
         return non_tasks;
+    }
+
+    public void DestroyAll()
+    {
+        foreach (Transform child in gameObject.transform.Find("Starts").transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        foreach (Transform child in gameObject.transform.Find("Goals").transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        foreach (Transform child in gameObject.transform.Find("Nontasks").transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        starts = new List<List<GameObject>>();
+        goals = new List<List<GameObject>>();
+        non_tasks = new List<GameObject>();
     }
 }

@@ -23,7 +23,8 @@ public class MakeRobots : MonoBehaviour
             Debug.LogError("No agent data provided");
             return;
         }
-        Vector3 offset = new Vector3(0.5f, 0, 0.5f);
+        // Vector3 offset = new Vector3(0.5f, 0, 0.5f);
+        Vector3 offset = new Vector3(0f, 0, 0f);
 
         if (agents != default)
         {
@@ -72,7 +73,7 @@ public class MakeRobots : MonoBehaviour
         }
     }
 
-    public void updateRobotParameters(parameters param )
+    public void updateRobotParameters(parameters param)
     {
         foreach (GameObject robot in robots)
         {
@@ -96,10 +97,20 @@ public class MakeRobots : MonoBehaviour
             rewards.Add(robot.GetComponent<Robot>().GetCumulativeReward());
         }
         return rewards;
-    }   
+    }
 
     public List<GameObject> getRobots()
     {
         return robots;
     }
+
+    public void DestroyAll()
+    {
+        foreach (Transform child in gameObject.transform.Find("Robots").transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        robots = new List<GameObject>();
+        spawnlocations = new List<List<int[]>>();   
     }
+}

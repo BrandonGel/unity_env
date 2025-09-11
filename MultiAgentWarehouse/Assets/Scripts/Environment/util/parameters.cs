@@ -47,7 +47,7 @@ namespace multiagent.util
         [System.Serializable]
         public class goalParameters
         {
-            public int num_of_goals = 1;
+            public int n_tasks = 1;
             public float task_frequency = 1;
             public goalParameter dropPalette = new goalParameter();
             public goalParameter getbattery = new goalParameter();

@@ -20,7 +20,7 @@
   },
   "goalParams":
   {
-    "num_of_goals": 2,
+    "n_tasks": 2,
     "task_frequency": 1,
     "dropPalette":
     {

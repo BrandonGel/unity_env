@@ -12,18 +12,18 @@ namespace multiagent.goal
     {
         public goalParameters goalParams;
         public Transform transform;
-        private int num_of_goals = 1; // Total number of goals to be completed in the environment
+        private int n_tasks = 1; // Total number of goals to be completed in the environment
         private float task_frequency = 1;  // Hz (number of tasks per second per goal)
         private float intermediate_time = 1; // seconds (time between tasks per goal)
-        private int num_of_goals_started = 0; // Number of goals that have been started
-        private int num_of_goals_completed = 0; // Number of goals that have been completed
+        private int n_tasks_started = 0; // Number of goals that have been started
+        private int n_tasks_completed = 0; // Number of goals that have been completed
         public Dictionary<string, List<Goal[]>> goals = new Dictionary<string, List<Goal[]>>(); // Dictionary of goals categorized by "Pickups" and "Dropoffs"
 
         public void initialize(Transform transform, goalParameters goalParams)
         {
             this.transform = transform;
             this.goalParams = goalParams;
-            this.num_of_goals = goalParams.num_of_goals;
+            this.n_tasks = goalParams.n_tasks;
             this.task_frequency = goalParams.task_frequency;
             intermediate_time = 1f / task_frequency;
             InitGoals();
@@ -32,8 +32,8 @@ namespace multiagent.goal
 
         public void InitGoals()
         {
-            num_of_goals_started = 0;
-            num_of_goals_completed = 0;
+            n_tasks_started = 0;
+            n_tasks_completed = 0;
             int ii = 0;
             goals = new Dictionary<string, List<Goal[]>>();
 
@@ -122,7 +122,7 @@ namespace multiagent.goal
             }
 
             // Prevent assigning new goals if the total number of goals have been started
-            if (num_of_goals_started >= num_of_goals && goalType == 0 )
+            if (n_tasks_started >= n_tasks && goalType == 0 )
             {
                 robotComponent.setGoal(null);
                 return;
@@ -132,7 +132,7 @@ namespace multiagent.goal
                 case 0:
                     goalID = Random.Range(0, numberPickUps);
                     _goal = goals["Pickups"][goalID][1];
-                    num_of_goals_started += 1;
+                    n_tasks_started += 1;
                     break;
                 case 1: // Step 1 -> Step 2: Drop Battery & Palette
                     goalID = Random.Range(0, numberDropoffs);
@@ -147,15 +147,15 @@ namespace multiagent.goal
                     break;
                 case 4: // Step 4 -> Step 1: Get Battery
                     _goal = goals["Pickups"][goalID][1];
-                    num_of_goals_started += 1;
-                    num_of_goals_completed += 1;
+                    n_tasks_started += 1;
+                    n_tasks_completed += 1;
                     break;
                 default:
                     break;
             }
 
             // Prevent assigning new goals if the total number of goals have been completed
-            if (num_of_goals_started >= num_of_goals &&  goalType == 4)
+            if (n_tasks_started >= n_tasks &&  goalType == 4)
             {
                 robotComponent.setGoal(null);
                 return;
@@ -169,7 +169,7 @@ namespace multiagent.goal
         
         public bool allGoalsCompleted()
         {
-            return num_of_goals_completed >= num_of_goals;
+            return n_tasks_completed >= n_tasks;
         }
 
     }

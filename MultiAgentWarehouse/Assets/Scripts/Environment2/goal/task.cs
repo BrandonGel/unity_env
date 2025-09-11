@@ -18,7 +18,7 @@ namespace multiagent.task
         public int assignedRobotID = -1;
         private bool _busy = false;
         private bool _completed = false;
-        private int task_ind = -1;
+        public int task_ind = -1;
 
         public Task(float start_time, string task_name, List<GameObject> taskpoint)
         {

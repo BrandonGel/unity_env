@@ -13,6 +13,7 @@ public class TaskGeneration
     // List<List<GameObject>> goals;
     List<Task> tasks = new List<Task>();
     List<Task> available_tasks = new List<Task>();
+    List<Task> incompleted_tasks = new List<Task>();
     System.Random random = new System.Random();
 
 
@@ -93,7 +94,7 @@ public class TaskGeneration
         }
     }
 
-    public void CheckAvailableGoals(float t)
+    public void CheckAvailableTasks(float t)
     {
         for (int i = n_tasks_started; i < tasks.Count; i++)
         {
@@ -101,15 +102,29 @@ public class TaskGeneration
             {
                 n_tasks_started += 1; ; // Mark as available
                 available_tasks.Add(tasks[i]);
+                incompleted_tasks.Add(tasks[i]);
             }
         }
     }
+    
+    public List<Task> GetIncompleteTasks()
+    {
+        for (int i = incompleted_tasks.Count - 1; i >= 0; i--)
+        {
+            if (incompleted_tasks[i].isCompleted())
+            {
+                incompleted_tasks.RemoveAt(i);
+            }
+        }
 
-    public void AssignGoals(GameObject robot)
+        return incompleted_tasks;
+    }
+
+    public void AssignTaskEarlyStart(GameObject robot)
     {
         Robot robotComponent = robot.GetComponent<Robot>();
 
-        if (available_tasks.Count < 1 )
+        if (available_tasks.Count < 1)
         {
             robotComponent.setGoal(null);
             return;

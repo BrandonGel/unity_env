@@ -2,57 +2,23 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
+using System;
 
 [System.Serializable]
-public class config
+public class Position
 {
-    public string envpath = "";
-    public string filepath = "";
-    public string imagepath = "";
-    public string schedulepath = "";
+    public float t { get; set; }
+    public float x { get; set; }
+    public float y { get; set; }
 }
 
-[System.Serializable]
-public class AgentData
+public class Schedule
 {
-    public string name;
-    public int[] start;
-}   
-
-[System.Serializable]
-public class TaskData
-{
-    public float start_time;
-    public string task_name;
-    public List<int[]> waypoints;
-}   
-
-[System.Serializable]
-public class Map
-{
-
-    public int[] dimensions;
-    public float[] scale = {1.0f,1.0f};
-    public List<List<int[]>> goal_locations;
-    public List<int[]> non_task_endpoints = new List<int[]>();
-    public List<int[]> obstacles;
-    public List<List<int[]>> start_locations;
+    public Dictionary<string, List<Position>> schedule { get; set; }
 }
-
-[System.Serializable]
-public class Root
+public class scheduleJson
 {
-    public List<AgentData> agents;   
-    public Map map;
-    public int n_delays_per_agent;
-    public int n_tasks;
-    public int[] task_freq;
-    public List<TaskData> tasks;
-}
-
-public class environmentJson
-{
-    public Root root;
+    public Schedule data;
     public config conf;
     // Read the JSON file and deserialize it into the Root object
     public void ReadJson(string fileName = "config2.json")
@@ -71,7 +37,7 @@ public class environmentJson
         conf = JsonUtility.FromJson<config>(jsonText);
 
 
-        string filePath = conf.envpath;
+        string filePath = conf.schedulepath;
         // Check if the file exists
         if (!File.Exists(filePath))
         {
@@ -94,7 +60,7 @@ public class environmentJson
         // Deserialize JSON
         try
         {
-            root = JsonConvert.DeserializeObject<Root>(json);
+            data = JsonConvert.DeserializeObject<Schedule>(json);
         }
         catch (System.Exception ex)
         {
@@ -103,26 +69,16 @@ public class environmentJson
         }
 
         // Check if deserialization was successful
-        if (root == null || root.map == null || root.map.obstacles == null)
+        if (data == null)
         {
             Debug.LogError("Deserialized JSON content is null or has missing fields.");
             return;
         }
     }
 
-    public int[] GetDimensions()
+    public Schedule GetSchedule()
     {
-        return root.map.dimensions;
-    }
-
-    public Map GetMap()
-    {
-        return root.map;
-    }   
-
-    public Root GetRoot()
-    {
-        return root;
+        return data;
     }
 
 }

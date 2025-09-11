@@ -24,7 +24,7 @@
   },
   "goalParams":
   {
-    "num_of_goals": 2,
+    "n_tasks": 2,
     "task_freq": 1,
     "goals":
     [

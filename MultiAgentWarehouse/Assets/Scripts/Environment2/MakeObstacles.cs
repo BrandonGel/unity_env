@@ -55,7 +55,8 @@ public class MakeObstacles : MonoBehaviour
 
         Vector3[] spawnPoints = new Vector3[pixels.Length];
         // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
-        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+        // Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+        Vector3 startingSpawnPosition = new Vector3(0f, obstaclePrefab.transform.localScale.y/2, 0f);
         Vector3 currentPosition = startingSpawnPosition;
 
         int counter = 0;
@@ -105,7 +106,8 @@ public class MakeObstacles : MonoBehaviour
             );
 
         // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
-        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+        // Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
+        Vector3 startingSpawnPosition = new Vector3(0f, obstaclePrefab.transform.localScale.y/2, 0f);
 
         for (int i = 0; i < obs.Count; i++)
         {
@@ -120,7 +122,8 @@ public class MakeObstacles : MonoBehaviour
     private void CreateBorderObstacles(int[] xRange, int[] zRange)
     {
         // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
-        Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y / 2, 0.5f);
+        // Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y / 2, 0.5f);
+        Vector3 startingSpawnPosition = new Vector3(0f, obstaclePrefab.transform.localScale.y / 2, 0f);
         Vector3 position = new Vector3();
 
         // Bottom and top borders
@@ -182,7 +185,7 @@ public class MakeObstacles : MonoBehaviour
         }
     }
 
-    public void deleteAll()
+    public void DestroyAll()
     {
         foreach (Transform child in gameObject.transform.Find("Obstacles"))
         {

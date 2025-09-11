@@ -40,7 +40,7 @@ namespace multiagent.parameterJson
     [System.Serializable]
     public class goalParameters
     {
-        public int num_of_goals = 1;
+        public int n_tasks = 1;
         public float task_freq = 1;
         public List<goalParameter> goals = new List<goalParameter>();
         public List<goalParameter> starts = new List<goalParameter>();

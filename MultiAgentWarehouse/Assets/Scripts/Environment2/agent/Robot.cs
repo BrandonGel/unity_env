@@ -172,8 +172,6 @@ namespace multiagent.robot
 
         public override void CollectObservations(VectorSensor sensor)
         {
-
-
             float robotPosX_normalized = transform.localPosition.x / boxSize.x;
             float robotPosZ_normalized = transform.localPosition.z / boxSize.z;
             // Normalize position to be within [-1, 1]

@@ -110,6 +110,35 @@ namespace multiagent.util
             frac = Mathf.Clamp(frac, 0, 1);
             return frac;
         }
+        public static Vector3 interpolate(Vector3 x ,Vector3 y, float t)
+        {
+            Vector3 pos = x + (y - x) * t;
+            return pos;
+        }
+
+        public static float CalculateHeading(Vector3 currentPosition, Vector3 nextPosition)
+        {
+            Vector2 direction = new Vector2(nextPosition.x - currentPosition.x, nextPosition.z - currentPosition.z);
+            return -Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        }
+
+        public static float DetermineHeading(float currentHeading, float targetHeading)
+        {
+            float angleDifferenceForward = Mathf.DeltaAngle(currentHeading, targetHeading);
+            float angleDifferenceBackward = Mathf.DeltaAngle(currentHeading, targetHeading + 180f);
+            float bestHeading;
+            // Decide whether to face forward or backward
+            if (Mathf.Abs(angleDifferenceForward) <= Mathf.Abs(angleDifferenceBackward))
+            {
+                bestHeading = targetHeading;
+            }
+            else
+            {
+                bestHeading = targetHeading + 180f;
+            }
+            return bestHeading;
+        }
+
         
         public static void enableRenderer(Renderer _renderer, bool turnon = true)
         {

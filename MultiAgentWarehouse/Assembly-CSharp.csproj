@@ -48,6 +48,7 @@
     <Analyzer Include="/home/brandon-ho/Unity/Hub/Editor/6000.1.6f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets/Scripts/Environment2/util/scheduleJson.cs" />
     <Compile Include="Assets/Scripts/Environment/controller/Controller.cs" />
     <Compile Include="Assets/Scripts/Environment/util/movePos.cs" />
     <Compile Include="Assets/Scripts/Environment/lidar/PointCloud.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Assets/Scripts/Environment/goal/goal.cs" />
     <Compile Include="Assets/Scripts/Environment2/Environment2.cs" />
     <Compile Include="Assets/Scripts/Environment/palette/box.cs" />
+    <Compile Include="Assets/Scripts/Environment2/ReplayPath.cs" />
     <Compile Include="Assets/Scripts/Environment2/agent/Robot.cs" />
     <Compile Include="Assets/Scripts/Environment/goal/goalClass.cs" />
     <Compile Include="Assets/Scripts/Environment/camera/Camera Movement.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Assets/Scripts/Environment2/goal/goal.cs" />
     <Compile Include="Assets/Scripts/Environment2/MakeObstacles.cs" />
     <Compile Include="Assets/Scripts/Environment/receiveMessage.cs" />
+    <Compile Include="Assets/Scripts/Menu/Menu.cs" />
     <Compile Include="Assets/Scripts/Environment/agent/Data.cs" />
     <Compile Include="Assets/Scripts/Environment2/MakeRobots.cs" />
     <Compile Include="Assets/Scripts/Environment/util/data.cs" />

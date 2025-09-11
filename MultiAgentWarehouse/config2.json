@@ -1,5 +1,6 @@
 {
   "filepath":  "parameters2.json",
   "envpath":  "env.json",
-  "imagepath":  "Processed_image.png"
+  "imagepath":  "Processed_image.png",
+  "schedulepath":  "schedule.json"
 }
