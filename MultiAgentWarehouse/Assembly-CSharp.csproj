@@ -66,6 +66,7 @@
     <Compile Include="Assets/Scripts/Environment/GUI_environment.cs" />
     <Compile Include="Assets/Scripts/Environment2/util/environmentJson.cs" />
     <Compile Include="Assets/Scripts/Environment/camera/Camera_Follow.cs" />
+    <Compile Include="Assets/Scripts/Environment2/util/pathVisualize.cs" />
     <Compile Include="Assets/Scripts/Environment/util/util.cs" />
     <Compile Include="Assets/Scripts/Environment/util/pathVisualize.cs" />
     <Compile Include="Assets/Scripts/Environment/lidar/ScannerData.cs" />

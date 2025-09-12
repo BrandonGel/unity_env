@@ -46,7 +46,6 @@ public class ReplayPath
             float bestHeading = targetHeading;
 
             // Update Robot
-        
             float headingRotationSpeed = robot.GetComponent<Robot>().maxRotationSpeed*360f/Mathf.PI; // degrees per second
             robot.transform.rotation = Quaternion.RotateTowards(
                                             robot.transform.rotation,

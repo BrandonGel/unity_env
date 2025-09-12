@@ -1,18 +1,23 @@
 {
-  "seed": 42,  
+  "unityParams":
+  {
+    "seed": 42,  
+    "timescale": 1, 
+    "fixed_timestep": 0.05
+  },
   "agentParams":
   {
-    "num_of_agents": 1,
+    "num_of_agents": 128,
     "min_spacing": 0.1,
-    "num_spawn_tries": 100,
-    "maxSpeed": 7,
+    "num_spawn_tries": 10000,
+    "maxSpeed": 0.7,
     "maxRotationSpeed": 2.11,
     "maxAcceleration": 2.72,
     "maxRotationAccleration": 8.23,
     "velocityControl": true,
     "absoluteCoordinate": false,
-    "debugArrow": true,
-    "maxTimeSteps": 5001,
+    "debugArrow": false,
+    "maxTimeSteps": 101,
     "decisionPeriod": 5,
     "rewardParams":
     {
@@ -26,6 +31,7 @@
   {
     "n_tasks": 2,
     "task_freq": 1,
+    "task_mode": "EarlyStart",
     "goals":
     [
       {

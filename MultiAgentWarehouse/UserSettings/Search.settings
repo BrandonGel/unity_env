@@ -9,7 +9,7 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.66F56946" = "graphi"
+	"last_search.66F56946" = "unity mesh read ass"
 	"OpenInspectorPreview.66F56946" = "0"
 	"currentGroup.66F56946" = null
 }
@@ -68,6 +68,8 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"unity mesh rea"
+	"unity"
 ]
 searchItemFavorites = [
 ]

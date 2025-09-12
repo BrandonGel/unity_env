@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: -3195125127519133270}
   - component: {fileID: 6607860491112228908}
   - component: {fileID: 1365390313198338626}
-  - component: {fileID: 8654863428445383684}
+  - component: {fileID: 999694555020126654}
   - component: {fileID: 3899639601353256598}
   m_Layer: 0
   m_Name: SRS 1P 3.1
@@ -230,9 +230,9 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_Extents: {x: 0.25, y: 0.5, z: 0.25}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
@@ -314,7 +314,7 @@ MonoBehaviour:
   U_constraint: 0
   arrow: {fileID: 415096288113428036, guid: f329cf2526ff25481934698b5d06f697, type: 3}
   debugArrow: 0
---- !u!114 &8654863428445383684
+--- !u!114 &999694555020126654
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -323,12 +323,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 610991913526610428}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e86010268ca183995f20457de359c3, type: 3}
+  m_Script: {fileID: 11500000, guid: 54a437c5a8ccd0a76b25710259ed3a90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   trackerTransform: {fileID: 2999045015337985028}
   lineRenderer: {fileID: 3351676238696043559, guid: 06404605b8e5cf418b7c5d1f1a9454f9, type: 3}
-  _robot: {fileID: 0}
+  _robot: {fileID: 1365390313198338626}
   maxPathPositionListCount: 20
 --- !u!114 &3899639601353256598
 MonoBehaviour:

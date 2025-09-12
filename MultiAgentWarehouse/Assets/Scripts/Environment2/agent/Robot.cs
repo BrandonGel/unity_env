@@ -49,6 +49,7 @@ namespace multiagent.robot
         private Vector3 newSpawnPosition, accelerationVector, rotationAccelerationVector;
         private Quaternion newSpawnOrientation;
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
+        private bool allowCommandsInput = true;
 
 
         public override void Initialize()
@@ -259,7 +260,7 @@ namespace multiagent.robot
                 isControllerInit = true;
             }
 
-            if (!checkWait())
+            if (!checkWait() && allowCommandsInput)
             {
                 MoveAgent(actions.ContinuousActions);
             }
@@ -476,6 +477,11 @@ namespace multiagent.robot
                 _rigidbody.angularVelocity.y
             );
             return (currentTime, s, ds);
+        }
+
+        public void setAllowCommandsInput(bool allow)
+        {
+            allowCommandsInput = allow;
         }
 
         public void updateAgentParameters(parameters param)

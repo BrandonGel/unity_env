@@ -7,6 +7,7 @@ using multiagent.robot;
 using multiagent.parameterJson;
 using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine.PlayerLoop;
+using Unity.Mathematics;
 public class MakeRobots : MonoBehaviour
 {
     public List<List<int[]>> spawnlocations = new List<List<int[]>>();
@@ -24,7 +25,7 @@ public class MakeRobots : MonoBehaviour
             return;
         }
         // Vector3 offset = new Vector3(0.5f, 0, 0.5f);
-        Vector3 offset = new Vector3(0f, 0, 0f);
+        Vector3 offset = new Vector3(0f, 0.5f, 0f);
 
         if (agents != default)
         {
@@ -49,25 +50,56 @@ public class MakeRobots : MonoBehaviour
         else if (num_of_agents > 0 && findValidPoint != default)
         {
             robots = new List<GameObject>();
+            List<Vector3> position = new List<Vector3>();
             for (int i = 0; i < num_of_agents; i++)
             {
                 bool isOverlapping = false;
                 Vector3 pos = Vector3.zero;
                 Quaternion orientation = Quaternion.identity;
+                int count = 0;
+                Collider[] intersecting = new Collider[0];
+                Vector3 halfExtents = robot_prefab.GetComponent<BoxCollider>().size; // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
+                float radius = MathF.Sqrt(halfExtents.x*halfExtents.x + halfExtents.z*halfExtents.z);
                 for (int j = 0; j < num_spawn_tries; j++)
                 {
                     (pos, orientation) = findValidPoint();
-                    Vector3 halfExtents = Vector3.Scale(robot_prefab.transform.localScale, scaling) * (0.5f + min_spacing); // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
-                    isOverlapping = Physics.CheckBox(pos, halfExtents, orientation);
-                    if (!isOverlapping)
+
+                    for (int k = 0; k < position.Count; k++)
+                    {
+                        if (Vector3.Distance(pos, position[k]) < radius)
+                        {
+                            isOverlapping = true;
+                            break;
+                        }
+                    }
+
+                    if (!isOverlapping || position.Count == 0)
+                    {
+                        position.Add(pos);
                         break;
+                    }
+                    // Debug.Log("Overlap detected for robot " + i + " at position " + pos + " , retrying...");
+                    isOverlapping = false;
+                    count +=1;
+                }
+                // Debug.Log("i: " + i + " count: " + count);
+                if (count == num_spawn_tries)
+                {
+                    Debug.LogWarning("Could not find non-overlapping spawn point for robot " + i + ". Placing it anyway.");
                 }
                 GameObject robot = Instantiate(robot_prefab, pos, orientation);
                 robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
                 robot.transform.parent = gameObject.transform.Find("Robots").transform;
                 robot.GetComponent<Robot>().setID(i);
                 robot.GetComponent<Robot>().boxSize = boxSize;
+                robot.GetComponent<Robot>().setCollisionOn(false);
+                robot.name = "Robot_" + i;
                 robots.Add(robot);
+            }
+
+            for (int i = 0; i < num_of_agents; i++)
+            {
+                robots[i].GetComponent<Robot>().setCollisionOn(true);
             }
 
         }
@@ -104,13 +136,22 @@ public class MakeRobots : MonoBehaviour
         return robots;
     }
 
+    public void setCommandInput(bool allowCommandsInput)
+    {
+        foreach (GameObject robot in robots)
+        {
+            Robot robotObj = robot.GetComponent<Robot>();
+            robotObj.setAllowCommandsInput(allowCommandsInput);
+        }
+    }
+
     public void DestroyAll()
     {
         foreach (Transform child in gameObject.transform.Find("Robots").transform)
         {
-            GameObject.Destroy(child.gameObject);
+            Destroy(child.gameObject);
         }
         robots = new List<GameObject>();
-        spawnlocations = new List<List<int[]>>();   
+        spawnlocations = new List<List<int[]>>();
     }
 }

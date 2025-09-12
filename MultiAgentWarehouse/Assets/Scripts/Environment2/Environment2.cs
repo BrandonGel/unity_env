@@ -23,79 +23,126 @@ public class Environment2 : MonoBehaviour
     public int maxTimeSteps = 1000;
     public int decisionPeriod = 1;
     public int n_tasks = 1;
+    public float task_freq = 1f;
     public int tasks_obs_space = 1;
     public Vector3 scaling;
+    public delegate void taskAssignmentMethod();
+    taskAssignmentMethod taskAssignment = default;
+    public string configFile = "config2.json";
 
     void Awake()
     {
-        envJson.ReadJson();
-        paramJson.ReadJson();
-        scheduleJson.ReadJson();
-
+        readConfig(configFile);
         parameters param = paramJson.GetParameter();
         tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 2;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
-
-        Root root = envJson.GetRoot();
-        n_tasks = root.n_tasks;
     }
 
-
-    void Start()
+    public void readConfig(string file)
     {
+        envJson.ReadJson(file);
+        paramJson.ReadJson(file);
+        scheduleJson.ReadJson(file);
+        parameters param = paramJson.GetParameter();
+        Root root = envJson.GetRoot();
+        if (envJson.conf.mode == "generate")
+        {
+            n_tasks = param.goalParams.n_tasks;
+            task_freq = param.goalParams.task_freq;
+        }
+        else
+        {
+            n_tasks = root.n_tasks;
+            task_freq = root.task_freq[0];
+        }
 
+    }
 
+    public void init()
+    {
+        t = 0f;
         Root root = envJson.GetRoot();
         parameters param = paramJson.GetParameter();
-
         int[] dims = root.map.dimensions;
-
         float[] scale = root.map.scale;
-        Vector3 Imagescaling = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
         scaling = new Vector3(scale[0], 1, scale[1]);
-
         Map envMap = envJson.GetMap();
 
+        // Create the World
+        mo.DestroyAll();
+        if (envJson.conf.world_mode == "image")
+        {
+            Vector3 Imagescaling = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
+            mo.GenerateWorld(envJson.conf.imagepath, Imagescaling);
+        }
+        else if (envJson.conf.world_mode == "grid")
+        {
+            mo.CreateWorld(configFile);
+        }
 
-
-        mo.GenerateWorld(envJson.conf.imagepath, Imagescaling);
-        // mo.CreateWorld("config2.json");
-
-
-
+        // Start and Goal Initialization
         msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling);
 
-        tg = new TaskGeneration(
-            root.n_tasks,
-            root.task_freq[0],
-            msg.getStartLocations(),
-            msg.getGoalLocations()
-        );
-
-
-
-        // tg.GenerateTasks();
-
-        List<TaskData> tasks = root.tasks;
-        tg.DownloadTasks(tasks);
-
+        // NavMesh Initialization
         Vector3 boxSize = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
         Vector3 mapCenter = new Vector3((dims[0] * scale[0]) / 2, 0, (dims[1] * scale[1]) / 2);
         mn.setParameters(MakeNavMesh.SpawnShape.Box, boxSize, mapCenter, 0);
         mn.StartMesh();
 
+        // Robot Initialization & Task Generation Initialization
+        tg = new TaskGeneration(
+            n_tasks,
+            task_freq,
+            msg.getStartLocations(),
+            msg.getGoalLocations()
+        );
+        mr.DestroyAll();
         mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
-        mr.initStartLocation(0, root.agents, default, scaling);
-        // mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling);
-        // mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
+        if (envJson.conf.mode.Contains("generate"))
+        {
+            tg.GenerateTasks();
+            if (envJson.conf.mode.Contains("envjson"))
+            {
+                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling);
+            }
+            else if (envJson.conf.mode.Contains("paramjson"))
+            {
+                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
+            }
+            
+            
+        }
+        else if (envJson.conf.mode == "download")
+        {
+            List<TaskData> tasks = root.tasks;
+            tg.DownloadTasks(tasks);
+            mr.initStartLocation(0, root.agents, default, scaling);
+            mr.setCommandInput(false);
+        }
+        else if (envJson.conf.mode == "csv")
+        {
+            List<TaskData> tasks = root.tasks;
+            tg.DownloadTasks(tasks);
+            // mr.initStartLocation(0, ###, default, default);
+            mr.setCommandInput(false);
+        }
         mr.updateRobotParameters(param);
-
-
         List<float> rewards = mr.getReward();
 
-        camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
+        // Task Assignment Declaration
+        if (param.goalParams.task_mode == "EarlyStart")
+        {
+            taskAssignment = AssignTaskEarlyStart;
+        }
 
+        // Camera Assignment
+        camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
+    }
+
+    void Start()
+    {
+        init();
     }
 
     void QuitApplication()
@@ -115,17 +162,19 @@ public class Environment2 : MonoBehaviour
         }
     }
 
-
-
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
-        AssignTaskEarlyStart();
 
-        // If updatePath should be static, ensure the method is static in ReplayPath
-        replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
+        if (taskAssignment != default)
+        {
+            taskAssignment();
+        }
 
-
+        if (envJson.conf.mode == "download")
+        {
+            replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
+        }
     }
 
     public void AssignTaskEarlyStart()

@@ -10,6 +10,9 @@ public class config
     public string filepath = "";
     public string imagepath = "";
     public string schedulepath = "";
+    public string csvfolder = "";
+    public string mode = "";
+    public string world_mode = "";
 }
 
 [System.Serializable]

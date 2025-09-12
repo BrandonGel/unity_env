@@ -36,6 +36,8 @@ namespace multiagent.robot
         public BehaviorParameters behaviorParams;
         public Material collisionMaterial;
         private Dictionary<Renderer, Material> originalColors = new Dictionary<Renderer, Material>();
+        private bool collisionOn = true;
+        private bool isColliding = false;
 
         public void setDecisionRequestParams(int maxTimeSteps, int decisionPeriod)
         {
@@ -173,7 +175,7 @@ namespace multiagent.robot
                 isTypeMatched = other.gameObject.GetComponent<Goal>().goalType == taskClass.getCurrentGoal().GetComponent<Goal>().goalType;
                 isNameMatched = other.gameObject.name == taskClass.getCurrentGoal().name;
             }
-            
+
             if (other.gameObject.CompareTag("Goal") && isIDmatched && isTypeMatched && isNameMatched && isCenterInside)
             {
                 GoalReached();
@@ -182,17 +184,19 @@ namespace multiagent.robot
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
+            isColliding = true;
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn && StepCount > 0)
             {
                 AddReward(_collisionEnterReward);
                 // Get all Renderer components in children (including inactive ones if desired)
+                Debug.Log("Collision Entered " + collision.gameObject.name + " with " + gameObject.name + " " + collision.transform.position + " with " + gameObject.transform.position + " " + collision.transform.GetComponent<Robot>().getID() + " " + this.getID());
                 changeMaterialColor("c");
             }
         }
 
         private void OnCollisionStay(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn && StepCount > 0)
             {
                 AddReward(_collisionStayReward * Time.fixedDeltaTime);
             }
@@ -200,7 +204,8 @@ namespace multiagent.robot
 
         private void OnCollisionExit(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player"))
+            isColliding = false;
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn && StepCount > 0)
             {
                 changeMaterialColor();
             }
@@ -266,6 +271,15 @@ namespace multiagent.robot
             _goalReward = goalReward;
         }
 
+        public void setCollisionOn(bool collisionOn)
+        {
+            this.collisionOn = collisionOn;
+        }
+
+        public bool checkCollision()
+        {
+            return isColliding;
+        }
 
 
     }

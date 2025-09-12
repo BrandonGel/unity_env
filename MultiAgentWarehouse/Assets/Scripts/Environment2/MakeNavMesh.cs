@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class MakeNavMesh : MonoBehaviour
 {
     public SpawnShape spawnShape = SpawnShape.Box;
-    public Vector2 boxSize = new Vector2(0, 0);
+    public Vector3 boxSize = Vector3.zero;
     public Vector3 center = Vector3.zero;
     public Vector3 spawningOffset = Vector3.zero;
     public float spawn_radius = 0;
@@ -29,7 +29,7 @@ public class MakeNavMesh : MonoBehaviour
                 break;
             case SpawnShape.Box:
                 float halfWidth = boxSize.x * 0.5f;
-                float halfHeight = boxSize.y * 0.5f;
+                float halfHeight = boxSize.z * 0.5f;
                 randomPoint = center + new Vector3(Random.Range(-halfWidth, halfWidth), 0f, Random.Range(-halfHeight, halfHeight));
                 break;
             default:
@@ -60,7 +60,7 @@ public class MakeNavMesh : MonoBehaviour
                 Gizmos.DrawWireSphere(transform.localPosition + spawningOffset, spawn_radius);
                 break;
             case SpawnShape.Box:
-                Vector3 size = new Vector3(boxSize.x, 0, boxSize.y);
+                Vector3 size = new Vector3(boxSize.x, 0, boxSize.z);
                 Gizmos.DrawWireCube(transform.localPosition + spawningOffset, size);
                 break;
             default:

@@ -29,13 +29,18 @@ public class Environment2Agent : Agent
         bufferSensor.SensorName = "NearbyObjectsSensor"; 
         scaling = env.scaling;
     }
-    
+
 
     public override void OnEpisodeBegin()
     {
         CurrentEpisode += 1;
         CumulativeReward = 0f;
-        env.t = 0f;
+        if (CurrentEpisode > 1)
+        {
+            env.readConfig(env.configFile);
+            env.init();
+        }
+        Debug.Log("Episode: " + CurrentEpisode);
 
         // env.tg.GenerateTasks();
     }

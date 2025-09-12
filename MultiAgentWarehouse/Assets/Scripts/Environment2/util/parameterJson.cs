@@ -42,6 +42,7 @@ namespace multiagent.parameterJson
     {
         public int n_tasks = 1;
         public float task_freq = 1;
+        public string task_mode = "";
         public List<goalParameter> goals = new List<goalParameter>();
         public List<goalParameter> starts = new List<goalParameter>();
     }
@@ -74,10 +75,17 @@ namespace multiagent.parameterJson
         public rewardParameters rewardParams = new rewardParameters();
     }
 
+    public class unityParameters
+    {
+        public int seed = 42;
+        public float timescale = 5f;
+        public float fixed_timestep = 0.2f;
+    }
+
     [System.Serializable]
     public class parameters
     {
-        public int seed = 42;
+        public unityParameters unityParams = new unityParameters();
         public agentsParameters agentParams = new agentsParameters();
         public goalParameters goalParams = new goalParameters();
 
@@ -115,7 +123,10 @@ namespace multiagent.parameterJson
                 Debug.LogError("Parameter filepath in the config file was not found!!!");
             }
             param = JsonUtility.FromJson<parameters>(jsonText);
-            Random.InitState(param.seed);
+            // Random.InitState(param.unityParams.seed);
+            // Time.timeScale = param.unityParams.timescale;
+            // Time.fixedDeltaTime = param.unityParams.fixed_timestep;
+
         }
 
         public parameters GetParameter()
