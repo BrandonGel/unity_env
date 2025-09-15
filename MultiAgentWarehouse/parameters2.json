@@ -3,7 +3,9 @@
   {
     "seed": 42,  
     "timescale": 1, 
-    "fixed_timestep": 0.05
+    "fixed_timestep": 0.02,
+    "max_allowable_num_agents": 2048,
+    "max_allowable_num_tasks": 2048
   },
   "agentParams":
   {

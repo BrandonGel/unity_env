@@ -69,6 +69,7 @@
     <Compile Include="Assets/Scripts/Environment2/util/pathVisualize.cs" />
     <Compile Include="Assets/Scripts/Environment/util/util.cs" />
     <Compile Include="Assets/Scripts/Environment/util/pathVisualize.cs" />
+    <Compile Include="Assets/Scripts/Environment2/agent/Robot2.cs" />
     <Compile Include="Assets/Scripts/Environment/lidar/ScannerData.cs" />
     <Compile Include="Assets/Scripts/Environment/GUI_camera.cs" />
     <Compile Include="Assets/Scripts/Environment/LocalPlayerEnabler.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Assets/Scripts/Environment2/goal/task.cs" />
     <Compile Include="Assets/Scripts/Environment2/util/TaskGeneration.cs" />
     <Compile Include="Assets/Scripts/Environment/agent/Agent.cs" />
+    <Compile Include="Assets/Scripts/Environment2/agent/Agent2.cs" />
     <Compile Include="Assets/Scripts/Environment2/GUI_environment2.cs" />
     <Compile Include="Assets/Scripts/Environment/controller/PurePursuit.cs" />
   </ItemGroup>

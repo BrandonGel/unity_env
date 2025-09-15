@@ -18,15 +18,12 @@ public class Environment2Agent : Agent
     Vector3 scaling;
     void Awake()
     {
-        env = GameObject.Find("Environment2").GetComponent<Environment2>();
+        env = transform.GetComponent<Environment2>();
         MaxStep = env.maxTimeSteps;
-        
-
         GetComponent<DecisionRequester>().DecisionPeriod = env.decisionPeriod;
-        bufferSensor = gameObject.AddComponent<BufferSensorComponent>();
-        bufferSensor.MaxNumObservables = env.n_tasks;
+        bufferSensor = GetComponent<BufferSensorComponent>();
+        bufferSensor.MaxNumObservables = env.max_allowable_num_tasks;
         bufferSensor.ObservableSize = env.tasks_obs_space;
-        bufferSensor.SensorName = "NearbyObjectsSensor"; 
         scaling = env.scaling;
     }
 

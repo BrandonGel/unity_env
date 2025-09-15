@@ -6,6 +6,8 @@ public class MakeObstacles : MonoBehaviour
 {
     public GameObject obstaclePrefab; // Assign your obstacle prefab here
     private GameObject ground;
+    public Material groundMaterial;
+    public Material obstacleMaterial;
     private Vector3  scale;
     private environmentJson envJson = new environmentJson();
     private int worldX, worldY, worldZ;
@@ -157,6 +159,7 @@ public class MakeObstacles : MonoBehaviour
         groundScale = Vector3.Scale(groundScale, this.scale);
         ground.transform.localScale = groundScale;  
         ground.transform.parent = gameObject.transform.Find("Ground").transform;
+        ground.GetComponent<Renderer>().material= groundMaterial;
     }
 
     private void CreateObstacle(Vector3 currentPosition, Color color = default)
@@ -165,6 +168,7 @@ public class MakeObstacles : MonoBehaviour
         GameObject obs = Instantiate(obstaclePrefab, currentPosition, Quaternion.identity);
         obs.transform.localScale = this.scale;
         obs.transform.parent = gameObject.transform.Find("Obstacles").transform;
+        obs.GetComponent<Renderer>().material= obstacleMaterial;
         if (color != default)
             obs.GetComponent<Renderer>().material.color = color;
     }

@@ -151,6 +151,10 @@ public class MakeRobots : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        foreach (Transform child in gameObject.transform.Find("Paths").transform)
+        {
+            Destroy(child.gameObject);
+        }
         robots = new List<GameObject>();
         spawnlocations = new List<List<int[]>>();
     }

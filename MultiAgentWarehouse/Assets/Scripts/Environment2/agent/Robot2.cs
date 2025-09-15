@@ -11,7 +11,7 @@ using multiagent.parameterJson;
 namespace multiagent.robot
 {
 
-    public class Robot : AgentTemplate
+    public class Robot2 : Agent2Template
     {
         [SerializeField] public float maxSpeed = .7f; // meters per second
         [SerializeField] public float maxRotationSpeed = 2.11f; // degrees per second
@@ -52,7 +52,7 @@ namespace multiagent.robot
         private bool allowCommandsInput = true;
 
 
-        public override void Initialize()
+        public void Awake()
         {
             // _controllerNameStr = Enum.GetName(_controllerName.GetType(), _controllerName);
             // _controllerTypeStr = Enum.GetName(_controllerType.GetType(), _controllerType);
@@ -91,7 +91,6 @@ namespace multiagent.robot
             aData = new agentData(getID());
             m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
             m_rayPerceptionSensorComponent3D.name = "RayPerceptionSensor_" + getID();
-            behaviorParams = GetComponent<BehaviorParameters>();
         }
 
         private void generateArrow()
@@ -154,10 +153,12 @@ namespace multiagent.robot
             }
         }
 
-        public override void OnEpisodeBegin()
+        public virtual void reset()
         {
             CurrentEpisode++;
-            CumulativeReward = 0f;
+            StepCount = 0;
+            CumulativeReward = 0;
+            Reward = 0;
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             _rigidbody.linearVelocity = Vector3.zero;
@@ -253,17 +254,17 @@ namespace multiagent.robot
 
         }
 
-        public override void OnActionReceived(ActionBuffers actions)
+        public void step(float[] actions)
         {
             if (!isControllerInit)
             {
-                control.InitControl(actions.ContinuousActions.Length, minLim, maxLim, _controllerNameStr, controlPath);
+                control.InitControl(actions.Length, minLim, maxLim, _controllerNameStr, controlPath);
                 isControllerInit = true;
             }
 
             if (!checkWait() && allowCommandsInput)
             {
-                MoveAgent(actions.ContinuousActions);
+                MoveAgent(actions);
             }
             else
             {
@@ -271,7 +272,6 @@ namespace multiagent.robot
             }
 
             addTimeReward();
-            CumulativeReward = GetCumulativeReward();
         }
 
         public (float[], float) checkConstraint(float v, float w)
@@ -351,7 +351,7 @@ namespace multiagent.robot
             _rigidbody.linearVelocity = transform.TransformDirection(localVelocity);
         }
 
-        public override void MoveAgent(ActionSegment<float> action)
+        public void MoveAgent(float[] action)
         {
             actionInput = new Vector2(action[0], action[1]);
             Vector3[] act;

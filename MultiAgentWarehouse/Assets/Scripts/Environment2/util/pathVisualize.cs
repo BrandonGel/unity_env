@@ -41,7 +41,7 @@ namespace multiagent.parameterJson
 
         void FixedUpdate()
         {
-            if (_robot != null && _robot.StepCount == 0)
+            if (_robot != null && _robot.StepCount <= 1)
             {
                 Reset();
             }
