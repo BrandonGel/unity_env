@@ -173,7 +173,7 @@ namespace multiagent.robot
         }
 
 
-        public override void CollectObservations(VectorSensor sensor)
+        public void CollectObservations()
         {
             float robotPosX_normalized = transform.localPosition.x / boxSize.x;
             float robotPosZ_normalized = transform.localPosition.z / boxSize.z;
@@ -182,10 +182,16 @@ namespace multiagent.robot
             // float angleRotation_normalized = angleRotation/180f; // Normalize angle [-180, 180) -> [-1, 1)
             float sinAngle = Mathf.Sin(angleRotation); // Sine of the angle ->[-180, 180) -> [-1, 1]
             float cosAngle = Mathf.Cos(angleRotation); // Cosine of the angle ->[-180, 180) -> [-1, 1]
-            sensor.AddObservation(robotPosX_normalized);
-            sensor.AddObservation(robotPosZ_normalized);
-            sensor.AddObservation(sinAngle);
-            sensor.AddObservation(cosAngle);
+            float[] observation = new float[] {
+                robotPosX_normalized,
+                robotPosZ_normalized,
+                sinAngle,
+                cosAngle,
+                currentSpeed / maxSpeed,
+                currentRotationSpeed / maxRotationSpeed,
+                currentAcceleration / maxAcceleration,
+                currentRotationAcceleration / maxRotationAccleration,
+            };
 
             // var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
             // int lengthOfRayOutputs = rayOutputs.Length;
@@ -210,9 +216,9 @@ namespace multiagent.robot
 
         }
 
-        public override void Heuristic(in ActionBuffers actionsOut)
+        public float[] Heuristic()
         {
-            var continuousActionsOut = actionsOut.ContinuousActions;
+            float[] continuousActionsOut = new float[2];
             continuousActionsOut[0] = 0;
             continuousActionsOut[1] = 0;
             if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.LeftArrow))
@@ -251,11 +257,12 @@ namespace multiagent.robot
             {
                 continuousActionsOut[0] = -1;
             }
-
+            return continuousActionsOut;
         }
 
-        public void step(float[] actions)
+        public void Step(float[] actions)
         {
+            Reward = 0;
             if (!isControllerInit)
             {
                 control.InitControl(actions.Length, minLim, maxLim, _controllerNameStr, controlPath);
@@ -272,6 +279,7 @@ namespace multiagent.robot
             }
 
             addTimeReward();
+            CumulativeReward += Reward;
         }
 
         public (float[], float) checkConstraint(float v, float w)

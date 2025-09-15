@@ -13,7 +13,7 @@ public class Environment2 : MonoBehaviour
     public MakeStartsGoals msg;
     public environmentJson envJson = new environmentJson();
     public TaskGeneration tg;
-    public MakeRobots mr;
+    public MakeRobots2 mr;
     public MakeNavMesh mn;
     public parameterJson paramJson = new parameterJson();
     public scheduleJson scheduleJson = new scheduleJson();
@@ -27,8 +27,7 @@ public class Environment2 : MonoBehaviour
     public float task_freq = 1f;
     public int tasks_obs_space = 1;
     public int max_allowable_num_agents = 2048;
-    public int max_allowable_num_tasks = 2048;
-    public Vector3 scaling;
+    public int max_allowable_num_tasks = 2048;    public Vector3 scaling;
     public delegate void taskAssignmentMethod();
     taskAssignmentMethod taskAssignment = default;
     public string configFile = "config2.json";
@@ -135,7 +134,6 @@ public class Environment2 : MonoBehaviour
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
-        List<float> rewards = mr.getReward();
 
         // Task Assignment Declaration
         if (param.goalParams.task_mode == "EarlyStart")
@@ -193,17 +191,35 @@ public class Environment2 : MonoBehaviour
         tg.CheckAvailableTasks(t);
         foreach (GameObject robot in mr.robots)
         {
-            if (robot.GetComponent<Robot>().getTaskReached())
+            try
             {
-                tg.AssignTaskEarlyStart(robot);
-            }
-            else
-            {
-                if (robot.GetComponent<Robot>().taskClass == null)
+                if (robot.GetComponent<Robot>().getTaskReached())
                 {
                     tg.AssignTaskEarlyStart(robot);
                 }
+                else
+                {
+                    if (robot.GetComponent<Robot>().taskClass == null)
+                    {
+                        tg.AssignTaskEarlyStart(robot);
+                    }
+                }
             }
+            catch (System.Exception e)
+            {
+                if (robot.GetComponent<Robot2>().getTaskReached())
+                {
+                    tg.AssignTaskEarlyStart(robot);
+                }
+                else
+                {
+                    if (robot.GetComponent<Robot2>().taskClass == null)
+                    {
+                        tg.AssignTaskEarlyStart(robot);
+                    }
+                }
+            }
+            
 
         }
     }

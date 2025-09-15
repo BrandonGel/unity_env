@@ -52,18 +52,18 @@ public class TaskGeneration
     {
         // TO DO
         tasks = new List<Task>();
-        Dictionary<(int,int), int> start_dict = new Dictionary<(int,int), int>();
-        Dictionary<(int,int), int> goal_dict = new Dictionary<(int,int), int>();
+        Dictionary<(int, int), int> start_dict = new Dictionary<(int, int), int>();
+        Dictionary<(int, int), int> goal_dict = new Dictionary<(int, int), int>();
         for (int j = 0; j < starts.Count; j++)
         {
             int[] tileArr = starts[j][0].GetComponent<Goal>().getTile();
-            (int,int) key = (tileArr[0], tileArr[1]);
+            (int, int) key = (tileArr[0], tileArr[1]);
             start_dict[key] = j;
         }
         for (int j = 0; j < goals.Count; j++)
         {
             int[] tileArr = goals[j][0].GetComponent<Goal>().getTile();
-            (int,int) key = (tileArr[0], tileArr[1]);
+            (int, int) key = (tileArr[0], tileArr[1]);
             goal_dict[key] = j;
         }
 
@@ -71,8 +71,8 @@ public class TaskGeneration
         for (int i = 0; i < n_tasks; i++)
         {
             List<int[]> waypoints = tasksData[i].waypoints;
-            (int,int) startKey = (waypoints[0][0], waypoints[0][1]);
-            (int,int) goalKey = (waypoints[1][0], waypoints[1][1]);
+            (int, int) startKey = (waypoints[0][0], waypoints[0][1]);
+            (int, int) goalKey = (waypoints[1][0], waypoints[1][1]);
             // Debug.Log(start_dict[key]);
             int x = start_dict[startKey];
             int y = goal_dict[goalKey];
@@ -106,7 +106,7 @@ public class TaskGeneration
             }
         }
     }
-    
+
     public List<Task> GetIncompleteTasks()
     {
         for (int i = incompleted_tasks.Count - 1; i >= 0; i--)
@@ -122,17 +122,34 @@ public class TaskGeneration
 
     public void AssignTaskEarlyStart(GameObject robot)
     {
-        Robot robotComponent = robot.GetComponent<Robot>();
-
-        if (available_tasks.Count < 1)
+        try
         {
-            robotComponent.setGoal(null);
-            return;
+            Robot robotComponent = robot.GetComponent<Robot>();
+            if (available_tasks.Count < 1)
+            {
+                robotComponent.setGoal(null);
+                return;
+            }
+            Debug.Log(available_tasks.Count + " available tasks");
+            robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
+            available_tasks[0].assigned(robotComponent.getID());
+            available_tasks.RemoveAt(0);
         }
-        Debug.Log(available_tasks.Count + " available tasks");
-        robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
-        available_tasks[0].assigned(robotComponent.getID());
-        available_tasks.RemoveAt(0);
+        catch
+        {
+            Robot2 robotComponent = robot.GetComponent<Robot2>();
+            if (available_tasks.Count < 1)
+            {
+                robotComponent.setGoal(null);
+                return;
+            }
+            Debug.Log(available_tasks.Count + " available tasks");
+            robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
+            available_tasks[0].assigned(robotComponent.getID());
+            available_tasks.RemoveAt(0);
+        }
+
+
     }
 
     public List<Task> getAllTasks()
