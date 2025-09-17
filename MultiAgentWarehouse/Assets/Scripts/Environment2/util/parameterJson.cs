@@ -57,6 +57,15 @@ namespace multiagent.parameterJson
     }
 
     [System.Serializable]
+    public class lidarParameters
+    {
+        public float rayLength = 25f;
+        public int rayDirections = 1;
+        public float sphereCastRadius = 0.5f;
+        public float maxRayDegrees = 180f;
+    }
+
+    [System.Serializable]
     public class agentsParameters
     {
         public int num_of_agents = 1;
@@ -72,9 +81,12 @@ namespace multiagent.parameterJson
         public int seed = 42;
         public int maxTimeSteps = 5001;
         public int decisionPeriod = 5;
+        public float safetyRadius = 1f;
         public rewardParameters rewardParams = new rewardParameters();
+        public lidarParameters rayParams = new lidarParameters();
     }
 
+    [System.Serializable]
     public class unityParameters
     {
         public int seed = 42;
@@ -82,6 +94,7 @@ namespace multiagent.parameterJson
         public float fixed_timestep = 0.2f;
         public int max_allowable_num_agents = 2048;
         public int max_allowable_num_tasks = 2048;
+        public bool useCSVExporter = false;
     }
 
     [System.Serializable]

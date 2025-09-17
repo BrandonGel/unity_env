@@ -14,7 +14,16 @@ namespace multiagent.util
         {
             // Initalize the data export
             dataToExport = new List<string[]>();
-            dataToExport.Add(new string[] { "time", "x", "y", "theta, vx, vy, omega" });
+            if(dataclass.header.Count == 0)
+            {
+                dataToExport.Add(new string[] { "time", "x", "y", "theta, vx, vy, omega" });
+                Debug.LogWarning("Header is empty, adding default header");
+            }
+            else
+            {
+                dataToExport.Add(dataclass.header.ToArray());
+            }
+            
 
             // Iterate through the time step of the agent data
             for (int tt = 0; tt < dataclass.size; tt++)

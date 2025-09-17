@@ -19,8 +19,9 @@ namespace multiagent.task
         private bool _busy = false;
         private bool _completed = false;
         public int task_ind = -1;
+        public int taskID = -1;
 
-        public Task(float start_time, string task_name, List<GameObject> taskpoint)
+        public Task(float start_time, string task_name, List<GameObject> taskpoint, int taskID = -1)
         {
             this.start_time = start_time;
             this.task_name = task_name;
@@ -29,6 +30,7 @@ namespace multiagent.task
             _busy = false;
             _completed = false;
             task_ind = 0;
+            this.taskID = taskID;
         }
 
         public bool isAssigned()

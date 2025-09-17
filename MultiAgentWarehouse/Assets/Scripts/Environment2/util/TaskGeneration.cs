@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using multiagent.robot;
 using multiagent.task;
 using multiagent.taskgoal;
+using UnityEngine.Assertions;
 public class TaskGeneration
 {
     int n_tasks_started = 0;
@@ -43,7 +44,8 @@ public class TaskGeneration
             Task new_task = new Task(
                 i * task_freq,
                 "task_" + i.ToString(),
-                taskpoint);
+                taskpoint,
+                i+1);
             tasks.Add(new_task);
         }
     }
@@ -89,7 +91,8 @@ public class TaskGeneration
             Task new_task = new Task(
                 tasksData[i].start_time,
                 tasksData[i].task_name,
-                taskpoint);
+                taskpoint,
+                i+1);
             tasks.Add(new_task);
         }
     }
@@ -148,8 +151,47 @@ public class TaskGeneration
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);
         }
+    }
 
+    public void assignTask(List<GameObject> robots, List<int> taskInds)
+    {
+        for (int i = 0; i < robots.Count; i++)
+        {
+            Assert.IsTrue(taskInds[i] <= n_tasks && taskInds[i] >= 0, "Task index out of range");
+            int taskInd = taskInds[i]-1;
+            // No assignment if taskInd is -1
+            if(taskInd < 0)
+            {
+                continue;
+            }
 
+            // No assignment if task is already completed
+            if(tasks[taskInd].isCompleted())
+            {
+                continue;
+            }
+
+            try
+            {
+                Robot robotComponent = robots[i].GetComponent<Robot>();
+                robotComponent.setGoal(tasks[taskInd]); // Reset goal before assigning new one
+                tasks[taskInd].assigned(robotComponent.getID());
+            }
+            catch
+            {
+                Robot2 robotComponent = robots[i].GetComponent<Robot2>();
+                robotComponent.setGoal(tasks[taskInd]); // Reset goal before assigning new one
+                tasks[taskInd].assigned(robotComponent.getID());
+            }   
+        }
+        // Remove assigned tasks from available tasks in descending order to avoid index shifting
+        for (int i = available_tasks.Count - 1; i >= 0; i--)
+        {
+            if (available_tasks[i].isAssigned())
+            {
+                incompleted_tasks.RemoveAt(i);
+            }
+        }
     }
 
     public List<Task> getAllTasks()

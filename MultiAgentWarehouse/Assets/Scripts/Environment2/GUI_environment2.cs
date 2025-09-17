@@ -52,12 +52,11 @@ public class GUI_environment2 : MonoBehaviour
         string debugDisplay = "";
         float reward = 0;
         string debugReward = "Reward: ";
-        GUIStyle rewardStyle = _envAgent.CumulativeMeanReward < 0 ? _negativeStyle : _positivieStyle;
         if (mainCameraDisplayed)
         {
             robotID = -1;
             debugDisplay += "Main Display";
-            reward = _envAgent.CumulativeMeanReward;
+            reward = _envAgent.getMeanReward();
         }
         else if (playerCameraDisplayed)
         {
@@ -66,6 +65,7 @@ public class GUI_environment2 : MonoBehaviour
             reward += _envAgent.getReward(robotID);
         }
         reward = Mathf.Round(reward*10000)/10000;
+        GUIStyle rewardStyle = reward < 0 ? _negativeStyle : _positivieStyle;
         debugReward += reward.ToString();   
 
         // // Message Information
@@ -73,8 +73,8 @@ public class GUI_environment2 : MonoBehaviour
 
         GUI.Label(new Rect(20, 20, 500, 30), debugEpisode, _defaultStyle);
         GUI.Label(new Rect(20, 60, 500, 30), debugPlayers, _defaultStyle);
-        // GUI.Label(new Rect(20, 100, 500, 30), debugDisplay, _defaultStyle);
-        // GUI.Label(new Rect(20, 140 , 500, 30), debugReward, rewardStyle);
+        GUI.Label(new Rect(20, 100, 500, 30), debugDisplay, _defaultStyle);
+        GUI.Label(new Rect(20, 140 , 500, 30), debugReward, rewardStyle);
         // GUI.Label(new Rect(20, 100, 500, 30), debugMessage, _defaultStyle);
         
     }

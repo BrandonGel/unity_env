@@ -16,6 +16,7 @@ public class Environment2Agent : Agent
     [HideInInspector] public float CumulativeReward = 0f;
     public float CumulativeMeanReward = 0f;
     BufferSensorComponent bufferSensor;
+    BufferSensorComponent agentBufferSensor;
     public List<GameObject> robots = null;
     Vector3 scaling;
     void Awake()
@@ -23,15 +24,33 @@ public class Environment2Agent : Agent
         env = transform.GetComponent<Environment2>();
         MaxStep = env.maxTimeSteps;
         GetComponent<DecisionRequester>().DecisionPeriod = env.decisionPeriod;
-        bufferSensor = GetComponent<BufferSensorComponent>();
-        bufferSensor.MaxNumObservables = env.max_allowable_num_tasks;
-        bufferSensor.ObservableSize = env.tasks_obs_space;
+        BufferSensorComponent[] sensors = GetComponents<BufferSensorComponent>();
+        foreach (BufferSensorComponent sensor in sensors)
+        {
+            if (sensor.SensorName == "BufferSensor")
+            {
+                bufferSensor = sensor;
+                bufferSensor.MaxNumObservables = env.max_allowable_num_tasks;
+                bufferSensor.ObservableSize = env.tasks_obs_space;
+            }
+            else if (sensor.SensorName == "AgentBufferSensor")
+            {
+                agentBufferSensor = sensor;
+                agentBufferSensor.MaxNumObservables = env.max_allowable_num_agents;
+                agentBufferSensor.ObservableSize = env.robots_obs_space;
+            }
+        }
         scaling = env.scaling;
     }
 
 
     public override void OnEpisodeBegin()
     {
+        if(CurrentEpisode > 0 )
+        {
+            env.exportEpisodeData(CurrentEpisode);
+        }
+
         CurrentEpisode += 1;
         CumulativeReward = 0f;
         if (CurrentEpisode > 1)
@@ -69,8 +88,17 @@ public class Environment2Agent : Agent
             }
             task_obs[3 * taskpoint.Count] = task.assignedRobotID;
             task_obs[3 * taskpoint.Count + 1] = task.task_ind;
+            task_obs[3 * taskpoint.Count + 2] = task.taskID;
             bufferSensor.AppendObservation(task_obs);
         }
+
+        foreach (GameObject robot in robots)
+        {
+            Robot2 robotObj = robot.GetComponent<Robot2>();
+            float[] agent_obs = robotObj.CollectObservations();
+            agentBufferSensor.AppendObservation(agent_obs);
+        }
+
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
@@ -116,12 +144,14 @@ public class Environment2Agent : Agent
         }
 
         var continuousRobotActionsOut = actionsOut.ContinuousActions;
+        var discreteRobotActionsOut = actionsOut.DiscreteActions;
         int ii = 0;
         foreach (GameObject robot in robots)
         {
             continuousRobotActionsOut[ii] = continuousActionsOut[0];
             continuousRobotActionsOut[ii + 1] = continuousActionsOut[1];
-            ii += 2;
+            continuousRobotActionsOut[ii + 2] = 0;
+            ii += 3;
         }
 
     }
@@ -136,15 +166,17 @@ public class Environment2Agent : Agent
         int ii = 0;
         foreach (GameObject robot in robots)
         {
-            float[] continuousActions = new float[2] { actions.ContinuousActions[2 * ii], actions.ContinuousActions[2 * ii + 1] };
+            float[] continuousActions = new float[2] { actions.ContinuousActions[3 * ii], actions.ContinuousActions[3 * ii + 1] };
             robot.GetComponent<Robot2>().Step(continuousActions);
         }
 
-        int actionLength = actions.DiscreteActions.Length;
-        for (int i = 0; i < actionLength; i++)
-        {
-            ;
+        List<int> tasks = new List<int>();
+        for (int i = 0; i < robots.Count; i++)
+        {   
+            int taskInd = (int)(Mathf.Round(actions.ContinuousActions[3 * i + 2]));
+            tasks.Add(taskInd);
         }
+        env.tg.assignTask(robots, tasks);
     }
 
     void Update()
@@ -160,12 +192,26 @@ public class Environment2Agent : Agent
     {
         if (id < robots.Count)
         {
-            return robots[id].GetComponent<Robot2>().Reward;
+            return robots[id].GetComponent<Robot2>().CumulativeReward;
+            // return robots[id].GetComponent<Robot2>().Reward;
         }
         else
         {
             Debug.Log("The robot ID exceeds the number of robots");
             return 0f;
         }
+    }
+
+    public float getMeanReward()
+    {
+        float reward = 0f;
+        for (int i = 0; i < robots.Count; i++)
+        {
+            reward += robots[i].GetComponent<Robot2>().CumulativeReward;   
+            // reward += robots[i].GetComponent<Robot2>().Reward;   
+        }
+        float meanReward = reward / robots.Count;
+        return meanReward;
+        
     }
 }

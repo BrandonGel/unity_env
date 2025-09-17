@@ -7,6 +7,8 @@ using System;
 using multiagent.controller;
 using multiagent.agent;
 using multiagent.parameterJson;
+using UnityEngine.Assertions;
+using System.Collections.Generic;
 
 namespace multiagent.robot
 {
@@ -18,6 +20,8 @@ namespace multiagent.robot
         [SerializeField] public float maxAcceleration = 2.72f; // degrees per second
         [SerializeField] public float maxRotationAccleration = 8.23f; // degrees per second
         private float _bodyRadius = 0.331f; // meters
+        private float _safetyRadius = 0.273f; // meters
+        private int _safetyViolated = 0; // meters
         private Controller control = new Controller();
         public ctrlOption _controllerName;
         private string _controllerNameStr;
@@ -50,6 +54,7 @@ namespace multiagent.robot
         private Quaternion newSpawnOrientation;
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
         private bool allowCommandsInput = true;
+        public int obs_size = 13;
 
 
         public void Awake()
@@ -90,7 +95,6 @@ namespace multiagent.robot
             setGoal();
             aData = new agentData(getID());
             m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
-            m_rayPerceptionSensorComponent3D.name = "RayPerceptionSensor_" + getID();
         }
 
         private void generateArrow()
@@ -172,48 +176,144 @@ namespace multiagent.robot
             addInfo();
         }
 
-
-        public void CollectObservations()
+        public float[] getLidarData(bool useNormalized=true)
         {
-            float robotPosX_normalized = transform.localPosition.x / boxSize.x;
-            float robotPosZ_normalized = transform.localPosition.z / boxSize.z;
-            // Normalize position to be within [-1, 1]
-            float angleRotation = (transform.localRotation.eulerAngles.y + 180f) % 360f - 180f;
-            // float angleRotation_normalized = angleRotation/180f; // Normalize angle [-180, 180) -> [-1, 1)
-            float sinAngle = Mathf.Sin(angleRotation); // Sine of the angle ->[-180, 180) -> [-1, 1]
-            float cosAngle = Mathf.Cos(angleRotation); // Cosine of the angle ->[-180, 180) -> [-1, 1]
+            if (m_rayPerceptionSensorComponent3D == null)
+            {
+                Debug.LogError("Lidar Sensor not found!");
+                return new float[0];
+            }
+
+
+            var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
+            int lengthOfRayOutputs = rayOutputs.Length;            
+            float[] rayObs = new float[3*lengthOfRayOutputs];
+            for (int i = 0; i < lengthOfRayOutputs; i++)
+            {
+                GameObject goHit = rayOutputs[i].HitGameObject;
+                var rayDirection = rayOutputs[i].EndPositionWorld - rayOutputs[i].StartPositionWorld;
+                rayDirection = transform.InverseTransformDirection(rayDirection);
+                var scaledRayLength = rayDirection.magnitude;
+                float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
+                float rayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x) ;
+                float normalizedRayAngle = rayAngle/Mathf.PI; // Normalize angle to be within [-1, 1]
+                // float cosRayAngle = Mathf.Cos(rayAngle);
+                // float sinRayAngle = Mathf.Sin(rayAngle);
+
+                // Check for safety violation
+                _safetyViolated = 0;
+                if( rayHitDistance <  _safetyRadius)
+                {
+                    _safetyViolated = 1;
+                }
+
+                if( useNormalized)
+                {
+                    rayObs[3*i] = normalizedRayAngle; // Angle of the ray w.r.t the robot forward direction
+                    rayObs[3*i+1] = rayOutputs[i].HitFraction; // Normalize the distance
+                }
+                else
+                {
+                    rayObs[3*i] = rayAngle*Mathf.Rad2Deg; // Angle of the ray w.r.t the robot forward direction
+                    rayObs[3*i+1] = rayHitDistance; // Normalize the distance
+                }
+                if(goHit != null)
+                {
+                    switch(goHit.tag)
+                    {
+                        case "Wall":
+                            rayObs[3*i+2] = 1f;
+                            break;
+                        case "Robot":
+                            rayObs[3*i+2] = 2f;
+                            break;
+                        case "Obstacle":
+                            rayObs[3*i+2] = 3f;
+                            break;
+                        default:
+                            rayObs[3*i+2] = 0.0f;
+                            break;
+                    }
+                }
+                else
+                {
+                    rayObs[3*i+2] = 0.0f;
+                }
+                    
+            }
+            return rayObs;
+
+        }
+
+
+        public float[] CollectObservations(bool useNormalized=true)
+        {
+            float robotPosX_normalized = transform.localPosition.x;
+            float robotPosZ_normalized = transform.localPosition.z;
+            float angleRotation_normalized = (360f-transform.localRotation.eulerAngles.y + 180f)% 360f  - 180f; // Minus for right hand rule
+            float currentSpeed_normalized = currentSpeed;
+            float currentRotationSpeed_normalized = currentRotationSpeed;
+            float currentAcceleration_normalized = currentAcceleration;
+            float currentRotationAcceleration_normalized = currentRotationAcceleration;
+            
+            // float sinAngle = Mathf.Sin(angleRotation_normalized*Mathf.Deg2Rad); // Sine of the angle ->[-180, 180) -> [-1, 1]
+            // float cosAngle = Mathf.Cos(angleRotation_normalized*Mathf.Deg2Rad); // Cosine of the angle ->[-180, 180) -> [-1, 1]
+            if( useNormalized)
+            {
+                robotPosX_normalized= transform.localPosition.x / boxSize.x;
+                robotPosZ_normalized= transform.localPosition.z / boxSize.z;    
+                angleRotation_normalized = angleRotation_normalized/180f; // Normalize angle [-180, 180) -> [-1, 1)
+                currentSpeed_normalized = currentSpeed/ maxSpeed;
+                currentRotationSpeed_normalized = currentRotationSpeed / maxRotationSpeed;
+                currentAcceleration_normalized = currentAcceleration / maxAcceleration;
+                currentRotationAcceleration_normalized = currentRotationAcceleration / maxRotationAccleration;
+            }
+            
+        
+            Vector3 goalPos = Vector3.zero;
+            float goalPosX_normalized = 0; 
+            float goalPosZ_normalized = 0;
+            int taskID = 0;
+            int task_ind = -1;
+            int completed = 0;
+            if (taskClass != null)
+            {
+                goalPos = getGoalPos();
+                taskID = taskClass.taskID;
+                goalPosX_normalized = goalPos.x;
+                goalPosZ_normalized = goalPos.z;
+                task_ind = taskClass.task_ind;
+                completed = taskClass.isCompleted() ? 1 : 0;
+
+                if( useNormalized)
+                {
+                    goalPosX_normalized = goalPos.x / boxSize.x;
+                    goalPosZ_normalized = goalPos.z / boxSize.z;
+                }
+            }
+
+            
             float[] observation = new float[] {
                 robotPosX_normalized,
                 robotPosZ_normalized,
-                sinAngle,
-                cosAngle,
-                currentSpeed / maxSpeed,
-                currentRotationSpeed / maxRotationSpeed,
-                currentAcceleration / maxAcceleration,
-                currentRotationAcceleration / maxRotationAccleration,
+                angleRotation_normalized,
+                currentSpeed_normalized,
+                currentRotationSpeed_normalized,
+                currentAcceleration_normalized,
+                currentRotationAcceleration_normalized,
+                taskID,
+                goalPosX_normalized,
+                goalPosZ_normalized,
+                task_ind,
+                completed,
+                Reward
             };
+            float[] lidarData = getLidarData(useNormalized);
 
-            // var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
-            // int lengthOfRayOutputs = rayOutputs.Length;
-            // for (int i = 0; i < lengthOfRayOutputs; i++)
-            // {
-            //     GameObject goHit = rayOutputs[i].HitGameObject;
-            //     if (goHit != null)
-            //     {
-            //         var rayDirection = rayOutputs[i].EndPositionWorld - rayOutputs[i].StartPositionWorld;
-            //         var scaledRayLength = rayDirection.magnitude;
-            //         float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
-
-            //         // Print info:
-            //         string dispStr = "";
-            //         dispStr = dispStr + "__RayPerceptionSensor - HitInfo__:\r\n";
-            //         dispStr = dispStr + "GameObject name: " + goHit.name + "\r\n";
-            //         dispStr = dispStr + "Hit distance of Ray: " + rayHitDistance + "\r\n";
-            //         dispStr = dispStr + "GameObject tag: " + goHit.tag + "\r\n";
-            //         Debug.Log(dispStr);
-            //     }
-            // }
-
+            float[] robotObs = new float[observation.Length + lidarData.Length];
+            observation.CopyTo(robotObs, 0);
+            lidarData.CopyTo(robotObs, observation.Length);
+            return robotObs;
         }
 
         public float[] Heuristic()
@@ -263,6 +363,7 @@ namespace multiagent.robot
         public void Step(float[] actions)
         {
             Reward = 0;
+            StepCount += 1;
             if (!isControllerInit)
             {
                 control.InitControl(actions.Length, minLim, maxLim, _controllerNameStr, controlPath);
@@ -362,42 +463,42 @@ namespace multiagent.robot
         public void MoveAgent(float[] action)
         {
             actionInput = new Vector2(action[0], action[1]);
-            Vector3[] act;
-            if (absoluteCoordinate)
-            {
-                act = new Vector3[] {
-                    new Vector3(_state[0], _state[1], 0),
-                    new Vector3(_state[0] + action[0], _state[1] + action[1], 0)
-                };
-            }
-            else
-            {
-                act = new Vector3[] {
-                    new Vector3(_state[0], _state[1], 0),
-                    new Vector3(action[0], action[1], 0)
-                };
-            }
-
-            Vector3[] S = new Vector3[] { _state }; // State information
-            Vector3[] dS = new Vector3[] { _dstate }; // Time derivative of State information
-            Vector3[] ddesS = null; //TODO:  Desired State information
-            if (!velocityControl)
-            {
-                ddesS = new Vector3[] { new Vector3(0.0f, 0f, 0.0f) };
-            }
-            // Debug.Log("Act: " + act[0] + " " + act[1] );
-
-            // Vector2 u;
+            // Vector3[] act;
             // if (absoluteCoordinate)
             // {
-            //     u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
+            //     act = new Vector3[] {
+            //         new Vector3(_state[0], _state[1], 0),
+            //         new Vector3(_state[0] + action[0], _state[1] + action[1], 0)
+            //     };
             // }
             // else
             // {
-            //     u = new Vector2( action[0], action[1]);
+            //     act = new Vector3[] {
+            //         new Vector3(_state[0], _state[1], 0),
+            //         new Vector3(action[0], action[1], 0)
+            //     };
             // }
 
-            u = control.GetControl(act, S, ddesS, dS);
+            // Vector3[] S = new Vector3[] { _state }; // State information
+            // Vector3[] dS = new Vector3[] { _dstate }; // Time derivative of State information
+            // Vector3[] ddesS = null; //TODO:  Desired State information
+            // if (!velocityControl)
+            // {
+            //     ddesS = new Vector3[] { new Vector3(0.0f, 0f, 0.0f) };
+            // }
+            // Debug.Log("Act: " + act[0] + " " + act[1] );
+
+            // Vector2 u;
+            if (absoluteCoordinate)
+            {
+                u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
+            }
+            else
+            {
+                u = new Vector2( action[0], action[1]);
+            }
+
+            // u = control.GetControl(act, S, ddesS, dS);
             // Debug.Log("u: " + u[0] + " " + u[1] );
             
             // Debug.Log($"Goal: {act[0]}, {act[1]} | Control {u}");
@@ -441,20 +542,54 @@ namespace multiagent.robot
         public void addInfo()
         {
             subAgentData sData = new subAgentData();
-            sData.add(StepCount * Time.deltaTime);
-            sData.add(_state);
-            sData.add(_dstate);
-            sData.add(actionInput);
-            sData.add(getGoalPos());
+            
+            Vector3 abs_state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
+            Vector3 abs_dstate = new Vector3(
+                    _rigidbody.linearVelocity.x,
+                    _rigidbody.linearVelocity.z,
+                    _rigidbody.angularVelocity.y
+                );
+            sData.add(StepCount * Time.deltaTime); // Current Time
+            sData.add(abs_state); // State (x,y,theta)
+            sData.add(abs_dstate); // Derivative of State (x',y',theta')
+            sData.add(actionInput); // Action Input (v,w)
+            Vector2 abs_goalPos = new Vector2(getGoalPos().x,getGoalPos().z);
+            sData.add(abs_goalPos); // Goal Position (xg, yg)
             if (taskClass != null)
             {
-                sData.add(taskClass.getCurrentGoalID());
-                sData.add(taskClass.getCurrentGoalType());
+                sData.add(taskClass.getCurrentGoalID()); // Current Goal ID
+                sData.add(taskClass.getCurrentGoalType()); // Current Goal Type
             }
             else
             {
                 sData.add(0);
                 sData.add(-1);
+            }
+            sData.add(collisionTagID); // Collision Tag ID
+            sData.add(Reward); // Reward
+            sData.add(_safetyViolated); // Safety Violated
+            sData.add(U_constraint); // Control Constraint
+            float[] lidarData = getLidarData(false);
+            sData.add(lidarData); // Lidar Data (rayAngle, rayDistance, rayTag) * num_rays
+
+            
+            if (aData.header.Count == 0)
+            {
+                List<String> header = new List<String> {
+                "time", 
+                "x", "y", "theta",
+                 "vx", "vy", "w", 
+                 "Uv", "Uw", 
+                 "xg", "yg",
+                  "goalID", "goalType", "collisionTagID", "reward", "safetyViolated", "U_constraint"
+                }; 
+                for (int i = 0; i < lidarData.Length/3; i++)
+                {
+                    header.Add($"rayAngle_{i}");
+                    header.Add($"rayDistance_{i}");
+                    header.Add($"rayTag_{i}");
+                }
+                aData.setHeader(header);
             }
             aData.addEntry(sData);
         }
@@ -493,6 +628,12 @@ namespace multiagent.robot
             allowCommandsInput = allow;
         }
 
+        public int calculateObservationSize(int obsSize, int num_rays=0)
+        {
+            obsSize += 3 * (num_rays * 2 + 1);
+            return obsSize;
+        }
+
         public void updateAgentParameters(parameters param)
         {
             maxSpeed = param.agentParams.maxSpeed;
@@ -502,12 +643,32 @@ namespace multiagent.robot
             velocityControl = param.agentParams.velocityControl;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             debugArrow = param.agentParams.debugArrow;
+            _safetyRadius = param.agentParams.safetyRadius;
+            Assert.IsTrue(maxSpeed > 0, "maxSpeed must be positive");
+            Assert.IsTrue(maxRotationSpeed > 0, "maxRotationSpeed must be positive");
+            Assert.IsTrue(maxAcceleration > 0, "maxAcceleration must be positive");
+            Assert.IsTrue(maxRotationAccleration > 0, "maxRotationAccleration must be positive");
+            Assert.IsTrue(_safetyRadius >= 0, "safetyRadius must be non-negative");
+            Assert.IsTrue(_safetyRadius > _bodyRadius, "safetyRadius must be greater than bodyRadius");
             setDecisionRequestParams(param.agentParams.maxTimeSteps, param.agentParams.decisionPeriod);
             modifyReward(
                 param.agentParams.rewardParams.collisionEnterReward,
                 param.agentParams.rewardParams.collisionStayReward,
                 param.agentParams.rewardParams.timeReward,
                 param.agentParams.rewardParams.goalReward);
+            if (m_rayPerceptionSensorComponent3D != null)
+            {
+                m_rayPerceptionSensorComponent3D.RayLength = param.agentParams.rayParams.rayLength;
+                m_rayPerceptionSensorComponent3D.RaysPerDirection = param.agentParams.rayParams.rayDirections;
+                m_rayPerceptionSensorComponent3D.SphereCastRadius = param.agentParams.rayParams.sphereCastRadius;
+                m_rayPerceptionSensorComponent3D.MaxRayDegrees = param.agentParams.rayParams.maxRayDegrees;
+                obs_size = calculateObservationSize(obs_size, param.agentParams.rayParams.rayDirections);
+            }
+        }
+
+        void Start()
+        {
+            m_rayPerceptionSensorComponent3D.name = "RayPerceptionSensor_" + getID();
         }
     }
 

@@ -1,8 +1,6 @@
-
-
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 
 namespace multiagent.agent
 {
@@ -39,6 +37,47 @@ namespace multiagent.agent
                 entry.Add(((Vector3)(object)value).y);
                 entry.Add(((Vector3)(object)value).z);
             }
+            else if (typeof(T) == typeof(float[]))
+            {
+                float[] arr = (float[])(object)value;
+                foreach (float v in arr)
+                {
+                    entry.Add(v);
+                }
+            }
+            else if (typeof(T) == typeof(int[]))
+            {
+                int[] arr = (int[])(object)value;
+                foreach (int v in arr)
+                {
+                    entry.Add((float)v);
+                }
+            }
+            else if (typeof(T) == typeof(Vector2[]))
+            {
+                Vector2[] arr = (Vector2[])(object)value;
+                foreach (Vector2 v in arr)
+                {
+                    entry.Add(v.x);
+                    entry.Add(v.y);
+                }
+            }
+            else if (typeof(T) == typeof(Vector3[]))
+            {
+                Vector3[] arr = (Vector3[])(object)value;
+                foreach (Vector3 v in arr)
+                {
+                    entry.Add(v.x);
+                    entry.Add(v.y);
+                    entry.Add(v.z);
+                }
+            }
+            else if (typeof(T) == typeof(Vector3Int))
+            {
+                entry.Add(((Vector3)(object)value).x);
+                entry.Add(((Vector3)(object)value).y);
+                entry.Add(((Vector3)(object)value).z);
+            }
             else
             {
                 throw new System.ArgumentException("Unsupported type");
@@ -61,6 +100,7 @@ namespace multiagent.agent
         List<subAgentData> dataEntries;
         public int id;
         public int size;
+        public List<String> header = new List<String>();
 
 
         public agentData(int id)
@@ -81,6 +121,11 @@ namespace multiagent.agent
         public subAgentData readEntry(int entryID)
         {
             return dataEntries[entryID];
+        }
+
+        public void setHeader(List<String> header)
+        {
+            this.header = header;
         }
 
         public void clear()

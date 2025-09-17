@@ -34,6 +34,7 @@ namespace multiagent.robot
         public int StepCount = 0;
         public float Reward = 0;
         public int DecisionPeriod = 0;
+        public int collisionTagID = 0;
 
         public void setDecisionRequestParams(int maxTimeSteps, int decisionPeriod)
         {
@@ -172,16 +173,31 @@ namespace multiagent.robot
         private void OnCollisionEnter(Collision collision)
         {
             isColliding = true;
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn)
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
             {
                 AddReward(_collisionEnterReward);
                 changeMaterialColor("c");
+                switch (collision.gameObject.tag)
+                {
+                    case "Wall":
+                        collisionTagID = 1;
+                        break;
+                    case "Player":
+                        collisionTagID = 2;
+                        break;
+                    case "Obstacle":
+                         collisionTagID = 3;
+                        break;
+                    default:
+                        collisionTagID = 0;
+                        break;
+                }
             }
         }
 
         private void OnCollisionStay(Collision collision)
         {
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn)
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")|| collision.gameObject.CompareTag("Obstacle")) && collisionOn)
             {
                 AddReward(_collisionStayReward * Time.fixedDeltaTime);
             }
@@ -190,9 +206,10 @@ namespace multiagent.robot
         private void OnCollisionExit(Collision collision)
         {
             isColliding = false;
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")) && collisionOn)
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")|| collision.gameObject.CompareTag("Obstacle")) && collisionOn)
             {
                 changeMaterialColor();
+                collisionTagID = 0;
             }
         }
 

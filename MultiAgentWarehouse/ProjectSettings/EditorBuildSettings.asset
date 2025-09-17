@@ -8,11 +8,14 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Menu.unity
     guid: cac533994daf4f6599d7049e645e2d82
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/generateWarehouse.unity
     guid: 93860c3f14d6ac86fbcb6edb7ea92002
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/multiagent.unity
+    guid: 7dfd64aca1e5be4cd8cb26f50095b93f
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

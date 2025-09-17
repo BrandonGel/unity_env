@@ -163,10 +163,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94c2fe68d171b5808954e129795cf1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _env: {fileID: 1664767946}
+  _envAgent: {fileID: 1664767954}
   _camera: {fileID: 1378071449}
   _camera2: {fileID: 957404123}
   _register: {fileID: 1564091594}
+  robotID: -1
 --- !u!1 &957404123
 GameObject:
   m_ObjectHideFlags: 0
@@ -809,14 +810,15 @@ GameObject:
   - component: {fileID: 1664767946}
   - component: {fileID: 1664767945}
   - component: {fileID: 1664767947}
-  - component: {fileID: 1664767949}
   - component: {fileID: 1664767950}
+  - component: {fileID: 1664767957}
   - component: {fileID: 1664767951}
   - component: {fileID: 1664767948}
   - component: {fileID: 1664767955}
   - component: {fileID: 1664767954}
   - component: {fileID: 1664767953}
   - component: {fileID: 1664767956}
+  - component: {fileID: 1664767958}
   m_Layer: 0
   m_Name: Environment2
   m_TagString: Untagged
@@ -878,7 +880,7 @@ MonoBehaviour:
   camera: {fileID: 957404123}
   mo: {fileID: 1664767945}
   msg: {fileID: 1664767947}
-  mr: {fileID: 1664767949}
+  mr: {fileID: 1664767957}
   mn: {fileID: 1664767950}
   environment2Agent: {fileID: 1664767954}
   t: 0
@@ -943,23 +945,6 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
---- !u!114 &1664767949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1664767942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1528f287f2f100c66bb70cc12361ec12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  robot_prefab: {fileID: 610991913526610428, guid: c7a385438fb3150b7a8ffc0e91d260f8, type: 3}
-  robots: []
-  num_spawn_tries: 100
-  boxSize: {x: 1, y: 0.5, z: 1}
-  min_spacing: 0.1
 --- !u!114 &1664767950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1025,6 +1010,8 @@ MonoBehaviour:
   MaxStep: 5000
   CurrentEpisode: 0
   CumulativeReward: 0
+  CumulativeMeanReward: 0
+  robots: []
 --- !u!114 &1664767955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1041,11 +1028,11 @@ MonoBehaviour:
     VectorObservationSize: 0
     NumStackedVectorObservations: 1
     m_ActionSpec:
-      m_NumContinuousActions: 0
-      BranchSizes: 00080000
-    VectorActionSize: 00080000
+      m_NumContinuousActions: 6144
+      BranchSizes: 
+    VectorActionSize: 00180000
     VectorActionDescriptions: []
-    VectorActionSpaceType: 0
+    VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
@@ -1068,6 +1055,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: BufferSensor
+  m_ObservableSize: 0
+  m_MaxNumObservables: 0
+--- !u!114 &1664767957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664767942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6634c8108941b45c88c18f18fe2b910, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  robot_prefab: {fileID: 610991913526610428, guid: ab8a8b4cfa338e3429c46d5eb18c641c, type: 3}
+  robots: []
+  num_spawn_tries: 1
+  boxSize: {x: 1, y: 0.5, z: 1}
+  min_spacing: 0.1
+--- !u!114 &1664767958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664767942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8012d5925524537b27131fef517017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: AgentBufferSensor
   m_ObservableSize: 0
   m_MaxNumObservables: 0
 --- !u!1 &1706133415

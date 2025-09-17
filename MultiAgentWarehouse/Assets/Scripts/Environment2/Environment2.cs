@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using multiagent.parameterJson;
 using multiagent.robot;
 using multiagent.camera;
+using multiagent.util;
 using UnityEngine.Assertions;
 public class Environment2 : MonoBehaviour
 {
@@ -26,21 +27,28 @@ public class Environment2 : MonoBehaviour
     public int n_tasks = 1;
     public float task_freq = 1f;
     public int tasks_obs_space = 1;
+    public int robots_obs_space = 1;
     public int max_allowable_num_agents = 2048;
-    public int max_allowable_num_tasks = 2048;    public Vector3 scaling;
+    public int max_allowable_num_tasks = 2048;
+    public Vector3 scaling;
     public delegate void taskAssignmentMethod();
     taskAssignmentMethod taskAssignment = default;
     public string configFile = "config2.json";
+    public csv_exporter CSVexporter = new csv_exporter();
+    [SerializeField] public bool useCSVExporter = false;
 
     void Awake()
     {
         readConfig(configFile);
         parameters param = paramJson.GetParameter();
-        tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 2;
+        tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
         max_allowable_num_agents = param.unityParams.max_allowable_num_agents;
         max_allowable_num_tasks = param.unityParams.max_allowable_num_tasks;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
+        Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
+        robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections);
+        
     }
 
     public void readConfig(string file)
@@ -61,7 +69,7 @@ public class Environment2 : MonoBehaviour
             task_freq = root.task_freq[0];
         }
         Assert.IsTrue(max_allowable_num_tasks >= n_tasks, "The number of tasks in the parameter file exceeds the maximum allowable number of tasks in unity parameters");
-
+        useCSVExporter = param.unityParams.useCSVExporter;
     }
 
     public void init()
@@ -148,6 +156,7 @@ public class Environment2 : MonoBehaviour
     void Start()
     {
         init();
+        CSVexporter = new csv_exporter();
     }
 
     void QuitApplication()
@@ -205,7 +214,7 @@ public class Environment2 : MonoBehaviour
                     }
                 }
             }
-            catch (System.Exception e)
+            catch 
             {
                 if (robot.GetComponent<Robot2>().getTaskReached())
                 {
@@ -221,6 +230,19 @@ public class Environment2 : MonoBehaviour
             }
             
 
+        }
+    }
+
+    public void exportEpisodeData(int CurrentEpisode)
+    {
+        if (useCSVExporter)
+        {
+            Debug.Log("Exporting Episode Data");
+            for (int i = 0; i < mr.robots.Count; i++)
+            {
+                Robot2 robotComponent = mr.robots[i].GetComponent<Robot2>();
+                CSVexporter.transferData(robotComponent.aData, CurrentEpisode);
+            }
         }
     }
 }
