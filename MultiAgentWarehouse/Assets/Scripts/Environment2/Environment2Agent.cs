@@ -9,11 +9,13 @@ using Unity.MLAgents.Policies;
 using multiagent.task;
 using multiagent.taskgoal;
 using multiagent.robot;
+using UnityEditor.UI;
 public class Environment2Agent : Agent
 {
     Environment2 env;
     [HideInInspector] public int CurrentEpisode = 0;
     [HideInInspector] public float CumulativeReward = 0f;
+    private int _id = 0;
     public float CumulativeMeanReward = 0f;
     BufferSensorComponent bufferSensor;
     BufferSensorComponent agentBufferSensor;
@@ -32,12 +34,14 @@ public class Environment2Agent : Agent
                 bufferSensor = sensor;
                 bufferSensor.MaxNumObservables = env.max_allowable_num_tasks;
                 bufferSensor.ObservableSize = env.tasks_obs_space;
+                bufferSensor.SensorName = "BufferSensor_" + getID();
             }
             else if (sensor.SensorName == "AgentBufferSensor")
             {
                 agentBufferSensor = sensor;
                 agentBufferSensor.MaxNumObservables = env.max_allowable_num_agents;
                 agentBufferSensor.ObservableSize = env.robots_obs_space;
+                agentBufferSensor.SensorName = "AgentBufferSensor_" + getID();
             }
         }
         scaling = env.scaling;
@@ -46,7 +50,7 @@ public class Environment2Agent : Agent
 
     public override void OnEpisodeBegin()
     {
-        if(CurrentEpisode > 0 )
+        if (CurrentEpisode > 0)
         {
             env.exportEpisodeData(CurrentEpisode);
         }
@@ -172,7 +176,7 @@ public class Environment2Agent : Agent
 
         List<int> tasks = new List<int>();
         for (int i = 0; i < robots.Count; i++)
-        {   
+        {
             int taskInd = (int)(Mathf.Round(actions.ContinuousActions[3 * i + 2]));
             tasks.Add(taskInd);
         }
@@ -187,7 +191,7 @@ public class Environment2Agent : Agent
     void FixedUpdate()
     {
     }
-    
+
     public float getReward(int id)
     {
         if (id < robots.Count)
@@ -207,11 +211,20 @@ public class Environment2Agent : Agent
         float reward = 0f;
         for (int i = 0; i < robots.Count; i++)
         {
-            reward += robots[i].GetComponent<Robot2>().CumulativeReward;   
+            reward += robots[i].GetComponent<Robot2>().CumulativeReward;
             // reward += robots[i].GetComponent<Robot2>().Reward;   
         }
         float meanReward = reward / robots.Count;
         return meanReward;
-        
+
+    }
+
+    public void setID(int id)
+    {
+        _id = id;
+    }
+    public int getID()
+    {
+        return _id;
     }
 }

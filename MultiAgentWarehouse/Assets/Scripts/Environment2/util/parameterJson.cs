@@ -94,6 +94,7 @@ namespace multiagent.parameterJson
         public float fixed_timestep = 0.2f;
         public int max_allowable_num_agents = 2048;
         public int max_allowable_num_tasks = 2048;
+        public int num_envs = 1;
         public bool useCSVExporter = false;
     }
 
@@ -138,10 +139,6 @@ namespace multiagent.parameterJson
                 Debug.LogError("Parameter filepath in the config file was not found!!!");
             }
             param = JsonUtility.FromJson<parameters>(jsonText);
-            // Random.InitState(param.unityParams.seed);
-            Time.timeScale = param.unityParams.timescale;
-            Time.fixedDeltaTime = param.unityParams.fixed_timestep;
-
         }
 
         public parameters GetParameter()

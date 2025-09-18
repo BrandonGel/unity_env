@@ -39,8 +39,8 @@ public class MakeRobots2 : MonoBehaviour
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + offset;
                 pos = Vector3.Scale(pos, scaling);
                 GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
-                robot.transform.localScale = scaling;
                 robot.transform.parent = gameObject.transform.Find("Robots").transform;
+                robot.transform.localScale = scaling;
                 robot.GetComponent<Robot2>().setID(i);
                 robot.GetComponent<Robot2>().boxSize = boxSize;
                 robots.Add(robot);
@@ -88,8 +88,8 @@ public class MakeRobots2 : MonoBehaviour
                     Debug.LogWarning("Could not find non-overlapping spawn point for robot " + i + ". Placing it anyway.");
                 }
                 GameObject robot = Instantiate(robot_prefab, pos, orientation);
-                robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
                 robot.transform.parent = gameObject.transform.Find("Robots").transform;
+                robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
                 robot.GetComponent<Robot2>().setID(i);
                 robot.GetComponent<Robot2>().boxSize = boxSize;
                 robot.GetComponent<Robot2>().setCollisionOn(false);

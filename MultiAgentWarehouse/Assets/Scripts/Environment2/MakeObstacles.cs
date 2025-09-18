@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using multiagent.util;
 
 public class MakeObstacles : MonoBehaviour
 {
@@ -12,18 +13,7 @@ public class MakeObstacles : MonoBehaviour
     private environmentJson envJson = new environmentJson();
     private int worldX, worldY, worldZ;
 
-    Texture2D LoadTexture(string path)
-    {
-        if (!File.Exists(path))
-        {
-            Debug.LogError("File not found at " + path);
-            return null;
-        }
-        byte[] fileData = File.ReadAllBytes(path);
-        Texture2D tex = new Texture2D(2, 2); // size doesn’t matter, LoadImage will replace it
-        tex.LoadImage(fileData); // Loads PNG/JPG bytes into texture
-        return tex;
-    }
+    
 
     public void CreateRandomObstacles(int x, int z, float obstacleDensity)
     {
@@ -34,7 +24,7 @@ public class MakeObstacles : MonoBehaviour
 
     public void GenerateWorld(string path, Vector3 scale = default)
     {
-        Texture2D texture = LoadTexture(path);
+        Texture2D texture = Util.LoadTexture(path);
         if (texture == null)
         {
             Debug.LogError("Failed to load texture from " + path);
@@ -152,13 +142,13 @@ public class MakeObstacles : MonoBehaviour
         // Example: Generate a simple plane with the texture
         ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
         ground.name = "GroundPlane";
+        ground.transform.parent = gameObject.transform.Find("Ground").transform;
         Vector3 position = new Vector3((worldX - 1) / 2f, 0, (worldZ - 1) / 2f); // Center the plane
         position = Vector3.Scale(position, this.scale);
-        ground.transform.position = position;
+        ground.transform.localPosition = position;
         Vector3 groundScale = new Vector3(worldX / 10f, 1, worldZ / 10f); // Unity's plane is 10x10 units
         groundScale = Vector3.Scale(groundScale, this.scale);
         ground.transform.localScale = groundScale;  
-        ground.transform.parent = gameObject.transform.Find("Ground").transform;
         ground.GetComponent<Renderer>().material= groundMaterial;
     }
 
@@ -168,6 +158,8 @@ public class MakeObstacles : MonoBehaviour
         GameObject obs = Instantiate(obstaclePrefab, currentPosition, Quaternion.identity);
         obs.transform.localScale = this.scale;
         obs.transform.parent = gameObject.transform.Find("Obstacles").transform;
+        obs.transform.localPosition = currentPosition;
+        obs.transform.localRotation = Quaternion.identity;
         obs.GetComponent<Renderer>().material= obstacleMaterial;
         if (color != default)
             obs.GetComponent<Renderer>().material.color = color;

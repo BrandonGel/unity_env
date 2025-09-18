@@ -110,7 +110,7 @@ namespace multiagent.util
             frac = Mathf.Clamp(frac, 0, 1);
             return frac;
         }
-        public static Vector3 interpolate(Vector3 x ,Vector3 y, float t)
+        public static Vector3 interpolate(Vector3 x, Vector3 y, float t)
         {
             Vector3 pos = x + (y - x) * t;
             return pos;
@@ -139,10 +139,23 @@ namespace multiagent.util
             return bestHeading;
         }
 
-        
+
         public static void enableRenderer(Renderer _renderer, bool turnon = true)
         {
             _renderer.enabled = turnon;
+        }
+        
+       public static Texture2D LoadTexture(string path)
+        {
+            if (!File.Exists(path))
+            {
+                Debug.LogError("File not found at " + path);
+                return null;
+            }
+            byte[] fileData = File.ReadAllBytes(path);
+            Texture2D tex = new Texture2D(2, 2); // size doesn’t matter, LoadImage will replace it
+            tex.LoadImage(fileData); // Loads PNG/JPG bytes into texture
+            return tex;
         }
     }
 }

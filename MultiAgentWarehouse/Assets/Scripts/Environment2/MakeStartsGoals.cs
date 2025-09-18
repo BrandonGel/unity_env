@@ -50,6 +50,8 @@ public class MakeStartsGoals : MonoBehaviour
                 start.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 start.transform.localScale = scaling;
                 start.transform.parent = gameObject.transform.Find("Starts").transform;
+                start.transform.localPosition = pos;
+                start.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(start);
                 j += 1;
             }
@@ -78,6 +80,8 @@ public class MakeStartsGoals : MonoBehaviour
                 goal.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 goal.transform.localScale = scaling;
                 goal.transform.parent = gameObject.transform.Find("Goals").transform;
+                goal.transform.localPosition = pos;
+                goal.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(goal);
                 j += 1;
             }
@@ -97,6 +101,8 @@ public class MakeStartsGoals : MonoBehaviour
             GameObject non_task = Instantiate(non_task_prefab, pos, Quaternion.identity);
             non_task.transform.localScale = scaling;
             non_task.transform.parent = gameObject.transform.Find("Nontasks").transform;
+            non_task.transform.localPosition = pos;
+            non_task.transform.localRotation = Quaternion.identity;
             non_tasks.Add(non_task);
             i += 1;
         }
