@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using multiagent.agent;
+using multiagent.robot;
 using Unity.VisualScripting;
 using UnityEngine;
 using Robot = multiagent.robot.Robot;
@@ -11,7 +12,7 @@ namespace multiagent.parameterJson
     {
         [SerializeField] private Transform trackerTransform;
         [SerializeField] private LineRenderer lineRenderer;
-        [SerializeField] private Robot _robot;
+        [SerializeField] private Robot2 _robot;
 
         public int maxPathPositionListCount = 20;
         LineRenderer _lineRenderer;

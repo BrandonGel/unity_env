@@ -2,11 +2,11 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 1, 
+    "timescale": 5, 
     "fixed_timestep": 0.02,
     "max_allowable_num_agents": 2048,
     "max_allowable_num_tasks": 2048,
-    "num_envs": 4,
+    "num_envs": 1,
     "useCSVExporter": false
   },
   "agentParams":
@@ -22,7 +22,7 @@
     "absoluteCoordinate": false,
     "debugArrow": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 201,
+    "maxTimeSteps": 5001,
     "decisionPeriod": 5,
     "rewardParams":
     {

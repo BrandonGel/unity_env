@@ -41,7 +41,7 @@ public class MakeRobots2 : MonoBehaviour
                 int[] loc = agent.start;
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + offset;
                 pos = Vector3.Scale(pos, scaling);
-                if(instaniate)
+                if (instaniate)
                 {
                     GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
@@ -51,7 +51,8 @@ public class MakeRobots2 : MonoBehaviour
                     robot.name = "Robot_" + i;
                     robots.Add(robot);
                 }
-                else{
+                else
+                {
                     robots[i].transform.position = pos;
                     robots[i].transform.rotation = Quaternion.identity;
                     robots[i].GetComponent<Robot2>().reset();

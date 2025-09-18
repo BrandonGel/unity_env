@@ -8,19 +8,19 @@
     ".NETStandard,Version=v2.1": []
   },
   "packageFolders": {
-    "/home/brandon-ho/.nuget/packages/": {}
+    "/home/bho36/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/brandon-ho/Documents/unity_env/MultiAgentWarehouse/Assembly-CSharp.csproj",
+      "projectUniqueName": "/home/bho36/Documents/code/unity_env/MultiAgentWarehouse/Assembly-CSharp.csproj",
       "projectName": "Assembly-CSharp",
-      "projectPath": "/home/brandon-ho/Documents/unity_env/MultiAgentWarehouse/Assembly-CSharp.csproj",
-      "packagesPath": "/home/brandon-ho/.nuget/packages/",
-      "outputPath": "/home/brandon-ho/Documents/unity_env/MultiAgentWarehouse/Temp/obj/Assembly-CSharp/",
+      "projectPath": "/home/bho36/Documents/code/unity_env/MultiAgentWarehouse/Assembly-CSharp.csproj",
+      "packagesPath": "/home/bho36/.nuget/packages/",
+      "outputPath": "/home/bho36/Documents/code/unity_env/MultiAgentWarehouse/Temp/obj/Assembly-CSharp/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/brandon-ho/.nuget/NuGet/NuGet.Config"
+        "/home/bho36/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
@@ -54,7 +54,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.118/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.119/RuntimeIdentifierGraph.json"
       }
     }
   }
