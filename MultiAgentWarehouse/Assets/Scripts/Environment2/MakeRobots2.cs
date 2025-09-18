@@ -69,7 +69,6 @@ public class MakeRobots2 : MonoBehaviour
                 Vector3 pos = Vector3.zero;
                 Quaternion orientation = Quaternion.identity;
                 int count = 0;
-                Collider[] intersecting = new Collider[0];
                 Vector3 halfExtents = robot_prefab.GetComponent<BoxCollider>().size; // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
                 float radius = MathF.Sqrt(halfExtents.x*halfExtents.x + halfExtents.z*halfExtents.z);
                 for (int j = 0; j < num_spawn_tries; j++)

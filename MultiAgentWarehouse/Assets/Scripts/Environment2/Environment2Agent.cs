@@ -31,24 +31,26 @@ public class Environment2Agent : Agent
             if (sensor.SensorName == "BufferSensor")
             {
                 bufferSensor = sensor;
-                bufferSensor.MaxNumObservables = env.max_allowable_num_tasks;
+                bufferSensor.MaxNumObservables = env.n_tasks;
                 bufferSensor.ObservableSize = env.tasks_obs_space;
                 bufferSensor.SensorName = "BufferSensor_" + getID();
             }
             else if (sensor.SensorName == "AgentBufferSensor")
             {
                 agentBufferSensor = sensor;
-                agentBufferSensor.MaxNumObservables = env.max_allowable_num_agents;
+                agentBufferSensor.MaxNumObservables = env.num_agents;
                 agentBufferSensor.ObservableSize = env.robots_obs_space;
                 agentBufferSensor.SensorName = "AgentBufferSensor_" + getID();
             }
         }
+        
         scaling = env.scaling;
     }
 
 
     public override void OnEpisodeBegin()
     {
+        env.t = 0f;
         if (CurrentEpisode > 0)
         {
             env.exportEpisodeData(CurrentEpisode);

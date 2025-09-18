@@ -172,6 +172,7 @@ namespace multiagent.robot
             rotationAccelerationVector = Vector3.zero;
             updateState();
             changeMaterialColor();
+            setGoal();
             _ddstate = Vector3.zero;
             aData.clear();
             addInfo();

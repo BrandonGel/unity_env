@@ -25,6 +25,7 @@ public class Environment2 : MonoBehaviour
     public int maxTimeSteps = 1000;
     public int decisionPeriod = 1;
     public int n_tasks = 1;
+    public int num_agents = 1;
     public float task_freq = 1f;
     public int tasks_obs_space = 1;
     public int robots_obs_space = 1;
@@ -63,14 +64,26 @@ public class Environment2 : MonoBehaviour
         {
             n_tasks = param.goalParams.n_tasks;
             task_freq = param.goalParams.task_freq;
+            if (envJson.conf.mode.Contains("envjson"))
+            {
+                num_agents = root.agents.Count;
+            }
+            else if (envJson.conf.mode.Contains("paramjson"))
+            {
+                num_agents = param.agentParams.num_of_agents;
+            }
         }
         else
         {
             n_tasks = root.n_tasks;
             task_freq = root.task_freq[0];
+            num_agents = root.agents.Count;
         }
         Assert.IsTrue(max_allowable_num_tasks >= n_tasks, "The number of tasks in the parameter file exceeds the maximum allowable number of tasks in unity parameters");
         useCSVExporter = param.unityParams.useCSVExporter;
+        
+
+            
     }
 
     public void init()
@@ -191,7 +204,6 @@ public class Environment2 : MonoBehaviour
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
-
         if (taskAssignment != default)
         {
             taskAssignment();
@@ -226,7 +238,7 @@ public class Environment2 : MonoBehaviour
                     }
                 }
             }
-            catch 
+            catch
             {
                 if (robot.GetComponent<Robot2>().getTaskReached())
                 {
@@ -240,9 +252,10 @@ public class Environment2 : MonoBehaviour
                     }
                 }
             }
-            
+
 
         }
+        
     }
 
     public void exportEpisodeData(int CurrentEpisode)

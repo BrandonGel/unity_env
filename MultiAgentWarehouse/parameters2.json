@@ -22,7 +22,7 @@
     "absoluteCoordinate": false,
     "debugArrow": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 5001,
+    "maxTimeSteps": 501,
     "decisionPeriod": 5,
     "rewardParams":
     {

@@ -28,6 +28,7 @@ public class TaskGeneration
 
     public void GenerateTasks()
     {
+        n_tasks_started = 0;
         tasks = new List<Task>();
         for (int i = 0; i < n_tasks; i++)
         {
@@ -53,6 +54,7 @@ public class TaskGeneration
     public void DownloadTasks(List<TaskData> tasksData)
     {
         // TO DO
+        n_tasks_started = 0;
         tasks = new List<Task>();
         Dictionary<(int, int), int> start_dict = new Dictionary<(int, int), int>();
         Dictionary<(int, int), int> goal_dict = new Dictionary<(int, int), int>();
@@ -86,8 +88,6 @@ public class TaskGeneration
                 goals[y][1],
                 starts[x][1]
             };
-
-
             Task new_task = new Task(
                 tasksData[i].start_time,
                 tasksData[i].task_name,
@@ -102,7 +102,7 @@ public class TaskGeneration
         for (int i = n_tasks_started; i < tasks.Count; i++)
         {
             if (tasks[i].start_time <= t)
-            {
+            {                
                 n_tasks_started += 1; ; // Mark as available
                 available_tasks.Add(tasks[i]);
                 incompleted_tasks.Add(tasks[i]);
@@ -133,7 +133,6 @@ public class TaskGeneration
                 robotComponent.setGoal(null);
                 return;
             }
-            Debug.Log(available_tasks.Count + " available tasks");
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);
@@ -157,7 +156,7 @@ public class TaskGeneration
     {
         for (int i = 0; i < robots.Count; i++)
         {
-            Assert.IsTrue(taskInds[i] <= n_tasks && taskInds[i] >= 0, "Task index out of range");
+            Assert.IsTrue(taskInds[i] <= n_tasks && taskInds[i] >= 0, "Robot Assignment Task index out of range");
             int taskInd = taskInds[i]-1;
             // No assignment if taskInd is -1
             if(taskInd < 0)
@@ -189,7 +188,7 @@ public class TaskGeneration
         {
             if (available_tasks[i].isAssigned())
             {
-                incompleted_tasks.RemoveAt(i);
+                available_tasks.RemoveAt(i);
             }
         }
     }

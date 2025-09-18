@@ -408,6 +408,7 @@ MonoBehaviour:
   scaling: {x: 0, y: 0, z: 0}
   configFile: config2.json
   useCSVExporter: 0
+  alreadyCreated: 0
 --- !u!114 &1743879047829557930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -510,9 +511,9 @@ MonoBehaviour:
     VectorObservationSize: 0
     NumStackedVectorObservations: 1
     m_ActionSpec:
-      m_NumContinuousActions: 6144
+      m_NumContinuousActions: 384
       BranchSizes: 
-    VectorActionSize: 00180000
+    VectorActionSize: 80010000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
