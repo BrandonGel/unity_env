@@ -9,7 +9,6 @@ using Unity.MLAgents.Policies;
 using multiagent.task;
 using multiagent.taskgoal;
 using multiagent.robot;
-using UnityEditor.UI;
 public class Environment2Agent : Agent
 {
     Environment2 env;

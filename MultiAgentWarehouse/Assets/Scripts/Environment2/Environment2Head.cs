@@ -44,7 +44,7 @@ public class Environment2Head : MonoBehaviour
             env.name = "Environment2_" + i;
             env.GetComponent<Environment2>().configFile = configFile;
             env.GetComponent<Environment2Agent>().setID(i);
-            env.transform.parent = gameObject.transform;
+            // env.transform.parent = gameObject.transform;
             envCenters.Add(new Vector3(offsetX + dims[0] * 0.5f, 0, offsetZ + dims[1] * 0.5f));
             envSizes.Add(new Vector3(dims[0], 0, dims[1]));
         }

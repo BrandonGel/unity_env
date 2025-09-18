@@ -2,7 +2,7 @@ using UnityEngine;
 using multiagent.camera;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-
+using UnityEngine.SceneManagement;
 
 public class GUI_environment2 : MonoBehaviour
 {
@@ -35,9 +35,13 @@ public class GUI_environment2 : MonoBehaviour
         envCameraRot = _mainCamera.transform.rotation;
 
         _mainCamera.enabled = true;
-        foreach (Transform child in _envHead.transform)
+        Scene currentScene = SceneManager.GetActiveScene();
+        // foreach (Transform child in _envHead.transform)
+        foreach (GameObject rootGameObject in currentScene.GetRootGameObjects())
         {
-            if (child.name.Contains("Environment"))
+            Transform child = rootGameObject.transform;
+            Debug.Log(child.name);
+            if (child.name.Contains("Environment2"))
             {
                 child.gameObject.transform.Find("Camera").GetComponent<Camera>().enabled = false;
                 _envCameras.Add(child.gameObject.transform.Find("Camera").GetComponent<Camera>());
