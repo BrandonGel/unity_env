@@ -17,7 +17,7 @@ public class MakeRobots2 : MonoBehaviour
     public Vector3 boxSize = new Vector3(1f, 0.5f, 1f);
     public float min_spacing = 0.1f;
 
-    public void initStartLocation(int num_of_agents = 0, List<AgentData> agents = default, Func<(Vector3, Quaternion)> findValidPoint = default, Vector3 scaling = default)
+    public void initStartLocation(int num_of_agents = 0, List<AgentData> agents = default, Func<(Vector3, Quaternion)> findValidPoint = default, Vector3 scaling = default, bool instaniate = true)
     {
         if (agents == default && num_of_agents == 0 && findValidPoint == default)
         {
@@ -26,30 +26,41 @@ public class MakeRobots2 : MonoBehaviour
         }
         // Vector3 offset = new Vector3(0.5f, 0, 0.5f);
         Vector3 offset = new Vector3(0f, 0.5f, 0f);
+        if(instaniate)
+        {
+            robots = new List<GameObject>();
+        }
 
         if (agents != default)
         {
             num_of_agents = agents.Count;
             spawnlocations = new List<List<int[]>>();
-            robots = new List<GameObject>();
             int i = 0;
             foreach (AgentData agent in agents)
             {
                 int[] loc = agent.start;
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + offset;
                 pos = Vector3.Scale(pos, scaling);
-                GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
-                robot.transform.parent = gameObject.transform.Find("Robots").transform;
-                robot.transform.localScale = scaling;
-                robot.GetComponent<Robot2>().setID(i);
-                robot.GetComponent<Robot2>().boxSize = boxSize;
-                robots.Add(robot);
+                if(instaniate)
+                {
+                    GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
+                    robot.transform.parent = gameObject.transform.Find("Robots").transform;
+                    robot.transform.localScale = scaling;
+                    robot.GetComponent<Robot2>().setID(i);
+                    robot.GetComponent<Robot2>().boxSize = boxSize;
+                    robot.name = "Robot_" + i;
+                    robots.Add(robot);
+                }
+                else{
+                    robots[i].transform.position = pos;
+                    robots[i].transform.rotation = Quaternion.identity;
+                    robots[i].GetComponent<Robot2>().reset();
+                }
                 i += 1;
             }
         }
         else if (num_of_agents > 0 && findValidPoint != default)
         {
-            robots = new List<GameObject>();
             List<Vector3> position = new List<Vector3>();
             for (int i = 0; i < num_of_agents; i++)
             {
@@ -87,14 +98,23 @@ public class MakeRobots2 : MonoBehaviour
                 {
                     Debug.LogWarning("Could not find non-overlapping spawn point for robot " + i + ". Placing it anyway.");
                 }
-                GameObject robot = Instantiate(robot_prefab, pos, orientation);
-                robot.transform.parent = gameObject.transform.Find("Robots").transform;
-                robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
-                robot.GetComponent<Robot2>().setID(i);
-                robot.GetComponent<Robot2>().boxSize = boxSize;
-                robot.GetComponent<Robot2>().setCollisionOn(false);
-                robot.name = "Robot_" + i;
-                robots.Add(robot);
+                if(instaniate)
+                {
+                    GameObject robot = Instantiate(robot_prefab, pos, orientation);
+                    robot.transform.parent = gameObject.transform.Find("Robots").transform;
+                    robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
+                    robot.GetComponent<Robot2>().setID(i);
+                    robot.GetComponent<Robot2>().boxSize = boxSize;
+                    robot.GetComponent<Robot2>().setCollisionOn(false);
+                    robot.name = "Robot_" + i;
+                    robots.Add(robot);
+                }
+                else{
+                    robots[i].transform.position = pos;
+                    robots[i].transform.rotation = Quaternion.identity;
+                    robots[i].GetComponent<Robot2>().setCollisionOn(false);
+                    robots[i].GetComponent<Robot2>().reset();
+                }   
             }
 
             for (int i = 0; i < num_of_agents; i++)

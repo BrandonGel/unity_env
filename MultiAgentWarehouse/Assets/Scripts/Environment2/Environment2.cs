@@ -36,6 +36,7 @@ public class Environment2 : MonoBehaviour
     public string configFile = "config2.json";
     public csv_exporter CSVexporter = new csv_exporter();
     [SerializeField] public bool useCSVExporter = false;
+    public bool alreadyCreated = false;
 
     void Awake()
     {
@@ -83,16 +84,20 @@ public class Environment2 : MonoBehaviour
         Map envMap = envJson.GetMap();
 
         // Create the World
-        mo.DestroyAll();
-        if (envJson.conf.world_mode == "image")
+        if (!alreadyCreated)
         {
-            Vector3 Imagescaling = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
-            mo.GenerateWorld(envJson.conf.imagepath, Imagescaling);
+            mo.DestroyAll();
+            if (envJson.conf.world_mode == "image")
+            {
+                Vector3 Imagescaling = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
+                mo.GenerateWorld(envJson.conf.imagepath, Imagescaling);
+            }
+            else if (envJson.conf.world_mode == "grid")
+            {
+                mo.CreateWorld(configFile);
+            }
         }
-        else if (envJson.conf.world_mode == "grid")
-        {
-            mo.CreateWorld(configFile);
-        }
+        
 
         // Start and Goal Initialization
         msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling);
@@ -110,25 +115,29 @@ public class Environment2 : MonoBehaviour
             msg.getStartLocations(),
             msg.getGoalLocations()
         );
-        mr.DestroyAll();
-        mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
+
+        if (!alreadyCreated)
+        {
+            mr.DestroyAll();
+            mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
+        }
         if (envJson.conf.mode.Contains("generate"))
         {
             tg.GenerateTasks();
             if (envJson.conf.mode.Contains("envjson"))
             {
-                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling);
+                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling,!alreadyCreated);
             }
             else if (envJson.conf.mode.Contains("paramjson"))
             {
-                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling);
+                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling,!alreadyCreated);
             }
         }
         else if (envJson.conf.mode.Contains("download"))
         {
             List<TaskData> tasks = root.tasks;
             tg.DownloadTasks(tasks);
-            mr.initStartLocation(0, root.agents, default, scaling);
+            mr.initStartLocation(0, root.agents, default, scaling,!alreadyCreated);
             if (envJson.conf.mode.Contains("replay"))
             {
                 mr.setCommandInput(false);
@@ -142,6 +151,7 @@ public class Environment2 : MonoBehaviour
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
+        
 
         // Task Assignment Declaration
         if (param.goalParams.task_mode == "EarlyStart")
@@ -151,6 +161,7 @@ public class Environment2 : MonoBehaviour
 
         // Camera Assignment
         camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
+        alreadyCreated = true;
     }
 
     void Start()
@@ -174,6 +185,7 @@ public class Environment2 : MonoBehaviour
         {
             QuitApplication();
         }
+        // mo.OnRenderObject();
     }
 
     void FixedUpdate()

@@ -55,6 +55,7 @@ namespace multiagent.robot
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
         private bool allowCommandsInput = true;
         public int obs_size = 13;
+        public bool useCSVExport = true;
 
 
         public void Awake()
@@ -541,6 +542,10 @@ namespace multiagent.robot
 
         public void addInfo()
         {
+            if (!useCSVExport)
+            {
+                return;
+            }
             subAgentData sData = new subAgentData();
             
             Vector3 abs_state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
@@ -636,6 +641,7 @@ namespace multiagent.robot
 
         public void updateAgentParameters(parameters param)
         {
+            useCSVExport = param.unityParams.useCSVExporter;
             maxSpeed = param.agentParams.maxSpeed;
             maxRotationSpeed = param.agentParams.maxRotationSpeed;
             maxAcceleration = param.agentParams.maxAcceleration;

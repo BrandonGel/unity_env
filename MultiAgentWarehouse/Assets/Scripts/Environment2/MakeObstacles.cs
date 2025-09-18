@@ -10,6 +10,8 @@ public class MakeObstacles : MonoBehaviour
     public Material groundMaterial;
     public Material obstacleMaterial;
     private Vector3  scale;
+    private List<List<Matrix4x4>> Batches = new List<List<Matrix4x4>>();
+    private int batchSize = 1000; // Maximum number of instances per batch for DrawMeshInstanced
     private environmentJson envJson = new environmentJson();
     private int worldX, worldY, worldZ;
 
@@ -49,26 +51,27 @@ public class MakeObstacles : MonoBehaviour
         // Vector3 startingSpawnPosition = obstaclePrefab.transform.localScale / 2;
         // Vector3 startingSpawnPosition = new Vector3(0.5f, obstaclePrefab.transform.localScale.y/2, 0.5f);
         Vector3 startingSpawnPosition = new Vector3(0f, obstaclePrefab.transform.localScale.y/2, 0f);
-        Vector3 currentPosition = startingSpawnPosition;
+        Vector3 position = startingSpawnPosition;
 
         int counter = 0;
         for (int z = 0; z < worldZ; z++)
         {
             for (int x = 0; x < worldX; x++)
             {
-                spawnPoints[counter] = currentPosition;
+                spawnPoints[counter] = position;
                 Color c = pixels[counter];
                 if (c.Equals(Color.black))
                 {
-                    CreateObstacle(currentPosition);
+                    CreateObstacle(position);
+                    // AddObstacles(position, Quaternion.identity, this.scale);
                 }
 
                 counter++;
-                currentPosition.x += 1;
+                position.x += 1;
 
             }
-            currentPosition.x = startingSpawnPosition.x;
-            currentPosition.z += 1;
+            position.x = startingSpawnPosition.x;
+            position.z += 1;
         }
 
         CreateBorderObstacles(new int[] { -1, worldX }, new int[] { -1, worldZ });
@@ -104,8 +107,9 @@ public class MakeObstacles : MonoBehaviour
         for (int i = 0; i < obs.Count; i++)
         {
             int[] loc = obs[i];
-            Vector3 pos = new Vector3(loc[0], 0, loc[1]) + startingSpawnPosition;
-            CreateObstacle(pos);
+            Vector3 position = new Vector3(loc[0], 0, loc[1]) + startingSpawnPosition;
+            CreateObstacle(position);
+            // AddObstacles(position, Quaternion.identity, this.scale);
         }
         CreateBorderObstacles(new int[] { -1, worldX }, new int[] { -1, worldZ });
         CreateGround();
@@ -123,8 +127,10 @@ public class MakeObstacles : MonoBehaviour
         {
             position = new Vector3(i, 0f, zRange[0]) + startingSpawnPosition;
             CreateObstacle(position);
+            // AddObstacles(position, Quaternion.identity, this.scale);
             position = new Vector3(i, 0f, zRange[1]) + startingSpawnPosition;
             CreateObstacle(position);
+            // AddObstacles(position, Quaternion.identity, this.scale);
         }
 
         // Left and right borders
@@ -132,9 +138,12 @@ public class MakeObstacles : MonoBehaviour
         {
             position = new Vector3(xRange[0], 0f, j) + startingSpawnPosition;
             CreateObstacle(position);
+            // AddObstacles(position, Quaternion.identity, this.scale);
             position = new Vector3(xRange[1], 0f, j) + startingSpawnPosition;
             CreateObstacle(position);
+            // AddObstacles(position, Quaternion.identity, this.scale);
         }
+        
     }
 
     private void CreateGround()
@@ -163,6 +172,34 @@ public class MakeObstacles : MonoBehaviour
         obs.GetComponent<Renderer>().material= obstacleMaterial;
         if (color != default)
             obs.GetComponent<Renderer>().material.color = color;
+    }
+
+    private void AddObstacles(Vector3 currentPosition, Quaternion rotation , Vector3 scale)
+    {
+        if (Batches.Count == 0 || Batches[Batches.Count-1].Count >= batchSize)
+        {
+            Batches.Add(new List<Matrix4x4>());
+        }
+        currentPosition = Vector3.Scale(currentPosition, scale);
+        Matrix4x4 matrix = Matrix4x4.TRS(currentPosition, rotation, scale);
+        Batches[Batches.Count-1].Add(matrix);
+    }
+
+    public void OnRenderObject()
+    {
+        if (obstaclePrefab == null || obstaclePrefab.GetComponent<MeshFilter>() == null)
+            return;
+
+        Mesh mesh = obstaclePrefab.GetComponent<MeshFilter>().sharedMesh;
+        Material material = obstacleMaterial;
+
+        foreach (var batch in Batches)
+        {
+            if (batch.Count > 0)
+            {
+                Graphics.DrawMeshInstanced(mesh, 0, material, batch);
+            }
+        }
     }
 
     public void ScaleEnvironment(Vector3 scale)

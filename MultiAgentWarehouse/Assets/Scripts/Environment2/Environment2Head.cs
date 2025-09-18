@@ -32,7 +32,6 @@ public class Environment2Head : MonoBehaviour
             dims = new int[] { (int)(scale[0] * dims[0]), (int)(scale[1] * dims[1]) };
         }
 
-        Debug.Log("Environment dimensions: " + dims[0] + " x " + dims[1]);
         int rows = (int)Mathf.Sqrt(num_envs);
         for (int i = 0; i < num_envs; i++)
         {
@@ -44,7 +43,7 @@ public class Environment2Head : MonoBehaviour
             env.name = "Environment2_" + i;
             env.GetComponent<Environment2>().configFile = configFile;
             env.GetComponent<Environment2Agent>().setID(i);
-            // env.transform.parent = gameObject.transform;
+            env.transform.parent = gameObject.transform;
             envCenters.Add(new Vector3(offsetX + dims[0] * 0.5f, 0, offsetZ + dims[1] * 0.5f));
             envSizes.Add(new Vector3(dims[0], 0, dims[1]));
         }

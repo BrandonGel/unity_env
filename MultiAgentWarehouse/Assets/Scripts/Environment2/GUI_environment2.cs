@@ -1,7 +1,6 @@
 using UnityEngine;
 using multiagent.camera;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
 public class GUI_environment2 : MonoBehaviour
@@ -36,11 +35,10 @@ public class GUI_environment2 : MonoBehaviour
 
         _mainCamera.enabled = true;
         Scene currentScene = SceneManager.GetActiveScene();
-        // foreach (Transform child in _envHead.transform)
-        foreach (GameObject rootGameObject in currentScene.GetRootGameObjects())
+        foreach (Transform child in _envHead.transform)
+        // foreach (GameObject rootGameObject in currentScene.GetRootGameObjects())
         {
-            Transform child = rootGameObject.transform;
-            Debug.Log(child.name);
+        //     Transform child = rootGameObject.transform;
             if (child.name.Contains("Environment2"))
             {
                 child.gameObject.transform.Find("Camera").GetComponent<Camera>().enabled = false;
@@ -55,7 +53,8 @@ public class GUI_environment2 : MonoBehaviour
     private void OnGUI()
     {
         // Episode & Step Count information
-        string debugEpisode = "Env: " + envID + " - Ep: " + _envAgents[envID].CurrentEpisode + " - Step: " + _envAgents[envID].StepCount;
+        string debugEpisode = "Env: " + envID + " - Ep: " + _envAgents[envID].CurrentEpisode + " - Step: " + _envAgents[envID].StepCount + "/" + (_envAgents[envID].MaxStep-1)  ;
+        debugEpisode += " - Time: " +  Mathf.Round(_envAgents[envID].StepCount*Time.fixedDeltaTime*100)/100 + "/" + Mathf.Round(100*(_envAgents[envID].MaxStep-1)*Time.fixedDeltaTime)/100;
 
         //Number of Players information
         string debugPlayers = "Players: ";
