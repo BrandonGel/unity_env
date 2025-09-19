@@ -20,8 +20,9 @@ namespace multiagent.task
         private bool _completed = false;
         public int task_ind = -1;
         public int taskID = -1;
+        public bool verbose = false;
 
-        public Task(float start_time, string task_name, List<GameObject> taskpoint, int taskID = -1)
+        public Task(float start_time, string task_name, List<GameObject> taskpoint, int taskID = -1, bool verbose = false)
         {
             this.start_time = start_time;
             this.task_name = task_name;
@@ -31,6 +32,7 @@ namespace multiagent.task
             _completed = false;
             task_ind = 0;
             this.taskID = taskID;
+            this.verbose = verbose;
         }
 
         public bool isAssigned()
@@ -61,13 +63,16 @@ namespace multiagent.task
         {
             UnityEngine.Assertions.Assert.IsTrue(robotID >= 0);
             assignedRobotID = robotID;
+            if (verbose)
+                Debug.Log("Task: " + task_name + " assigned to Robot " + assignedRobotID);
         }
 
         public void moveNext()
         {
             if (task_ind + 1 < taskpoint.Count)
             {
-                // Debug.Log("Task: " + task_name + " moving to next goal " + (task_ind + 1) + " by Robot " + assignedRobotID);
+                if (verbose)
+                    Debug.Log("Task: " + task_name + " moving to next goal " + (task_ind + 1) + " by Robot " + assignedRobotID);
                 task_ind += 1;
             }
             else
@@ -79,7 +84,8 @@ namespace multiagent.task
         }
         public void reachGoal()
         {
-            // Debug.Log("Task: " + task_name + " Goal " + task_ind + " reached by Robot " + assignedRobotID);
+            if (verbose)
+                Debug.Log("Task: " + task_name + " Goal " + task_ind + " reached by Robot " + assignedRobotID);
             _busy = true;
             taskpoint[task_ind].GetComponent<Goal>().setBusy();
         }

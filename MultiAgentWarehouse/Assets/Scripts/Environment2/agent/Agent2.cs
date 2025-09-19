@@ -35,6 +35,7 @@ namespace multiagent.robot
         public float Reward = 0;
         public int DecisionPeriod = 0;
         public int collisionTagID = 0;
+        public bool verbose = false;
 
         public void setDecisionRequestParams(int maxTimeSteps, int decisionPeriod)
         {
@@ -186,30 +187,77 @@ namespace multiagent.robot
                         collisionTagID = 2;
                         break;
                     case "Obstacle":
-                         collisionTagID = 3;
+                        collisionTagID = 3;
                         break;
                     default:
                         collisionTagID = 0;
                         break;
                 }
+                if (verbose)
+                {
+                    if (collision.gameObject.CompareTag("Player"))
+                    {
+                        Robot2 otherRobot = collision.gameObject.GetComponent<Robot2>();
+                        if (otherRobot != null)
+                        {
+                            Debug.Log("Collision with Robot " + otherRobot.getID() + " by Robot " + getID());
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Collision with " + collision.gameObject.tag + " by Robot " + getID());
+                    }
+                }   
             }
         }
 
         private void OnCollisionStay(Collision collision)
         {
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")|| collision.gameObject.CompareTag("Obstacle")) && collisionOn)
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
             {
                 AddReward(_collisionStayReward * Time.fixedDeltaTime);
+                if (verbose)
+                {
+                    if (collision.gameObject.CompareTag("Player"))
+                    {
+                        Robot2 otherRobot = collision.gameObject.GetComponent<Robot2>();
+                        if (otherRobot != null)
+                        {
+                            Debug.Log("Colliding with Robot " + otherRobot.getID() + " by Robot " + getID());
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Colliding with " + collision.gameObject.tag + " by Robot " + getID());
+                    }
+                }
+                    
             }
         }
 
         private void OnCollisionExit(Collision collision)
         {
             isColliding = false;
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player")|| collision.gameObject.CompareTag("Obstacle")) && collisionOn)
+            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
             {
                 changeMaterialColor();
                 collisionTagID = 0;
+                if (verbose)
+                {
+                    if (collision.gameObject.CompareTag("Player"))
+                    {
+                        Robot2 otherRobot = collision.gameObject.GetComponent<Robot2>();
+                        if (otherRobot != null)
+                        {
+                            Debug.Log("Collision ended with Robot " + otherRobot.getID() + " by Robot " + getID());
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Collision ended with " + collision.gameObject.tag + " by Robot " + getID());
+                    }
+                }   
+                    
             }
         }
 

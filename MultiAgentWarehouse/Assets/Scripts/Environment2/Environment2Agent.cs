@@ -22,6 +22,7 @@ public class Environment2Agent : Agent
     BufferSensorComponent agentBufferSensor;
     public List<GameObject> robots = null;
     Vector3 scaling;
+    public bool verbose = false;
 
     void Awake()
     {
@@ -48,11 +49,12 @@ public class Environment2Agent : Agent
         }
 
         scaling = env.scaling;
-        
+
         int num_agents = env.num_agents;
         var behaviorParams = GetComponent<BehaviorParameters>();
         var actionSpec = ActionSpec.MakeContinuous(3 * num_agents);
         behaviorParams.BrainParameters.ActionSpec = actionSpec;
+        verbose = env.verbose;
     }
 
 
@@ -72,7 +74,8 @@ public class Environment2Agent : Agent
             env.init();
         }
         robots = env.mr.getRobots();
-        Debug.Log("Episode: " + CurrentEpisode);
+        if (verbose)
+            Debug.Log("Episode: " + CurrentEpisode);
 
         // env.tg.GenerateTasks();
     }

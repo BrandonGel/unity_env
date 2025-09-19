@@ -651,6 +651,7 @@ namespace multiagent.robot
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             debugArrow = param.agentParams.debugArrow;
             _safetyRadius = param.agentParams.safetyRadius;
+            verbose = param.agentParams.verbose;
             Assert.IsTrue(maxSpeed > 0, "maxSpeed must be positive");
             Assert.IsTrue(maxRotationSpeed > 0, "maxRotationSpeed must be positive");
             Assert.IsTrue(maxAcceleration > 0, "maxAcceleration must be positive");

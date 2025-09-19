@@ -400,11 +400,10 @@ MonoBehaviour:
   maxTimeSteps: 1000
   decisionPeriod: 1
   n_tasks: 1
+  num_agents: 1
   task_freq: 1
   tasks_obs_space: 1
   robots_obs_space: 1
-  max_allowable_num_agents: 2048
-  max_allowable_num_tasks: 2048
   scaling: {x: 0, y: 0, z: 0}
   configFile: config2.json
   useCSVExporter: 0
@@ -518,7 +517,7 @@ MonoBehaviour:
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
-  m_InferenceDevice: 0
+  m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: My Behavior
   TeamId: 0

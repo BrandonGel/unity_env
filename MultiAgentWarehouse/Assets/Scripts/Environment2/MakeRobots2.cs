@@ -17,7 +17,7 @@ public class MakeRobots2 : MonoBehaviour
     public Vector3 boxSize = new Vector3(1f, 0.5f, 1f);
     public float min_spacing = 0.1f;
 
-    public void initStartLocation(int num_of_agents = 0, List<AgentData> agents = default, Func<(Vector3, Quaternion)> findValidPoint = default, Vector3 scaling = default, bool instaniate = true)
+    public void initStartLocation(int num_of_agents = 0, List<AgentData> agents = default, Func<(Vector3, Quaternion)> findValidPoint = default, Vector3 scaling = default, bool instaniate = true, bool verbose = false)
     {
         if (agents == default && num_of_agents == 0 && findValidPoint == default)
         {
@@ -48,7 +48,7 @@ public class MakeRobots2 : MonoBehaviour
                     robot.transform.localScale = scaling;
                     robot.GetComponent<Robot2>().setID(i);
                     robot.GetComponent<Robot2>().boxSize = boxSize;
-                    robot.name = "Robot_" + i;
+                    robot.name = "Robot_" + i+1;
                     robots.Add(robot);
                 }
                 else

@@ -16,14 +16,16 @@ public class TaskGeneration
     List<Task> available_tasks = new List<Task>();
     List<Task> incompleted_tasks = new List<Task>();
     System.Random random = new System.Random();
+    bool verbose = false;
 
 
-    public TaskGeneration(int n_tasks, float task_freq, List<List<GameObject>> starts, List<List<GameObject>> goals)
+    public TaskGeneration(int n_tasks, float task_freq, List<List<GameObject>> starts, List<List<GameObject>> goals, bool verbose = false)
     {
         this.n_tasks = n_tasks;
         this.task_freq = task_freq;
         this.starts = starts;
         this.goals = goals;
+        this.verbose = verbose;
     }
 
     public void GenerateTasks()
@@ -44,9 +46,10 @@ public class TaskGeneration
             };
             Task new_task = new Task(
                 i * task_freq,
-                "task_" + i.ToString(),
+                "task_" + (i+1).ToString(),
                 taskpoint,
-                i+1);
+                i+1,
+                verbose);
             tasks.Add(new_task);
         }
     }
@@ -101,13 +104,15 @@ public class TaskGeneration
     {
         for (int i = n_tasks_started; i < tasks.Count; i++)
         {
-            if (tasks[i].start_time <= t)
-            {                
+            if (tasks[i].start_time-1e-5 <= t)
+            {
                 n_tasks_started += 1; ; // Mark as available
                 available_tasks.Add(tasks[i]);
                 incompleted_tasks.Add(tasks[i]);
             }
         }
+        if (verbose && available_tasks.Count > 0)
+            Debug.Log(available_tasks.Count + " available tasks ");
     }
 
     public List<Task> GetIncompleteTasks()
@@ -145,7 +150,6 @@ public class TaskGeneration
                 robotComponent.setGoal(null);
                 return;
             }
-            Debug.Log(available_tasks.Count + " available tasks ");
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);

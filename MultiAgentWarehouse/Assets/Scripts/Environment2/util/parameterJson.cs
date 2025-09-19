@@ -43,6 +43,7 @@ namespace multiagent.parameterJson
         public int n_tasks = 1;
         public float task_freq = 1;
         public string task_mode = "";
+        public bool verbose = false;
         public List<goalParameter> goals = new List<goalParameter>();
         public List<goalParameter> starts = new List<goalParameter>();
     }
@@ -82,6 +83,7 @@ namespace multiagent.parameterJson
         public int maxTimeSteps = 5001;
         public int decisionPeriod = 5;
         public float safetyRadius = 1f;
+        public bool verbose = false;
         public rewardParameters rewardParams = new rewardParameters();
         public lidarParameters rayParams = new lidarParameters();
     }
@@ -94,6 +96,7 @@ namespace multiagent.parameterJson
         public float fixed_timestep = 0.2f;
         public int num_envs = 1;
         public bool useCSVExporter = false;
+        public bool verbose = false;
     }
 
     [System.Serializable]

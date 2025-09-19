@@ -11,11 +11,13 @@ public class Environment2Head : MonoBehaviour
     public GameObject environment2Prefab;
     public List<Vector3> envCenters = new List<Vector3>();
     public List<Vector3> envSizes = new List<Vector3>();
+    public bool verbose = false;
     public int num_envs = 1;
     void Awake()
     {
         paramJson.ReadJson(configFile);
         envJson.ReadJson(configFile);
+        verbose = paramJson.GetParameter().unityParams.verbose;
 
         parameters param = paramJson.GetParameter();
         Random.InitState(param.unityParams.seed);

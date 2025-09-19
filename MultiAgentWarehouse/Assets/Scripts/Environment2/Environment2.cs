@@ -7,6 +7,7 @@ using multiagent.robot;
 using multiagent.camera;
 using multiagent.util;
 using UnityEngine.Assertions;
+using Unity.Barracuda;
 public class Environment2 : MonoBehaviour
 {
     public new GameObject camera;
@@ -36,11 +37,13 @@ public class Environment2 : MonoBehaviour
     public csv_exporter CSVexporter = new csv_exporter();
     [SerializeField] public bool useCSVExporter = false;
     public bool alreadyCreated = false;
+    public bool verbose = false;
 
     void Awake()
     {
         readConfig(configFile);
         parameters param = paramJson.GetParameter();
+        verbose = param.unityParams.verbose;
         tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
@@ -119,7 +122,8 @@ public class Environment2 : MonoBehaviour
             n_tasks,
             task_freq,
             msg.getStartLocations(),
-            msg.getGoalLocations()
+            msg.getGoalLocations(),
+            param.goalParams.verbose
         );
 
         if (!alreadyCreated)
@@ -160,7 +164,7 @@ public class Environment2 : MonoBehaviour
         
 
         // Task Assignment Declaration
-        if (param.goalParams.task_mode == "EarlyStart")
+        if (param.goalParams.task_mode.ToLower() == "EarlyStart".ToLower())
         {
             taskAssignment = AssignTaskEarlyStart;
         }
@@ -197,6 +201,7 @@ public class Environment2 : MonoBehaviour
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
+        tg.CheckAvailableTasks(t);
         if (taskAssignment != default)
         {
             taskAssignment();
@@ -214,7 +219,6 @@ public class Environment2 : MonoBehaviour
 
     public void AssignTaskEarlyStart()
     {
-        tg.CheckAvailableTasks(t);
         foreach (GameObject robot in mr.robots)
         {
             try
@@ -255,7 +259,8 @@ public class Environment2 : MonoBehaviour
     {
         if (useCSVExporter)
         {
-            Debug.Log("Exporting Episode Data");
+            if (verbose)
+                Debug.Log("Exporting Episode Data");
             for (int i = 0; i < mr.robots.Count; i++)
             {
                 Robot2 robotComponent = mr.robots[i].GetComponent<Robot2>();
