@@ -92,8 +92,6 @@ namespace multiagent.parameterJson
         public int seed = 42;
         public float timescale = 5f;
         public float fixed_timestep = 0.2f;
-        public int max_allowable_num_agents = 2048;
-        public int max_allowable_num_tasks = 2048;
         public int num_envs = 1;
         public bool useCSVExporter = false;
     }

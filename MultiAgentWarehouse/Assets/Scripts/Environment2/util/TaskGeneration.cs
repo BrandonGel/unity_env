@@ -145,7 +145,7 @@ public class TaskGeneration
                 robotComponent.setGoal(null);
                 return;
             }
-            Debug.Log(available_tasks.Count + " available tasks");
+            Debug.Log(available_tasks.Count + " available tasks ");
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);

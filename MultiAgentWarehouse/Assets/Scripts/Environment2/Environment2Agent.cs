@@ -9,6 +9,8 @@ using Unity.MLAgents.Policies;
 using multiagent.task;
 using multiagent.taskgoal;
 using multiagent.robot;
+using multiagent.util;
+using System;
 public class Environment2Agent : Agent
 {
     Environment2 env;
@@ -20,6 +22,7 @@ public class Environment2Agent : Agent
     BufferSensorComponent agentBufferSensor;
     public List<GameObject> robots = null;
     Vector3 scaling;
+
     void Awake()
     {
         env = transform.GetComponent<Environment2>();
@@ -43,8 +46,13 @@ public class Environment2Agent : Agent
                 agentBufferSensor.SensorName = "AgentBufferSensor_" + getID();
             }
         }
-        
+
         scaling = env.scaling;
+        
+        int num_agents = env.num_agents;
+        var behaviorParams = GetComponent<BehaviorParameters>();
+        var actionSpec = ActionSpec.MakeContinuous(3 * num_agents);
+        behaviorParams.BrainParameters.ActionSpec = actionSpec;
     }
 
 

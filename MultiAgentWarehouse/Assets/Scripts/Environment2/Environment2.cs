@@ -29,8 +29,6 @@ public class Environment2 : MonoBehaviour
     public float task_freq = 1f;
     public int tasks_obs_space = 1;
     public int robots_obs_space = 1;
-    public int max_allowable_num_agents = 2048;
-    public int max_allowable_num_tasks = 2048;
     public Vector3 scaling;
     public delegate void taskAssignmentMethod();
     taskAssignmentMethod taskAssignment = default;
@@ -44,8 +42,6 @@ public class Environment2 : MonoBehaviour
         readConfig(configFile);
         parameters param = paramJson.GetParameter();
         tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
-        max_allowable_num_agents = param.unityParams.max_allowable_num_agents;
-        max_allowable_num_tasks = param.unityParams.max_allowable_num_tasks;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
@@ -60,7 +56,7 @@ public class Environment2 : MonoBehaviour
         scheduleJson.ReadJson(file);
         parameters param = paramJson.GetParameter();
         Root root = envJson.GetRoot();
-        if (envJson.conf.mode == "generate")
+        if (envJson.conf.mode.Contains("generate"))
         {
             n_tasks = param.goalParams.n_tasks;
             task_freq = param.goalParams.task_freq;
@@ -79,11 +75,8 @@ public class Environment2 : MonoBehaviour
             task_freq = root.task_freq[0];
             num_agents = root.agents.Count;
         }
-        Assert.IsTrue(max_allowable_num_tasks >= n_tasks, "The number of tasks in the parameter file exceeds the maximum allowable number of tasks in unity parameters");
-        useCSVExporter = param.unityParams.useCSVExporter;
         
-
-            
+        useCSVExporter = param.unityParams.useCSVExporter;            
     }
 
     public void init()

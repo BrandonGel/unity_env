@@ -4,8 +4,6 @@
     "seed": 42,  
     "timescale": 5, 
     "fixed_timestep": 0.02,
-    "max_allowable_num_agents": 2048,
-    "max_allowable_num_tasks": 2048,
     "num_envs": 1,
     "useCSVExporter": false
   },
