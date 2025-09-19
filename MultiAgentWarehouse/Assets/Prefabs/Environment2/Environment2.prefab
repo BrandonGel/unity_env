@@ -348,6 +348,7 @@ GameObject:
   - component: {fileID: 8877039138303928335}
   - component: {fileID: 2321947256029639363}
   - component: {fileID: 5850302488055705892}
+  - component: {fileID: -3550274860022872664}
   m_Layer: 0
   m_Name: Environment2
   m_TagString: Untagged
@@ -408,6 +409,7 @@ MonoBehaviour:
   configFile: config2.json
   useCSVExporter: 0
   alreadyCreated: 0
+  verbose: 0
 --- !u!114 &1743879047829557930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,6 +546,7 @@ MonoBehaviour:
   CumulativeReward: 0
   CumulativeMeanReward: 0
   robots: []
+  verbose: 0
 --- !u!114 &6343004617225765319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,6 +608,21 @@ MonoBehaviour:
   m_SensorName: AgentBufferSensor
   m_ObservableSize: 0
   m_MaxNumObservables: 0
+--- !u!114 &-3550274860022872664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6021090556336757916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8012d5925524537b27131fef517017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: TimeBufferSensor
+  m_ObservableSize: 2
+  m_MaxNumObservables: 1
 --- !u!1 &7799436130998780245
 GameObject:
   m_ObjectHideFlags: 0

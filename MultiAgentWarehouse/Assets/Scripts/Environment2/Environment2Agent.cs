@@ -20,6 +20,7 @@ public class Environment2Agent : Agent
     public float CumulativeMeanReward = 0f;
     BufferSensorComponent bufferSensor;
     BufferSensorComponent agentBufferSensor;
+    BufferSensorComponent timeBufferSensor;
     public List<GameObject> robots = null;
     Vector3 scaling;
     public bool verbose = false;
@@ -45,6 +46,13 @@ public class Environment2Agent : Agent
                 agentBufferSensor.MaxNumObservables = env.num_agents;
                 agentBufferSensor.ObservableSize = env.robots_obs_space;
                 agentBufferSensor.SensorName = "AgentBufferSensor_" + getID();
+            }
+            else if (sensor.SensorName == "TimeBufferSensor")
+            {
+                timeBufferSensor = sensor;
+                timeBufferSensor.MaxNumObservables = 1;
+                timeBufferSensor.ObservableSize = 3;
+                timeBufferSensor.SensorName = "TimeBufferSensor_" + getID();
             }
         }
 
@@ -114,6 +122,7 @@ public class Environment2Agent : Agent
             float[] agent_obs = robotObj.CollectObservations();
             agentBufferSensor.AppendObservation(agent_obs);
         }
+        timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount,env.maxTimeSteps });
 
     }
 
