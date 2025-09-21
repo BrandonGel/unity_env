@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/multiagent.unity
     guid: 7dfd64aca1e5be4cd8cb26f50095b93f
+  - enabled: 0
+    path: Assets/Scenes/generateWarehouse_server.unity
+    guid: 6eb920f96c2025aeea58567a9f20ce07
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

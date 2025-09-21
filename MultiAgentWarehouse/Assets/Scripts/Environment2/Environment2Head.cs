@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using Unity.Barracuda;
 public class Environment2Head : MonoBehaviour
 {
-    public string configFile = "config2.json";
+    public string configFile = "config.json";
     public parameterJson paramJson = new parameterJson();
     public environmentJson envJson = new environmentJson();
     public GameObject environment2Prefab;
     public List<Vector3> envCenters = new List<Vector3>();
     public List<Vector3> envSizes = new List<Vector3>();
+    public RegisterStringLogSideChannel registerStringLogSideChannel;
     public bool verbose = false;
     public int num_envs = 1;
     void Awake()
@@ -51,6 +52,11 @@ public class Environment2Head : MonoBehaviour
         }
     }
 
+    void updateEnv()
+    {
+        (string parameter, float[] values) = registerStringLogSideChannel.getParseMsg();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,6 +66,6 @@ public class Environment2Head : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        updateEnv();
     }
 }

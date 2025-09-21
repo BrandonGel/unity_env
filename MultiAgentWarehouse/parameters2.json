@@ -6,6 +6,7 @@
     "fixed_timestep": 0.02,
     "num_envs": 1,
     "useCSVExporter": false,
+    "normalizeObservations" : false,
     "verbose": true
   },
   "agentParams":
@@ -24,6 +25,7 @@
     "maxTimeSteps": 5001,
     "decisionPeriod": 5,
     "verbose": true,
+    "normalizeObservations": true,
     "rewardParams":
     {
       "collisionEnterReward": -10,

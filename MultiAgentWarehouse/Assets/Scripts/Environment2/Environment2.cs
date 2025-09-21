@@ -33,22 +33,24 @@ public class Environment2 : MonoBehaviour
     public Vector3 scaling;
     public delegate void taskAssignmentMethod();
     taskAssignmentMethod taskAssignment = default;
-    public string configFile = "config2.json";
+    public string configFile = "config.json";
     public csv_exporter CSVexporter = new csv_exporter();
     [SerializeField] public bool useCSVExporter = false;
     public bool alreadyCreated = false;
     public bool verbose = false;
+    public bool normalizeObservations = false;
 
     void Awake()
     {
         readConfig(configFile);
         parameters param = paramJson.GetParameter();
         verbose = param.unityParams.verbose;
-        tasks_obs_space = 3 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
+        tasks_obs_space = 2 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
-        robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections);
+        robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
+        normalizeObservations = param.unityParams.normalizeObservations;
         
     }
 
@@ -78,7 +80,7 @@ public class Environment2 : MonoBehaviour
             task_freq = root.task_freq[0];
             num_agents = root.agents.Count;
         }
-        
+        Debug.Log("num tasks: " + n_tasks + " , task freq: " + task_freq + " , num agents: " + num_agents); 
         useCSVExporter = param.unityParams.useCSVExporter;            
     }
 

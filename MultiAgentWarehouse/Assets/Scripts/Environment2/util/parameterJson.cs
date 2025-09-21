@@ -97,6 +97,7 @@ namespace multiagent.parameterJson
         public int num_envs = 1;
         public bool useCSVExporter = false;
         public bool verbose = false;
+        public bool normalizeObservations = false;
     }
 
     [System.Serializable]

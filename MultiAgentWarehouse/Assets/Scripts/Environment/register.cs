@@ -7,6 +7,8 @@ public class RegisterStringLogSideChannel : MonoBehaviour
 {
 
     StringLogSideChannel stringChannel;
+    string parameter = "";
+    float[] values = new float[] { };
 
     public string getIncomingMsg()
     {
@@ -28,12 +30,18 @@ public class RegisterStringLogSideChannel : MonoBehaviour
     {
         string msg = getIncomingMsg();
         string[] msg_split = msg.Split(' ');
-        string parameter = msg_split[0];
-        float[] values = new float[msg_split.Length - 1];
+        parameter = msg_split[0];
+        values = new float[msg_split.Length - 1];
         for (int ii = 1; ii < msg_split.Length; ii++)
         {
             values[ii - 1] = float.Parse(msg_split[ii]);
         }
+
+    }
+
+    public (string, float[]) getParseMsg()
+    {
+        return (parameter, values);
     }
 
     public void Awake()

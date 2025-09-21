@@ -1,8 +1,5 @@
 using UnityEngine;
-using Unity.MLAgents;
-using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
-using Unity.MLAgents.Policies;
 using System;
 using multiagent.controller;
 using multiagent.agent;
@@ -22,14 +19,7 @@ namespace multiagent.robot
         private float _bodyRadius = 0.331f; // meters
         private float _safetyRadius = 0.273f; // meters
         private int _safetyViolated = 0; // meters
-        private Controller control = new Controller();
-        public ctrlOption _controllerName;
-        private string _controllerNameStr;
-        public ctrlType _controllerType;
-        private string _controllerTypeStr;
-        private string controlPath = "control.txt";
         private Rigidbody _rigidbody;
-        private bool isControllerInit = false;
         [SerializeField] public Vector2 actionInput;
         [SerializeField] public bool velocityControl = true;
 
@@ -60,8 +50,6 @@ namespace multiagent.robot
 
         public void Awake()
         {
-            // _controllerNameStr = Enum.GetName(_controllerName.GetType(), _controllerName);
-            // _controllerTypeStr = Enum.GetName(_controllerType.GetType(), _controllerType);
             _rigidbody = GetComponent<Rigidbody>();
             initExtra();
 
@@ -185,7 +173,7 @@ namespace multiagent.robot
                 Debug.LogError("Lidar Sensor not found!");
                 return new float[0];
             }
-
+            Dictionary <float, bool> angleDict = new Dictionary<float, bool>();
 
             var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
             int lengthOfRayOutputs = rayOutputs.Length;            
@@ -199,6 +187,14 @@ namespace multiagent.robot
                 float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
                 float rayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x) ;
                 float normalizedRayAngle = rayAngle/Mathf.PI; // Normalize angle to be within [-1, 1]
+
+                float roundAngle = Mathf.Round(rayAngle*100)/100;
+                if (angleDict.ContainsKey(roundAngle))
+                {
+                    continue;
+                }
+                angleDict[roundAngle] = true;    
+                
                 // float cosRayAngle = Mathf.Cos(rayAngle);
                 // float sinRayAngle = Mathf.Sin(rayAngle);
 
@@ -366,11 +362,6 @@ namespace multiagent.robot
         {
             Reward = 0;
             StepCount += 1;
-            if (!isControllerInit)
-            {
-                control.InitControl(actions.Length, minLim, maxLim, _controllerNameStr, controlPath);
-                isControllerInit = true;
-            }
 
             if (!checkWait() && allowCommandsInput)
             {
@@ -465,32 +456,6 @@ namespace multiagent.robot
         public void MoveAgent(float[] action)
         {
             actionInput = new Vector2(action[0], action[1]);
-            // Vector3[] act;
-            // if (absoluteCoordinate)
-            // {
-            //     act = new Vector3[] {
-            //         new Vector3(_state[0], _state[1], 0),
-            //         new Vector3(_state[0] + action[0], _state[1] + action[1], 0)
-            //     };
-            // }
-            // else
-            // {
-            //     act = new Vector3[] {
-            //         new Vector3(_state[0], _state[1], 0),
-            //         new Vector3(action[0], action[1], 0)
-            //     };
-            // }
-
-            // Vector3[] S = new Vector3[] { _state }; // State information
-            // Vector3[] dS = new Vector3[] { _dstate }; // Time derivative of State information
-            // Vector3[] ddesS = null; //TODO:  Desired State information
-            // if (!velocityControl)
-            // {
-            //     ddesS = new Vector3[] { new Vector3(0.0f, 0f, 0.0f) };
-            // }
-            // Debug.Log("Act: " + act[0] + " " + act[1] );
-
-            // Vector2 u;
             if (absoluteCoordinate)
             {
                 u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
@@ -499,11 +464,6 @@ namespace multiagent.robot
             {
                 u = new Vector2( action[0], action[1]);
             }
-
-            // u = control.GetControl(act, S, ddesS, dS);
-            // Debug.Log("u: " + u[0] + " " + u[1] );
-            
-            // Debug.Log($"Goal: {act[0]}, {act[1]} | Control {u}");
         }
 
         private void updateState()
@@ -634,9 +594,21 @@ namespace multiagent.robot
             allowCommandsInput = allow;
         }
 
-        public int calculateObservationSize(int obsSize, int num_rays=0)
+        public int calculateObservationSize(int obsSize, int num_rays=0, float angle=180)
         {
-            obsSize += 3 * (num_rays * 2 + 1);
+            if (angle < 0 || angle > 180)
+            {
+                angle = 180;
+            }
+            if (angle == 180f)
+            {
+                obsSize += 3 * num_rays * 2;
+            }
+            else
+            {
+                obsSize += 3 * (num_rays * 2 + 1);
+            }
+            
             return obsSize;
         }
 
@@ -670,7 +642,7 @@ namespace multiagent.robot
                 m_rayPerceptionSensorComponent3D.RaysPerDirection = param.agentParams.rayParams.rayDirections;
                 m_rayPerceptionSensorComponent3D.SphereCastRadius = param.agentParams.rayParams.sphereCastRadius;
                 m_rayPerceptionSensorComponent3D.MaxRayDegrees = param.agentParams.rayParams.maxRayDegrees;
-                obs_size = calculateObservationSize(obs_size, param.agentParams.rayParams.rayDirections);
+                obs_size = calculateObservationSize(obs_size, param.agentParams.rayParams.rayDirections,param.agentParams.rayParams.maxRayDegrees);
             }
         }
 

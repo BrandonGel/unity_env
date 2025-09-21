@@ -24,6 +24,7 @@ public class Environment2Agent : Agent
     public List<GameObject> robots = null;
     Vector3 scaling;
     public bool verbose = false;
+    public bool normalizeObservations = false;
 
     void Awake()
     {
@@ -55,6 +56,7 @@ public class Environment2Agent : Agent
                 timeBufferSensor.SensorName = "TimeBufferSensor_" + getID();
             }
         }
+        normalizeObservations = env.normalizeObservations;
 
         scaling = env.scaling;
 
@@ -104,22 +106,26 @@ public class Environment2Agent : Agent
             foreach (GameObject goal in taskpoint)
             {
                 int[] tileArr = goal.GetComponent<Goal>().getTile();
-                Vector3 tile = new Vector3(tileArr[0] * scaling.x, 0, tileArr[1] * scaling.z);
-                task_obs[3 * ii] = tile.x;
-                task_obs[3 * ii + 1] = tile.y;
-                task_obs[3 * ii + 2] = tile.z;
+                Vector2 tile = new Vector3(tileArr[0] * scaling.x,  tileArr[1] * scaling.z);
+                if (normalizeObservations)
+                {
+                    tile.x = tile.x / env.mr.boxSize.x;
+                    tile.y = tile.y / env.mr.boxSize.z;
+                }
+                task_obs[2 * ii] = tile.x;
+                task_obs[2 * ii + 1] = tile.y;
                 ii += 1;
             }
-            task_obs[3 * taskpoint.Count] = task.assignedRobotID;
-            task_obs[3 * taskpoint.Count + 1] = task.task_ind;
-            task_obs[3 * taskpoint.Count + 2] = task.taskID;
+            task_obs[2 * taskpoint.Count] = task.assignedRobotID;
+            task_obs[2 * taskpoint.Count + 1] = task.task_ind;
+            task_obs[2 * taskpoint.Count + 2] = task.taskID;
             bufferSensor.AppendObservation(task_obs);
         }
 
         foreach (GameObject robot in robots)
         {
             Robot2 robotObj = robot.GetComponent<Robot2>();
-            float[] agent_obs = robotObj.CollectObservations();
+            float[] agent_obs = robotObj.CollectObservations(normalizeObservations);
             agentBufferSensor.AppendObservation(agent_obs);
         }
         timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount,env.maxTimeSteps });
