@@ -115,7 +115,7 @@ namespace multiagent.parameterJson
         config conf;
 
         // Read a config file and update the parameters of the environment
-        public void ReadJson(string fileName = "config2.json")
+        public void ReadJson(string fileName = "config.json")
         {
             string jsonText = "";
             string filepath = fileName;

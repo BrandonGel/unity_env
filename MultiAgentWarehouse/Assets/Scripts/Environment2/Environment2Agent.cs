@@ -80,14 +80,12 @@ public class Environment2Agent : Agent
         CumulativeReward = 0f;
         if (CurrentEpisode > 1)
         {
-            env.readConfig(env.configFile);
+            env.readConfig(env.getConfigFile());
             env.init();
         }
         robots = env.mr.getRobots();
         if (verbose)
             Debug.Log("Episode: " + CurrentEpisode);
-
-        // env.tg.GenerateTasks();
     }
 
     public override void CollectObservations(VectorSensor sensor)

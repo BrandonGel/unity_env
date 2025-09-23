@@ -14,6 +14,7 @@ public class Environment2Head : MonoBehaviour
     public RegisterStringLogSideChannel registerStringLogSideChannel;
     public bool verbose = false;
     public int num_envs = 1;
+    public Dictionary<string, float> registerMsg = new Dictionary<string, float>();
     void Awake()
     {
         paramJson.ReadJson(configFile);
@@ -26,7 +27,7 @@ public class Environment2Head : MonoBehaviour
         Time.fixedDeltaTime = param.unityParams.fixed_timestep;
         num_envs = param.unityParams.num_envs;
 
-        
+
         Root root = envJson.GetRoot();
         int[] dims = root.map.dimensions;
         if (envJson.conf.world_mode == "image")
@@ -40,21 +41,41 @@ public class Environment2Head : MonoBehaviour
         {
             int r = i / rows;
             int c = i % rows;
-            float offsetX = c * dims[0]  * 1.1f;
+            float offsetX = c * dims[0] * 1.1f;
             float offsetZ = r * dims[1] * 1.1f;
             GameObject env = Instantiate(environment2Prefab, new Vector3(offsetX, 0, offsetZ), Quaternion.identity);
             env.name = "Environment2_" + i;
-            env.GetComponent<Environment2>().configFile = configFile;
+            env.GetComponent<Environment2>().setConfigFile(configFile);
             env.GetComponent<Environment2Agent>().setID(i);
             env.transform.parent = gameObject.transform;
             envCenters.Add(new Vector3(offsetX + dims[0] * 0.5f, 0, offsetZ + dims[1] * 0.5f));
             envSizes.Add(new Vector3(dims[0], 0, dims[1]));
         }
+        
+        registerMsg["new_map"] = 0f;
     }
 
     void updateEnv()
     {
         (string parameter, float[] values) = registerStringLogSideChannel.getParseMsg();
+        if (registerMsg.ContainsKey(parameter.ToLower()))
+        {
+            switch(parameter.ToLower())
+            {
+                case "new_map":
+                    if (values.Length == 1 && values[0] == 1f)
+                    {
+                        if (verbose)
+                            Debug.Log("Received new_map command");
+                        foreach (Transform env in transform)
+                        {
+                            env.GetComponent<Environment2>().alreadyCreated = false;
+                        }
+                        registerMsg["new_map"] = 0f;
+                    }
+                    break;
+            }
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
