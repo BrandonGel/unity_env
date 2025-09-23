@@ -133,8 +133,5 @@ namespace multiagent.task
         {
             return taskpoint[task_ind].GetComponent<Goal>().goalType;
         }
-
-
-
     }
 }

@@ -125,7 +125,8 @@ public class Environment2Agent : Agent
             Robot2 robotObj = robot.GetComponent<Robot2>();
             float[] agent_obs = robotObj.CollectObservations(normalizeObservations);
             agentBufferSensor.AppendObservation(agent_obs);
-        }
+            Debug.Log("Robot " + robotObj.getID() + " task: " + agent_obs[7]);
+        }        
         timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount,env.maxTimeSteps });
 
     }
@@ -197,15 +198,20 @@ public class Environment2Agent : Agent
         {
             float[] continuousActions = new float[2] { actions.ContinuousActions[3 * ii], actions.ContinuousActions[3 * ii + 1] };
             robot.GetComponent<Robot2>().Step(continuousActions);
+            ii += 1;
         }
 
-        List<int> tasks = new List<int>();
-        for (int i = 0; i < robots.Count; i++)
+        if (env.taskAssignment == default)
         {
-            int taskInd = (int)(Mathf.Round(actions.ContinuousActions[3 * i + 2]));
-            tasks.Add(taskInd);
+            List<int> tasks = new List<int>();
+            for (int i = 0; i < robots.Count; i++)
+            {
+                int taskInd = (int)(Mathf.Round(actions.ContinuousActions[3 * i + 2]));
+                tasks.Add(taskInd);
+            }
+            env.tg.assignTask(robots, tasks);
         }
-        env.tg.assignTask(robots, tasks);
+        
     }
 
     void Update()

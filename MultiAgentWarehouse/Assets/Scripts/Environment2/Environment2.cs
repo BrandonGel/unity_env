@@ -32,7 +32,7 @@ public class Environment2 : MonoBehaviour
     public int robots_obs_space = 1;
     public Vector3 scaling;
     public delegate void taskAssignmentMethod();
-    taskAssignmentMethod taskAssignment = default;
+    public taskAssignmentMethod taskAssignment = default;
     private string _configFile = "config.json";
     public csv_exporter CSVexporter = new csv_exporter();
     [SerializeField] public bool useCSVExporter = false;

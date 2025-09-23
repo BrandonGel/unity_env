@@ -24,7 +24,7 @@
     "safetyRadius": 1.0,
     "maxTimeSteps": 5001,
     "decisionPeriod": 5,
-    "verbose": true,
+    "verbose": false,
     "rewardParams":
     {
       "collisionEnterReward": -10,
@@ -45,7 +45,7 @@
     "n_tasks": 2,
     "task_freq": 1,
     "task_mode": "EarlyStart",
-    "verbose": false,
+    "verbose": true,
     "goals":
     [
       {

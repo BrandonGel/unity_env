@@ -153,6 +153,8 @@ public class TaskGeneration
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);
+            if (verbose)
+                Debug.Log("Robot " + robotComponent.getID() + " assigned to task " + robotComponent.taskClass.task_name);
         }
     }
 
