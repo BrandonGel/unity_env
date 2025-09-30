@@ -16,6 +16,7 @@ public class GUI_environment2 : MonoBehaviour
     private GUIStyle _positivieStyle = new GUIStyle();
     private GUIStyle _negativeStyle = new GUIStyle();
     public int envID = 0;
+    public bool useOrthographic = false;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -34,6 +35,10 @@ public class GUI_environment2 : MonoBehaviour
         envCameraRot = _mainCamera.transform.rotation;
 
         _mainCamera.enabled = true;
+
+        useOrthographic =_envHead.GetComponent<Environment2Head>().useOrthographic;
+        _mainCamera.orthographic = useOrthographic;
+
         Scene currentScene = SceneManager.GetActiveScene();
         foreach (Transform child in _envHead.transform)
         // foreach (GameObject rootGameObject in currentScene.GetRootGameObjects())
@@ -41,8 +46,10 @@ public class GUI_environment2 : MonoBehaviour
         //     Transform child = rootGameObject.transform;
             if (child.name.Contains("Environment2"))
             {
-                child.gameObject.transform.Find("Camera").GetComponent<Camera>().enabled = false;
-                _envCameras.Add(child.gameObject.transform.Find("Camera").GetComponent<Camera>());
+                Camera envCamera = child.gameObject.transform.Find("Camera").GetComponent<Camera>();
+                envCamera.enabled = false;
+                envCamera.orthographic = useOrthographic;
+                _envCameras.Add(envCamera);
                 _envAgents.Add(child.gameObject.GetComponent<Environment2Agent>());
             }
         }
@@ -52,6 +59,11 @@ public class GUI_environment2 : MonoBehaviour
 
     private void OnGUI()
     {
+        if (!_envHead.GetComponent<Environment2Head>().showGUI)
+        {
+            return;
+        }
+
         // Episode & Step Count information
         string debugEpisode = "Env: " + envID + " - Ep: " + _envAgents[envID].CurrentEpisode + " - Step: " + _envAgents[envID].StepCount + "/" + (_envAgents[envID].MaxStep-1)  ;
         debugEpisode += " - Time: " +  Mathf.Round(_envAgents[envID].StepCount*Time.fixedDeltaTime*100)/100 + "/" + Mathf.Round(100*(_envAgents[envID].MaxStep-1)*Time.fixedDeltaTime)/100;
@@ -118,7 +130,13 @@ public class GUI_environment2 : MonoBehaviour
                 Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
             }
 
-            envCenter.y = 1.1f*maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));
+            envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));   
+            
+            if (useOrthographic)
+            {
+                Camera.main.orthographicSize = envSize.z / 2 + 1;
+            }
+            
             _mainCamera.transform.position = envCenter;
         }
     }

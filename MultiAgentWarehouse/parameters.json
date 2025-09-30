@@ -7,7 +7,11 @@
     "num_envs": 1,
     "useCSVExporter": false,
     "normalizeObservations" : false,
-    "verbose": true
+    "verbose": false,
+    "useShadow": false,
+    "useRadian": true,
+    "showGUI":false,
+    "useOrthographic": true
   },
   "agentParams":
   {
@@ -20,11 +24,24 @@
     "maxRotationAccleration": 8.23,
     "velocityControl": true,
     "absoluteCoordinate": false,
-    "debugArrow": false,
     "safetyRadius": 1.0,
     "maxTimeSteps": 5001,
     "decisionPeriod": 5,
     "verbose": false,
+    "lineRendererMaxPathPositionListCount": 200,
+    "lineRendererMinPathDistance": 0.0,
+    "lineRendererWidth": 0.67,
+    "arrowParams":
+    {
+      "debugArrow": true,
+      "debugOnlyDirection": true,
+      "debugArrow2DMode": true,
+      "stemLength": 0.5,
+      "stemWidth": 0.25,
+      "tipLength": 0.25,
+      "tipWidth": 0.5,
+      "yOffset": 0.5
+    },
     "rewardParams":
     {
       "collisionEnterReward": -10,
@@ -45,7 +62,8 @@
     "n_tasks": 2,
     "task_freq": 1,
     "task_mode": "EarlyStart",
-    "verbose": true,
+    "verbose": false,
+    "showRenderer": false,
     "goals":
     [
       {

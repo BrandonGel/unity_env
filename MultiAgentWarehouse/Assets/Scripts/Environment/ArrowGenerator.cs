@@ -16,6 +16,7 @@ public class ArrowGenerator : MonoBehaviour
     public string dir = "r";
     public float yOffset = 0;
     public bool noShowZero = false;
+    public bool useNoCylinder = true;
     Vector3 directionalVector,normalVector,stemOrigin,tipOrigin;
     [Range(2, 360)] public int numberAxialPoints = 36;
     
@@ -54,14 +55,14 @@ public class ArrowGenerator : MonoBehaviour
         return (Vector3.right, Vector3.up);
     }
 
-    void GenerateArrow()
+    void GenerateArrowWithCylinder()
     {
         //setup
         verticesList = new List<Vector3>();
         trianglesList = new List<int>();
 
         //stem setup
-        stemOrigin = new Vector3(0, yOffset+1f, 0);
+        stemOrigin = new Vector3(0, yOffset, 0);
 
         // directional vector
         (directionalVector, normalVector) = getDirection(dir);
@@ -132,32 +133,100 @@ public class ArrowGenerator : MonoBehaviour
         cylinder.GetComponent<Renderer>().material.color = color;
     }
 
-    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, float yOffset = 0, bool noShowZero = false)
+    void GenerateArrowWithoutCylinder()
+    {
+        //setup
+        verticesList = new List<Vector3>();
+        trianglesList = new List<int>();
+
+        //stem setup
+        stemOrigin = new Vector3(0, yOffset + 1f, 0);
+
+        // directional vector
+        (directionalVector, normalVector) = getDirection(dir);
+
+        //tip setup
+        tipOrigin = stemLength * directionalVector + stemOrigin;
+        float tipHalfWidth = tipWidth / 2;
+
+
+        verticesList.Add(tipOrigin + (tipLength * directionalVector));
+        verticesList.Add(tipOrigin + tipHalfWidth * normalVector);
+        verticesList.Add(tipOrigin - tipHalfWidth * normalVector);
+        trianglesList.Add(0);
+        trianglesList.Add(2);
+        trianglesList.Add(1);
+
+        float stemHalfWidth = stemWidth / 2;
+        verticesList.Add(stemOrigin + stemHalfWidth * normalVector);
+        verticesList.Add(stemOrigin - stemHalfWidth * normalVector);
+        verticesList.Add(verticesList[3] + (stemLength * directionalVector));
+        verticesList.Add(verticesList[4] + (stemLength * directionalVector));
+        trianglesList.Add(3);
+        trianglesList.Add(6);
+        trianglesList.Add(4);
+        trianglesList.Add(3);
+        trianglesList.Add(5);
+        trianglesList.Add(6);
+
+
+        mesh.vertices = verticesList.ToArray();
+        mesh.triangles = trianglesList.ToArray();
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer.material.SetColor("_Color", color);
+        meshRenderer.material.SetColor("_BaseColor", color);
+    }
+
+    void GenerateArrow()
+    {
+        if (useNoCylinder)
+        {
+            GenerateArrowWithoutCylinder();
+        }
+        else
+        {
+            GenerateArrowWithCylinder();
+        }
+    }
+
+    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, float[] floatParams = default, bool noShowZero = false, bool useNoCylinder = true)
     {
         this.dir = dir;
         this.minLim = minLim;
         this.maxLim = maxLim;
         this.color = color;
-        this.yOffset= yOffset;
+        this.stemLength = floatParams[0];
+        this.stemWidth = floatParams[1];
+        this.tipLength = floatParams[2];
+        this.tipWidth = floatParams[3];
+        this.yOffset = floatParams[4];
         this.noShowZero = noShowZero;
+        this.useNoCylinder = useNoCylinder;
     }
-    public void scaleArrow(float dummyValue, Vector3 direction = default)
+    
+    public void ScaleArrowWithCylinder(float dummyValue, Vector3 direction = default)
     {
         if (direction != default)
         {
-            
-            directionalVector =  transform.InverseTransformDirection(direction).normalized;
-            normalVector = Vector3.Cross(directionalVector, new Vector3(UnityEngine.Random.Range(0.1f, 1f), UnityEngine.Random.Range(0.1f, 1f), UnityEngine.Random.Range(0.1f, 1f))).normalized;
+            (directionalVector, normalVector) = getDirection(dir);
+            Vector3 binormalVector = Vector3.Cross(directionalVector, normalVector).normalized;
+
+            Vector3 newDirectionalVector = transform.InverseTransformDirection(direction).normalized;
+            float signedAngle = Vector3.SignedAngle(directionalVector, newDirectionalVector, binormalVector);
+
+            directionalVector = newDirectionalVector;
+            normalVector = Quaternion.AngleAxis(signedAngle, binormalVector) * normalVector;
+
             Vector3 forwardVector = Vector3.Cross(directionalVector, normalVector); // Or any other non-parallel vector
-            cylinder.transform.localRotation = Quaternion.LookRotation(forwardVector,directionalVector);
+            cylinder.transform.localRotation = Quaternion.LookRotation(forwardVector, directionalVector);
         }
 
         float directionSign = Mathf.Sign(dummyValue);
-        float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim,0,1);
-        
-        Vector3 newCylinderPos = stemOrigin + directionSign*scale*(stemLength / 2f * directionalVector);
+        float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim, 0, 1);
+
+        Vector3 newCylinderPos = stemOrigin + directionSign * scale * (stemLength / 2f * directionalVector);
         cylinder.transform.localPosition = newCylinderPos;
-        cylinder.transform.localScale = new Vector3(stemWidth, scale*stemLength / 2f, stemWidth);
+        cylinder.transform.localScale = new Vector3(stemWidth, scale * stemLength / 2f, stemWidth);
 
 
         Vector3[] vertices = mesh.vertices;
@@ -183,6 +252,62 @@ public class ArrowGenerator : MonoBehaviour
         }
 
         mesh.vertices = vertices;
+    }
+
+    public void ScaleArrowWithoutCylinder(float dummyValue, Vector3 direction = default)
+    {
+        
+        if (direction != default)
+        {
+            (directionalVector, normalVector) = getDirection(dir);
+            Vector3 binormalVector = Vector3.Cross(directionalVector, normalVector).normalized;
+
+            Vector3 newDirectionalVector = transform.InverseTransformDirection(direction).normalized;
+            float signedAngle = Vector3.SignedAngle(directionalVector, newDirectionalVector, binormalVector);
+
+            directionalVector = newDirectionalVector;
+            normalVector = Quaternion.AngleAxis(signedAngle, binormalVector) * normalVector;
+        }
+
+        float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim, 0, 1);
+
+        Vector3[] vertices = mesh.vertices;
+
+        //tip setup
+        tipOrigin = scale*stemLength * directionalVector + stemOrigin;
+        float tipHalfWidth = tipWidth / 2;
+        vertices[0] = tipOrigin + tipLength * directionalVector;
+        vertices[1] = tipOrigin + tipHalfWidth * normalVector;
+        vertices[2] = tipOrigin - tipHalfWidth * normalVector;
+
+        float stemHalfWidth = stemWidth / 2;
+        vertices[3] = stemOrigin + stemHalfWidth * normalVector;
+        vertices[4] = stemOrigin - stemHalfWidth * normalVector;
+        vertices[5] = vertices[3] + (scale*stemLength * directionalVector);
+        vertices[6] = vertices[4] + (scale*stemLength * directionalVector);
+
+        for (var i = 0; i < vertices.Length; i++)
+        {
+            if (noShowZero && scale <= 1e-6)
+            {
+                vertices[i] = new Vector3(0f, 0f, 0f);
+                continue;
+            }
+        }
+
+        mesh.vertices = vertices;
+    }
+
+    public void scaleArrow(float dummyValue, Vector3 direction = default)
+    {
+        if (useNoCylinder)
+        {
+            ScaleArrowWithoutCylinder(dummyValue, direction);
+        }
+        else
+        {
+            ScaleArrowWithCylinder(dummyValue, direction);
+        }
     }
 
 }

@@ -132,7 +132,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   yawAngle: 0
-  pitchAngle: 70
+  pitchAngle: 90
   offsetDistance: 6
   playerIndex: 0
   players: []
@@ -406,10 +406,10 @@ MonoBehaviour:
   tasks_obs_space: 1
   robots_obs_space: 1
   scaling: {x: 0, y: 0, z: 0}
-  configFile: config2.json
   useCSVExporter: 0
   alreadyCreated: 0
   verbose: 0
+  normalizeObservations: 0
 --- !u!114 &1743879047829557930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,6 +445,7 @@ MonoBehaviour:
   goalDelayWait: 0
   goalDelayPenalty: 0
   goalWaitProbability: 1
+  showRenderer: 0
 --- !u!114 &3505228993085141582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,6 +548,7 @@ MonoBehaviour:
   CumulativeMeanReward: 0
   robots: []
   verbose: 0
+  normalizeObservations: 0
 --- !u!114 &6343004617225765319
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -89,61 +89,61 @@ namespace multiagent.agent
         private void generateArrow()
         {
 
-            if (debugArrow == true && usingArrow == false)
-            {
-                Vector3 robotSize = GetComponent<BoxCollider>().size;
-                Vector3 robotScale = GetComponent<Transform>().localScale;
-                float yoffset = robotSize.y * robotScale.y / 2;
+            // if (debugArrow == true && usingArrow == false)
+            // {
+            //     Vector3 robotSize = GetComponent<BoxCollider>().size;
+            //     Vector3 robotScale = GetComponent<Transform>().localScale;
+            //     float yoffset = robotSize.y * robotScale.y / 2;
 
-                usingArrow = true;
-                Vector3 arrowPosition = transform.position;
-                Quaternion arrowOrientation = transform.rotation;
+            //     usingArrow = true;
+            //     Vector3 arrowPosition = transform.position;
+            //     Quaternion arrowOrientation = transform.rotation;
 
-                // Linear Velocity Arrow
-                arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red,yoffset);
-                arrowObj.transform.parent = gameObject.transform;
+            //     // Linear Velocity Arrow
+            //     arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
+            //     arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red,yoffset);
+            //     arrowObj.transform.parent = gameObject.transform;
 
-                // Angular Velocity Arrow
-                arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red,yoffset, true);
-                arrowObj2.transform.parent = gameObject.transform;
+            //     // Angular Velocity Arrow
+            //     arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
+            //     arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red,yoffset, true);
+            //     arrowObj2.transform.parent = gameObject.transform;
 
-                // Linear Acceleration Arrow
-                arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue,yoffset);
-                arrowObj3.transform.parent = gameObject.transform;
+            //     // Linear Acceleration Arrow
+            //     arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
+            //     arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue,yoffset);
+            //     arrowObj3.transform.parent = gameObject.transform;
 
-                // Angular Velocity Arrow
-                arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue,yoffset, true);
-                arrowObj4.transform.parent = gameObject.transform;
+            //     // Angular Velocity Arrow
+            //     arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
+            //     arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue,yoffset, true);
+            //     arrowObj4.transform.parent = gameObject.transform;
 
-                // Goal Arrow
-                arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green,yoffset);
-                arrowObj5.transform.parent = gameObject.transform;
-            }
-            else if (debugArrow == true && usingArrow == true)
-            {
-                arrowObj.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
-                arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
-                arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
-                arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
+            //     // Goal Arrow
+            //     arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
+            //     arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green,yoffset);
+            //     arrowObj5.transform.parent = gameObject.transform;
+            // }
+            // else if (debugArrow == true && usingArrow == true)
+            // {
+            //     arrowObj.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
+            //     arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+            //     arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
+            //     arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
 
-                Vector3 goalPos = getGoalPos();
-                Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
-                arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
-            }
-            else if (debugArrow == false && usingArrow == true)
-            {
-                Destroy(arrowObj);
-                Destroy(arrowObj2);
-                Destroy(arrowObj3);
-                Destroy(arrowObj4);
-                Destroy(arrowObj5);
-                usingArrow = false;
-            }
+            //     Vector3 goalPos = getGoalPos();
+            //     Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
+            //     arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
+            // }
+            // else if (debugArrow == false && usingArrow == true)
+            // {
+            //     Destroy(arrowObj);
+            //     Destroy(arrowObj2);
+            //     Destroy(arrowObj3);
+            //     Destroy(arrowObj4);
+            //     Destroy(arrowObj5);
+            //     usingArrow = false;
+            // }
         }
 
         public override void OnEpisodeBegin()

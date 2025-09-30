@@ -51,7 +51,18 @@ public class Environment2 : MonoBehaviour
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
         robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
         normalizeObservations = param.unityParams.normalizeObservations;
-        
+
+        if (!param.unityParams.useShadow)
+        {
+            if (verbose)
+                Debug.Log("Disabling Shadows");
+            QualitySettings.shadows = ShadowQuality.Disable;
+            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            foreach (Light light in lights)
+            {
+                light.shadows = LightShadows.None;
+            }
+        }
     }
 
     public void setConfigFile(string file)
@@ -121,7 +132,7 @@ public class Environment2 : MonoBehaviour
         
 
         // Start and Goal Initialization
-        msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling);
+        msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling, param.goalParams.showRenderer);
 
         // NavMesh Initialization
         Vector3 boxSize = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);

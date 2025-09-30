@@ -125,7 +125,8 @@ public class Environment2Agent : Agent
             Robot2 robotObj = robot.GetComponent<Robot2>();
             float[] agent_obs = robotObj.CollectObservations(normalizeObservations);
             agentBufferSensor.AppendObservation(agent_obs);
-            Debug.Log("Robot " + robotObj.getID() + " task: " + agent_obs[7]);
+            if (verbose)
+                Debug.Log("Robot " + robotObj.getID() + " task: " + agent_obs[7]);
         }        
         timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount,env.maxTimeSteps });
 
@@ -136,22 +137,22 @@ public class Environment2Agent : Agent
         float[] continuousActionsOut = new float[2];
         continuousActionsOut[0] = 0;
         continuousActionsOut[1] = 0;
-        if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.RightArrow))
         {
             continuousActionsOut[0] = 1;
             continuousActionsOut[1] = -1;
         }
-        else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.LeftArrow))
         {
             continuousActionsOut[0] = 1;
             continuousActionsOut[1] = 1;
         }
-        else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.RightArrow))
         {
             continuousActionsOut[0] = -1;
             continuousActionsOut[1] = -1;
         }
-        else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.LeftArrow))
         {
             continuousActionsOut[0] = -1;
             continuousActionsOut[1] = 1;
@@ -160,11 +161,11 @@ public class Environment2Agent : Agent
         {
             continuousActionsOut[0] = 1;
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
             continuousActionsOut[1] = -1;
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
             continuousActionsOut[1] = 1;
         }

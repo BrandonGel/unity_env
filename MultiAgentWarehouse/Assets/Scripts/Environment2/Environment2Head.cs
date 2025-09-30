@@ -3,6 +3,8 @@ using multiagent.parameterJson;
 using multiagent.util;
 using System.Collections.Generic;
 using Unity.Barracuda;
+using UnityEngine.SceneManagement;
+
 public class Environment2Head : MonoBehaviour
 {
     public string configFile = "config.json";
@@ -15,6 +17,8 @@ public class Environment2Head : MonoBehaviour
     public bool verbose = false;
     public int num_envs = 1;
     public Dictionary<string, float> registerMsg = new Dictionary<string, float>();
+    public bool showGUI = true;
+    public bool useOrthographic = true;
     void Awake()
     {
         paramJson.ReadJson(configFile);
@@ -27,6 +31,21 @@ public class Environment2Head : MonoBehaviour
         Time.fixedDeltaTime = param.unityParams.fixed_timestep;
         num_envs = param.unityParams.num_envs;
 
+        showGUI = param.unityParams.showGUI;
+        useOrthographic = param.unityParams.useOrthographic;
+
+
+        if (!param.unityParams.useShadow)
+        {
+            if (verbose)
+                Debug.Log("Disabling Shadows");
+            QualitySettings.shadows = ShadowQuality.Disable;
+            Light[] lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            foreach (Light light in lights)
+            {
+                light.shadows = LightShadows.None;
+            }
+        }
 
         Root root = envJson.GetRoot();
         int[] dims = root.map.dimensions;
@@ -51,12 +70,12 @@ public class Environment2Head : MonoBehaviour
             envCenters.Add(new Vector3(offsetX + dims[0] * 0.5f, 0, offsetZ + dims[1] * 0.5f));
             envSizes.Add(new Vector3(dims[0], 0, dims[1]));
         }
-        
+
         registerMsg["new_map"] = 0f;
     }
 
     void updateEnv()
-    {
+    {   
         (string parameter, float[] values) = registerStringLogSideChannel.getParseMsg();
         if (registerMsg.ContainsKey(parameter.ToLower()))
         {
@@ -78,10 +97,10 @@ public class Environment2Head : MonoBehaviour
         }
     }
 
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
     }
 
     // Update is called once per frame

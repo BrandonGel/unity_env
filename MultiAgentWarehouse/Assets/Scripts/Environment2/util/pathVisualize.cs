@@ -13,11 +13,11 @@ namespace multiagent.parameterJson
         [SerializeField] private Transform trackerTransform;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private Robot2 _robot;
-
         public int maxPathPositionListCount = 20;
+        public float minPathDistance = 0.5f;
+        public float lineRendererWidth = 25f;
         LineRenderer _lineRenderer;
         private List<Vector3> pathPositionList;
-        private float trackTimer;
         void Awake()
         {
             pathPositionList = new List<Vector3>();
@@ -35,9 +35,17 @@ namespace multiagent.parameterJson
         public void Reset()
         {
             pathPositionList.Clear();
+            maxPathPositionListCount = _robot.GetComponent<Robot2>().lineRendererMaxPathPositionListCount;
+            minPathDistance = _robot.GetComponent<Robot2>().lineRendererMinPathDistance;
+            lineRendererWidth = _robot.GetComponent<Robot2>().lineRendererWidth;
+            if (maxPathPositionListCount == 0)
+            {
+                return;
+            }
+            _lineRenderer.startWidth = lineRendererWidth;
+            _lineRenderer.endWidth = lineRendererWidth;
             pathPositionList.Add(trackerTransform.position);
             RefreshVisual();
-            trackTimer = 0;
         }
 
         void FixedUpdate()
@@ -47,28 +55,25 @@ namespace multiagent.parameterJson
                 Reset();
             }
 
-            trackTimer -= Time.deltaTime;
-            if (trackTimer <= 0f)
+            if(maxPathPositionListCount == 0)
             {
-                float trackTimerMax = .2f;
-                trackTimer += trackTimerMax;
-
-                Vector3 lastPathPosition = pathPositionList[pathPositionList.Count - 1];
-                Vector3 newPathPosition = trackerTransform.position;
-
-                float minPathDistance = .5f;
-                if (Vector3.Distance(lastPathPosition, newPathPosition) > minPathDistance)
-                {
-                    pathPositionList.Add(trackerTransform.position);
-                    RefreshVisual();
-
-                    // if (pathPositionList.Count > maxPathPositionListCount)
-                    // {
-                    //     pathPositionList.RemoveAt(0);
-                    // }
-
-                }
+                return;
             }
+
+            Vector3 lastPathPosition = pathPositionList[pathPositionList.Count - 1];
+            Vector3 newPathPosition = trackerTransform.position;
+            if (Vector3.Distance(lastPathPosition, newPathPosition) >= minPathDistance)
+            {
+                pathPositionList.Add(trackerTransform.position);
+                RefreshVisual();
+
+                if (maxPathPositionListCount > -1 && pathPositionList.Count > maxPathPositionListCount)
+                {
+                    pathPositionList.RemoveAt(0);
+                }
+
+            }
+            
         }
 
         void RefreshVisual()

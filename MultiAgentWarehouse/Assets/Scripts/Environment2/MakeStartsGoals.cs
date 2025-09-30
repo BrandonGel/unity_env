@@ -7,6 +7,7 @@ using System;
 using multiagent.parameterJson;
 using multiagent.task;
 using multiagent.taskgoal;
+using multiagent.util;
 
 public class MakeStartsGoals : MonoBehaviour
 {
@@ -24,8 +25,9 @@ public class MakeStartsGoals : MonoBehaviour
     public int goalDelayWait = 0;
     public float goalDelayPenalty = 0f;
     public float goalWaitProbability = 1f;
+    public bool showRenderer = false;
 
-    public void initStartLocation(List<List<int[]>> start_locations, List<List<int[]>> goal_locations, List<int[]> non_task_endpoints = default, goalParameters goalParams = default, Vector3 scaling = default)
+    public void initStartLocation(List<List<int[]>> start_locations, List<List<int[]>> goal_locations, List<int[]> non_task_endpoints = default, goalParameters goalParams = default, Vector3 scaling = default, bool showRenderer = true)
     {
         int i;
         this.start_locations = start_locations;
@@ -53,6 +55,12 @@ public class MakeStartsGoals : MonoBehaviour
                 start.transform.localPosition = pos;
                 start.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(start);
+
+                if(!showRenderer)
+                {
+                    Util.enableRenderer(start.GetComponent<Renderer>(), false);
+                }
+
                 j += 1;
             }
             starts.Add(gameobject_list);
@@ -83,6 +91,12 @@ public class MakeStartsGoals : MonoBehaviour
                 goal.transform.localPosition = pos;
                 goal.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(goal);
+
+                if(!showRenderer)
+                {
+                    Util.enableRenderer(goal.GetComponent<Renderer>(), false);
+                }
+
                 j += 1;
             }
             goals.Add(gameobject_list);
@@ -104,6 +118,12 @@ public class MakeStartsGoals : MonoBehaviour
             non_task.transform.localPosition = pos;
             non_task.transform.localRotation = Quaternion.identity;
             non_tasks.Add(non_task);
+
+            if(!showRenderer)
+            {
+                Util.enableRenderer(non_task.GetComponent<Renderer>(), false);
+            }
+
             i += 1;
         }
 

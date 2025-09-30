@@ -38,15 +38,21 @@ namespace multiagent.robot
         [SerializeField] float U_constraint = 0;
         public GameObject arrow;
         public bool debugArrow = false;
+        public bool debugOnlyDirection = false;
+        public bool debugArrow2DMode = false;
+        public float[] debugArrowParams;
         private bool usingArrow = false;
-        GameObject arrowObj, arrowObj2, arrowObj3, arrowObj4, arrowObj5;
+        GameObject arrowObj0,arrowObj1, arrowObj2, arrowObj3, arrowObj4, arrowObj5;
         private Vector3 newSpawnPosition, accelerationVector, rotationAccelerationVector;
         private Quaternion newSpawnOrientation;
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
         private bool allowCommandsInput = true;
         public int obs_size = 13;
         public bool useCSVExport = true;
-
+        public bool useRadian = false;
+        public int lineRendererMaxPathPositionListCount = -1;
+        public float lineRendererMinPathDistance = -1f;
+        public float lineRendererWidth = 25f;
 
         public void Awake()
         {
@@ -93,55 +99,71 @@ namespace multiagent.robot
             {
                 Vector3 robotSize = GetComponent<BoxCollider>().size;
                 Vector3 robotScale = GetComponent<Transform>().localScale;
-                float yoffset = robotSize.y * robotScale.y / 2;
+                // float yoffset = robotSize.y * robotScale.y / 2;
 
                 usingArrow = true;
                 Vector3 arrowPosition = transform.position;
                 Quaternion arrowOrientation = transform.rotation;
 
-                // Linear Velocity Arrow
-                arrowObj = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red, yoffset);
-                arrowObj.transform.parent = gameObject.transform;
+                //Arrow Orientation
+                arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams,false,debugArrow2DMode);
+                arrowObj0.transform.parent = gameObject.transform;
 
-                // Angular Velocity Arrow
-                arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, yoffset, true);
-                arrowObj2.transform.parent = gameObject.transform;
+                if (debugOnlyDirection)
+                {
+                    // Linear Velocity Arrow
+                    arrowObj1 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj1.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj1.transform.parent = gameObject.transform;
 
-                // Linear Acceleration Arrow
-                arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue, yoffset);
-                arrowObj3.transform.parent = gameObject.transform;
+                    // Angular Velocity Arrow
+                    arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, true,debugArrow2DMode);
+                    arrowObj2.transform.parent = gameObject.transform;
 
-                // Angular Velocity Arrow
-                arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, yoffset, true);
-                arrowObj4.transform.parent = gameObject.transform;
+                    // Linear Acceleration Arrow
+                    arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj3.transform.parent = gameObject.transform;
 
-                // Goal Arrow
-                arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj5.GetComponent<ArrowGenerator>().setParam("", -1, 1, Color.green, yoffset);
-                arrowObj5.transform.parent = gameObject.transform;
+                    // Angular Velocity Arrow
+                    arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, debugArrowParams, true,debugArrow2DMode);
+                    arrowObj4.transform.parent = gameObject.transform;
+
+                    // Goal Arrow
+                    arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj5.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.green, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj5.transform.parent = gameObject.transform;
+                }
+                
             }
             else if (debugArrow == true && usingArrow == true)
             {
-                arrowObj.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
-                arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
-                arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
-                arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
+                if (debugOnlyDirection)
+                {
+                    arrowObj1.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
+                    arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+                    arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
+                    arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
 
-                Vector3 goalPos = getGoalPos();
-                Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
-                arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
+                    Vector3 goalPos = getGoalPos();
+                    Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
+                    arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
+                }
             }
             else if (debugArrow == false && usingArrow == true)
             {
-                Destroy(arrowObj);
-                Destroy(arrowObj2);
-                Destroy(arrowObj3);
-                Destroy(arrowObj4);
-                Destroy(arrowObj5);
+                Destroy(arrowObj0);
+                if (debugOnlyDirection)
+                {
+                    Destroy(arrowObj1);
+                    Destroy(arrowObj2);
+                    Destroy(arrowObj3);
+                    Destroy(arrowObj4);
+                    Destroy(arrowObj5);    
+                }
                 usingArrow = false;
             }
         }
@@ -185,21 +207,22 @@ namespace multiagent.robot
                 rayDirection = transform.InverseTransformDirection(rayDirection);
                 var scaledRayLength = rayDirection.magnitude;
                 float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
-                float rayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x) ;
-                float normalizedRayAngle = rayAngle/Mathf.PI; // Normalize angle to be within [-1, 1]
+                float normalizedRayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x) ;
 
-                float roundAngle = Mathf.Round(rayAngle*100)/100;
+                float roundAngle = Mathf.Round(normalizedRayAngle*100)/100;
                 if (angleDict.ContainsKey(roundAngle))
                 {
                     continue;
                 }
-                angleDict[roundAngle] = true;    
-                
+                angleDict[roundAngle] = true;
+
                 // float cosRayAngle = Mathf.Cos(rayAngle);
                 // float sinRayAngle = Mathf.Sin(rayAngle);
+                
+                
 
                 // Check for safety violation
-                _safetyViolated = 0;
+                    _safetyViolated = 0;
                 if( rayHitDistance <  _safetyRadius)
                 {
                     _safetyViolated = 1;
@@ -207,12 +230,19 @@ namespace multiagent.robot
 
                 if( useNormalized)
                 {
-                    rayObs[3*i] = normalizedRayAngle; // Angle of the ray w.r.t the robot forward direction
+                    rayObs[3*i] = normalizedRayAngle/Mathf.PI; // Angle of the ray w.r.t the robot forward direction
                     rayObs[3*i+1] = rayOutputs[i].HitFraction; // Normalize the distance
                 }
                 else
                 {
-                    rayObs[3*i] = rayAngle*Mathf.Rad2Deg; // Angle of the ray w.r.t the robot forward direction
+                    if (useRadian)
+                    {
+                        rayObs[3*i] = normalizedRayAngle; // Angle of the ray w.r.t the robot forward direction
+                    }
+                    else
+                    {
+                        rayObs[3*i] = normalizedRayAngle * Mathf.Rad2Deg; // Angle of the ray w.r.t the robot forward direction
+                    }
                     rayObs[3*i+1] = rayHitDistance; // Normalize the distance
                 }
                 if(goHit != null)
@@ -248,20 +278,27 @@ namespace multiagent.robot
         {
             float robotPosX_normalized = transform.localPosition.x;
             float robotPosZ_normalized = transform.localPosition.z;
-            float angleRotation_normalized = (360f-transform.localRotation.eulerAngles.y + 180f)% 360f  - 180f; // Minus for right hand rule
-            float currentSpeed_normalized = currentSpeed;
-            float currentRotationSpeed_normalized = currentRotationSpeed;
+            float angleRotation_normalized = (360f-transform.localRotation.eulerAngles.y + 180f)% 360f  - 180f; // Minus for right hand rule                    
+            float currentSpeed_normalized = new Vector2(_rigidbody.linearVelocity.x, _rigidbody.linearVelocity.z).magnitude;
+            float currentRotationSpeed_normalized = -_rigidbody.angularVelocity.y;
             float currentAcceleration_normalized = currentAcceleration;
             float currentRotationAcceleration_normalized = currentRotationAcceleration;
-            
+
             // float sinAngle = Mathf.Sin(angleRotation_normalized*Mathf.Deg2Rad); // Sine of the angle ->[-180, 180) -> [-1, 1]
             // float cosAngle = Mathf.Cos(angleRotation_normalized*Mathf.Deg2Rad); // Cosine of the angle ->[-180, 180) -> [-1, 1]
-            if( useNormalized)
+            float angleNormalizedFactor = 180f;
+            if (useRadian)
             {
-                robotPosX_normalized= transform.localPosition.x / boxSize.x;
-                robotPosZ_normalized= transform.localPosition.z / boxSize.z;    
-                angleRotation_normalized = angleRotation_normalized/180f; // Normalize angle [-180, 180) -> [-1, 1)
-                currentSpeed_normalized = currentSpeed/ maxSpeed;
+                angleRotation_normalized = angleRotation_normalized * Mathf.Deg2Rad; // Convert to Radian
+                angleNormalizedFactor = Mathf.PI;
+            }
+            
+            if (useNormalized)
+            {
+                robotPosX_normalized = transform.localPosition.x / boxSize.x;
+                robotPosZ_normalized = transform.localPosition.z / boxSize.z;
+                angleRotation_normalized = angleRotation_normalized / angleNormalizedFactor; // Normalize angle [-180, 180) -> [-1, 1)
+                currentSpeed_normalized = currentSpeed / maxSpeed;
                 currentRotationSpeed_normalized = currentRotationSpeed / maxRotationSpeed;
                 currentAcceleration_normalized = currentAcceleration / maxAcceleration;
                 currentRotationAcceleration_normalized = currentRotationAcceleration / maxRotationAccleration;
@@ -389,7 +426,7 @@ namespace multiagent.robot
 
         public void plant(Vector2 act)
         {
-            (float[] action, float U) = checkConstraint(act[0], act[1]);
+            (float[] action, float U) = checkConstraint(act[0], -act[1]);
             if (velocityControl) // Velocity Plant Model
             {
                 float speedCoefficent = action[0];
@@ -621,9 +658,21 @@ namespace multiagent.robot
             maxRotationAccleration = param.agentParams.maxRotationAccleration;
             velocityControl = param.agentParams.velocityControl;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
-            debugArrow = param.agentParams.debugArrow;
+            debugArrow = param.agentParams.arrowParams.debugArrow;
+            debugArrow2DMode= param.agentParams.arrowParams.debugArrow2DMode;
             _safetyRadius = param.agentParams.safetyRadius;
             verbose = param.agentParams.verbose;
+            useRadian = param.unityParams.useRadian;
+            lineRendererMaxPathPositionListCount = param.agentParams.lineRendererMaxPathPositionListCount;
+            lineRendererMinPathDistance = param.agentParams.lineRendererMinPathDistance;
+            lineRendererWidth = param.agentParams.lineRendererWidth;
+            debugArrowParams = new float[5]{
+                param.agentParams.arrowParams.stemLength,
+                param.agentParams.arrowParams.stemWidth,
+                param.agentParams.arrowParams.tipLength,
+                param.agentParams.arrowParams.tipWidth,
+                param.agentParams.arrowParams.yOffset
+            };
             Assert.IsTrue(maxSpeed > 0, "maxSpeed must be positive");
             Assert.IsTrue(maxRotationSpeed > 0, "maxRotationSpeed must be positive");
             Assert.IsTrue(maxAcceleration > 0, "maxAcceleration must be positive");
