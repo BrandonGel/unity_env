@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 81640656}
   - component: {fileID: 81640657}
   - component: {fileID: 81640658}
+  - component: {fileID: 81640659}
   m_Layer: 0
   m_Name: Environment Head
   m_TagString: Untagged
@@ -185,6 +186,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27767e7663bf30eda9143b34657d7230, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &81640659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 81640655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e1e4d2e09cf5eb7b4ac210008bfa51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startRecordingOnPlay: 1
+  toggleRecordingKey: 114
+  screenshotWidth: 1920
+  screenshotHeight: 1080
+  useFullScreenResolution: 0
+  filePrefix: screenshots
 --- !u!1 &1378071449
 GameObject:
   m_ObjectHideFlags: 0

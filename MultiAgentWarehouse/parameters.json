@@ -10,7 +10,7 @@
     "verbose": false,
     "useShadow": false,
     "useRadian": true,
-    "showGUI":false,
+    "showGUI":true,
     "useOrthographic": true
   },
   "agentParams":
@@ -22,7 +22,7 @@
     "maxRotationSpeed": 2.11,
     "maxAcceleration": 2.72,
     "maxRotationAccleration": 8.23,
-    "velocityControl": true,
+    "velocityControl": false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
     "maxTimeSteps": 5001,

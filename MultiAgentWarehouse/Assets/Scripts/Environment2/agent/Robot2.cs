@@ -106,10 +106,10 @@ namespace multiagent.robot
                 Quaternion arrowOrientation = transform.rotation;
 
                 //Arrow Orientation
-                arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams,false,debugArrow2DMode);
-                arrowObj0.transform.parent = gameObject.transform;
-
+                // arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                // arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams,false,debugArrow2DMode);
+                // arrowObj0.transform.parent = gameObject.transform;
+                debugOnlyDirection = true;
                 if (debugOnlyDirection)
                 {
                     // Linear Velocity Arrow
@@ -155,7 +155,7 @@ namespace multiagent.robot
             }
             else if (debugArrow == false && usingArrow == true)
             {
-                Destroy(arrowObj0);
+                // Destroy(arrowObj0);
                 if (debugOnlyDirection)
                 {
                     Destroy(arrowObj1);
