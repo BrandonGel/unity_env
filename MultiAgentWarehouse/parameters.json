@@ -2,10 +2,11 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 5, 
+    "timescale": 1, 
     "fixed_timestep": 0.02,
     "num_envs": 1,
     "useCSVExporter": false,
+    "CSVRate": 10,
     "normalizeObservations" : false,
     "verbose": false,
     "useShadow": false,
@@ -22,7 +23,8 @@
     "maxRotationSpeed": 2.11,
     "maxAcceleration": 2.72,
     "maxRotationAccleration": 8.23,
-    "velocityControl": false,
+    "velocityControl": true,
+    "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
     "maxTimeSteps": 5001,
@@ -31,10 +33,15 @@
     "lineRendererMaxPathPositionListCount": 200,
     "lineRendererMinPathDistance": 0.0,
     "lineRendererWidth": 0.67,
+    "allowedlightingOn": false,
+    "allowedCollisionOn": false,
     "arrowParams":
     {
-      "debugArrow": true,
-      "debugOnlyDirection": true,
+      "debugArrow": false,
+      "debugOnlyDirection": false,
+      "debugOnlySpeed": true,
+      "debugOnlyAcceleration": false,
+      "debugOnlyGoal": false,
       "debugArrow2DMode": true,
       "stemLength": 0.5,
       "stemWidth": 0.25,
@@ -52,9 +59,9 @@
     "rayParams":
     {
       "rayLength": 25.0,
-      "rayDirections": 18,
+      "rayDirections": 5,
       "sphereCastRadius": 0.5,
-      "maxRayDegrees": 90
+      "maxRayDegrees": 180
     }
   },
   "goalParams":
@@ -90,5 +97,14 @@
         "goalWaitPenalty": [0,0]
       }
     ]
+  },
+  "recordingParams":
+  {
+    "startRecordingOnPlay": false,
+    "screenshotWidth": 1920,
+    "screenshotHeight": 1080,
+    "recordingDir": "Recordings",
+    "actionFrameRate": 10,
+    "useFullScreenResolution": false
   }
 }

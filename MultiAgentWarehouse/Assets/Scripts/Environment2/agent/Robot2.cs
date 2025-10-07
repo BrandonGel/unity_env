@@ -22,6 +22,7 @@ namespace multiagent.robot
         private Rigidbody _rigidbody;
         [SerializeField] public Vector2 actionInput;
         [SerializeField] public bool velocityControl = true;
+        [SerializeField] public bool infiniteAcceleration = true;
 
         [SerializeField] float currentSpeed = 0;
         [SerializeField] float currentRotationSpeed = 0;
@@ -39,6 +40,9 @@ namespace multiagent.robot
         public GameObject arrow;
         public bool debugArrow = false;
         public bool debugOnlyDirection = false;
+        public bool debugOnlySpeed = false;
+        public bool debugOnlyAcceleration = false;
+        public bool debugOnlyGoal = false;
         public bool debugArrow2DMode = false;
         public float[] debugArrowParams;
         private bool usingArrow = false;
@@ -49,10 +53,12 @@ namespace multiagent.robot
         private bool allowCommandsInput = true;
         public int obs_size = 13;
         public bool useCSVExport = true;
+        public int CSVRate = 1;
         public bool useRadian = false;
         public int lineRendererMaxPathPositionListCount = -1;
         public float lineRendererMinPathDistance = -1f;
         public float lineRendererWidth = 25f;
+        public bool allowedlightingOn= true;
 
         public void Awake()
         {
@@ -88,14 +94,15 @@ namespace multiagent.robot
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
             setGoal();
-            aData = new agentData(getID());
             m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
+            aData = new agentData(getID());
         }
+
 
         private void generateArrow()
         {
-
-            if (debugArrow == true && usingArrow == false)
+            bool anyDebugArrow = debugArrow || debugOnlyDirection || debugOnlySpeed || debugOnlyAcceleration || debugOnlyGoal;
+            if (anyDebugArrow == true && usingArrow == false)
             {
                 Vector3 robotSize = GetComponent<BoxCollider>().size;
                 Vector3 robotScale = GetComponent<Transform>().localScale;
@@ -106,63 +113,87 @@ namespace multiagent.robot
                 Quaternion arrowOrientation = transform.rotation;
 
                 //Arrow Orientation
-                // arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                // arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams,false,debugArrow2DMode);
-                // arrowObj0.transform.parent = gameObject.transform;
-                debugOnlyDirection = true;
-                if (debugOnlyDirection)
+                if (debugOnlyDirection || debugArrow)
+                {
+                    arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                    arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams, debugArrow2DMode);
+                    arrowObj0.transform.parent = gameObject.transform;
+                }
+                if (debugOnlySpeed || debugArrow)
                 {
                     // Linear Velocity Arrow
                     arrowObj1 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj1.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj1.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red, debugArrowParams, debugArrow2DMode);
                     arrowObj1.transform.parent = gameObject.transform;
 
                     // Angular Velocity Arrow
                     arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, true,debugArrow2DMode);
+                    arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, debugArrow2DMode);
                     arrowObj2.transform.parent = gameObject.transform;
-
+                }
+                if (debugOnlyAcceleration || debugArrow)
+                {
                     // Linear Acceleration Arrow
                     arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue, debugArrowParams, debugArrow2DMode);
                     arrowObj3.transform.parent = gameObject.transform;
 
                     // Angular Velocity Arrow
                     arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, debugArrowParams, true,debugArrow2DMode);
+                    arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, debugArrowParams, debugArrow2DMode);
                     arrowObj4.transform.parent = gameObject.transform;
-
+                }
+                if (debugOnlyGoal || debugArrow)
+                {
                     // Goal Arrow
                     arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj5.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.green, debugArrowParams,false,debugArrow2DMode);
+                    arrowObj5.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.green, debugArrowParams, debugArrow2DMode);
                     arrowObj5.transform.parent = gameObject.transform;
                 }
-                
+
             }
-            else if (debugArrow == true && usingArrow == true)
+            if (anyDebugArrow == true && usingArrow == true)
             {
-                if (debugOnlyDirection)
+                if (debugOnlySpeed || debugArrow)
                 {
                     arrowObj1.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
                     arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+                }
+                if (debugOnlyAcceleration || debugArrow)
+                {
                     arrowObj3.GetComponent<ArrowGenerator>().scaleArrow(currentAcceleration);
                     arrowObj4.GetComponent<ArrowGenerator>().scaleArrow(currentRotationAcceleration);
-
-                    Vector3 goalPos = getGoalPos();
-                    Vector3 goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
+                }
+                if (debugOnlyGoal || debugArrow)
+                {
+                    Vector3 goalVector = Vector3.zero;
+                    if (taskClass != null)
+                    {
+                        Vector3 goalPos = getGoalPos();
+                        goalVector = new Vector3(goalPos.x, 0, goalPos.z) - new Vector3(transform.position.x, 0, transform.position.z);
+                    }
                     arrowObj5.GetComponent<ArrowGenerator>().scaleArrow(goalVector.magnitude, goalVector);
                 }
             }
-            else if (debugArrow == false && usingArrow == true)
+            if (anyDebugArrow == false && usingArrow == true)
             {
-                // Destroy(arrowObj0);
-                if (debugOnlyDirection)
+                if (debugOnlyDirection || debugArrow)
+                {
+                    Destroy(arrowObj0);
+                }
+                if (debugOnlySpeed || debugArrow)
                 {
                     Destroy(arrowObj1);
                     Destroy(arrowObj2);
+                }
+                if (debugOnlyAcceleration || debugArrow)
+                {
                     Destroy(arrowObj3);
                     Destroy(arrowObj4);
-                    Destroy(arrowObj5);    
+                }
+                if (debugOnlyGoal || debugArrow)
+                {
+                    Destroy(arrowObj5);
                 }
                 usingArrow = false;
             }
@@ -184,6 +215,7 @@ namespace multiagent.robot
             changeMaterialColor();
             setGoal();
             _ddstate = Vector3.zero;
+            aData.setID(getID());
             aData.clear();
             addInfo();
         }
@@ -199,7 +231,16 @@ namespace multiagent.robot
 
             var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
             int lengthOfRayOutputs = rayOutputs.Length;            
-            float[] rayObs = new float[3*lengthOfRayOutputs];
+            float[] rayObs;
+            if (m_rayPerceptionSensorComponent3D.MaxRayDegrees == 180f)
+            {
+                rayObs = new float[3 * (lengthOfRayOutputs - 1)];
+            }
+            else
+            {
+                rayObs= new float[3*lengthOfRayOutputs];
+            }
+             
             for (int i = 0; i < lengthOfRayOutputs; i++)
             {
                 GameObject goHit = rayOutputs[i].HitGameObject;
@@ -207,9 +248,9 @@ namespace multiagent.robot
                 rayDirection = transform.InverseTransformDirection(rayDirection);
                 var scaledRayLength = rayDirection.magnitude;
                 float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
-                float normalizedRayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x) ;
+                float normalizedRayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x);
 
-                float roundAngle = Mathf.Round(normalizedRayAngle*100)/100;
+                float roundAngle = Mathf.Round(normalizedRayAngle * 100) / 100;
                 if (angleDict.ContainsKey(roundAngle))
                 {
                     continue;
@@ -218,56 +259,56 @@ namespace multiagent.robot
 
                 // float cosRayAngle = Mathf.Cos(rayAngle);
                 // float sinRayAngle = Mathf.Sin(rayAngle);
-                
-                
+
+
 
                 // Check for safety violation
-                    _safetyViolated = 0;
-                if( rayHitDistance <  _safetyRadius)
+                _safetyViolated = 0;
+                if (rayHitDistance < _safetyRadius)
                 {
                     _safetyViolated = 1;
                 }
 
-                if( useNormalized)
+                if (useNormalized)
                 {
-                    rayObs[3*i] = normalizedRayAngle/Mathf.PI; // Angle of the ray w.r.t the robot forward direction
-                    rayObs[3*i+1] = rayOutputs[i].HitFraction; // Normalize the distance
+                    rayObs[3 * i] = normalizedRayAngle / Mathf.PI; // Angle of the ray w.r.t the robot forward direction
+                    rayObs[3 * i + 1] = rayOutputs[i].HitFraction; // Normalize the distance
                 }
                 else
                 {
                     if (useRadian)
                     {
-                        rayObs[3*i] = normalizedRayAngle; // Angle of the ray w.r.t the robot forward direction
+                        rayObs[3 * i] = normalizedRayAngle; // Angle of the ray w.r.t the robot forward direction
                     }
                     else
                     {
-                        rayObs[3*i] = normalizedRayAngle * Mathf.Rad2Deg; // Angle of the ray w.r.t the robot forward direction
+                        rayObs[3 * i] = normalizedRayAngle * Mathf.Rad2Deg; // Angle of the ray w.r.t the robot forward direction
                     }
-                    rayObs[3*i+1] = rayHitDistance; // Normalize the distance
+                    rayObs[3 * i + 1] = rayHitDistance; // Normalize the distance
                 }
-                if(goHit != null)
+                if (goHit != null)
                 {
-                    switch(goHit.tag)
+                    switch (goHit.tag)
                     {
                         case "Wall":
-                            rayObs[3*i+2] = 1f;
+                            rayObs[3 * i + 2] = 1f;
                             break;
                         case "Robot":
-                            rayObs[3*i+2] = 2f;
+                            rayObs[3 * i + 2] = 2f;
                             break;
                         case "Obstacle":
-                            rayObs[3*i+2] = 3f;
+                            rayObs[3 * i + 2] = 3f;
                             break;
                         default:
-                            rayObs[3*i+2] = 0.0f;
+                            rayObs[3 * i + 2] = 0.0f;
                             break;
                     }
                 }
                 else
                 {
-                    rayObs[3*i+2] = 0.0f;
+                    rayObs[3 * i + 2] = 0.0f;
                 }
-                    
+
             }
             return rayObs;
 
@@ -433,6 +474,10 @@ namespace multiagent.robot
                 float desiredSpeed = maxSpeed * speedCoefficent;
                 currentSpeed = transform.InverseTransformDirection(_rigidbody.linearVelocity).x;
                 float speedDifference = desiredSpeed - currentSpeed;
+                if (!infiniteAcceleration)
+                {
+                    speedDifference = Mathf.Clamp(speedDifference, Time.fixedDeltaTime * -maxAcceleration, Time.fixedDeltaTime * maxAcceleration);
+                }
                 Vector3 velocityDifference = transform.right * speedDifference;
                 accelerationVector = velocityDifference / Time.fixedDeltaTime;
                 _rigidbody.AddForce(velocityDifference, ForceMode.VelocityChange);
@@ -441,9 +486,14 @@ namespace multiagent.robot
                 float desiredRotation = maxRotationSpeed * rotationCoefficent;
                 currentRotationSpeed = transform.InverseTransformDirection(_rigidbody.angularVelocity).y;
                 float rotationDifference = desiredRotation - currentRotationSpeed;
+                if (!infiniteAcceleration)
+                {
+                    rotationDifference = Mathf.Clamp(rotationDifference, Time.fixedDeltaTime * -maxRotationAccleration, Time.fixedDeltaTime * maxRotationAccleration);
+                }
                 Vector3 angularDifference = transform.InverseTransformDirection(transform.up) * rotationDifference;
                 rotationAccelerationVector = angularDifference / Time.fixedDeltaTime;
                 _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
+                Debug.Log(speedDifference + " " + rotationDifference);
                 
             }
             else // Acceleration Plant Model w/ Constraint
@@ -540,7 +590,7 @@ namespace multiagent.robot
 
         public void addInfo()
         {
-            if (!useCSVExport)
+            if (!useCSVExport || StepCount % CSVRate != 0 || (StepCount < aData.getSize()))
             {
                 return;
             }
@@ -552,7 +602,7 @@ namespace multiagent.robot
                     _rigidbody.linearVelocity.z,
                     _rigidbody.angularVelocity.y
                 );
-            sData.add(StepCount * Time.deltaTime); // Current Time
+            sData.add(Mathf.Round(StepCount * Time.deltaTime*1000)/1000); // Current Time
             sData.add(abs_state); // State (x,y,theta)
             sData.add(abs_dstate); // Derivative of State (x',y',theta')
             sData.add(actionInput); // Action Input (v,w)
@@ -652,14 +702,20 @@ namespace multiagent.robot
         public void updateAgentParameters(parameters param)
         {
             useCSVExport = param.unityParams.useCSVExporter;
+            CSVRate = param.unityParams.CSVRate;
             maxSpeed = param.agentParams.maxSpeed;
             maxRotationSpeed = param.agentParams.maxRotationSpeed;
             maxAcceleration = param.agentParams.maxAcceleration;
             maxRotationAccleration = param.agentParams.maxRotationAccleration;
             velocityControl = param.agentParams.velocityControl;
+            infiniteAcceleration = param.agentParams.infiniteAcceleration;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             debugArrow = param.agentParams.arrowParams.debugArrow;
-            debugArrow2DMode= param.agentParams.arrowParams.debugArrow2DMode;
+            debugOnlyDirection= param.agentParams.arrowParams.debugOnlyDirection;
+            debugOnlySpeed= param.agentParams.arrowParams.debugOnlySpeed;
+            debugOnlyAcceleration= param.agentParams.arrowParams.debugOnlyAcceleration;
+            debugOnlyGoal= param.agentParams.arrowParams.debugOnlyGoal;
+            debugArrow2DMode = param.agentParams.arrowParams.debugArrow2DMode;
             _safetyRadius = param.agentParams.safetyRadius;
             verbose = param.agentParams.verbose;
             useRadian = param.unityParams.useRadian;
@@ -673,6 +729,22 @@ namespace multiagent.robot
                 param.agentParams.arrowParams.tipWidth,
                 param.agentParams.arrowParams.yOffset
             };
+            allowedlightingOn = param.agentParams.allowedlightingOn;
+            setCollisionOn(param.agentParams.allowedCollisionOn);
+            foreach (Transform child in transform.Find("Body"))
+            {
+                if (child.name.Contains("Light"))
+                {
+                    foreach (Transform child2 in child)
+                    {
+                        var lightComponent = child2.GetComponent<Light>();
+                        if (lightComponent != null)
+                        {
+                            lightComponent.enabled = allowedlightingOn;
+                        }
+                    }
+                }
+            }
             Assert.IsTrue(maxSpeed > 0, "maxSpeed must be positive");
             Assert.IsTrue(maxRotationSpeed > 0, "maxRotationSpeed must be positive");
             Assert.IsTrue(maxAcceleration > 0, "maxAcceleration must be positive");

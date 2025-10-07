@@ -167,13 +167,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   configFile: config.json
   environment2Prefab: {fileID: 6021090556336757916, guid: 159d1872310ffba21ab300401a982d3c, type: 3}
+  envs: []
   envCenters: []
   envSizes: []
   registerStringLogSideChannel: {fileID: 81640658}
+  savePath: 
   verbose: 0
   num_envs: 1
+  CurrentEpisode: 1
   showGUI: 1
   useOrthographic: 1
+  screenRecorder: {fileID: 81640659}
+  startRecordingOnPlay: 0
 --- !u!114 &81640658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,6 +209,7 @@ MonoBehaviour:
   screenshotHeight: 1080
   useFullScreenResolution: 0
   filePrefix: screenshots
+  recordingDir: Recordings
 --- !u!1 &1378071449
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,7 +415,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -432,13 +438,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1534322979}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &1534322982
 MonoBehaviour:
   m_ObjectHideFlags: 0

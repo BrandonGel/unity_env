@@ -104,7 +104,7 @@ public class Environment2Agent : Agent
             foreach (GameObject goal in taskpoint)
             {
                 int[] tileArr = goal.GetComponent<Goal>().getTile();
-                Vector2 tile = new Vector3(tileArr[0] * scaling.x,  tileArr[1] * scaling.z);
+                Vector2 tile = new Vector3(tileArr[0] * scaling.x, tileArr[1] * scaling.z);
                 if (normalizeObservations)
                 {
                     tile.x = tile.x / env.mr.boxSize.x;
@@ -127,8 +127,8 @@ public class Environment2Agent : Agent
             agentBufferSensor.AppendObservation(agent_obs);
             if (verbose)
                 Debug.Log("Robot " + robotObj.getID() + " task: " + agent_obs[7]);
-        }        
-        timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount,env.maxTimeSteps });
+        }
+        timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount, env.maxTimeSteps });
 
     }
 
@@ -212,7 +212,7 @@ public class Environment2Agent : Agent
             }
             env.tg.assignTask(robots, tasks);
         }
-        
+
     }
 
     void Update()
@@ -258,5 +258,10 @@ public class Environment2Agent : Agent
     public int getID()
     {
         return _id;
+    }
+    
+    public int getCurrentEpisode()
+    {
+        return CurrentEpisode;
     }
 }

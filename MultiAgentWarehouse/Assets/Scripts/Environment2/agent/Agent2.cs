@@ -173,9 +173,19 @@ namespace multiagent.robot
 
         private void OnCollisionEnter(Collision collision)
         {
+
+
             isColliding = true;
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
             {
+                if(collisionOn==false){
+                    Collider thisCollider = this.GetComponent<Collider>();
+                    Collider otherCollider = collision.gameObject.GetComponent<Collider>();
+                    if(thisCollider!=null && otherCollider!=null){
+                        Physics.IgnoreCollision(thisCollider, otherCollider);
+                    }
+                    return;
+                }
                 AddReward(_collisionEnterReward);
                 changeMaterialColor("c");
                 switch (collision.gameObject.tag)
@@ -213,8 +223,16 @@ namespace multiagent.robot
 
         private void OnCollisionStay(Collision collision)
         {
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
             {
+                if(collisionOn==false){
+                    Collider thisCollider = this.GetComponent<Collider>();
+                    Collider otherCollider = collision.gameObject.GetComponent<Collider>();
+                    if(thisCollider!=null && otherCollider!=null){
+                        Physics.IgnoreCollision(thisCollider, otherCollider);
+                    }
+                    return;
+                }
                 AddReward(_collisionStayReward * Time.fixedDeltaTime);
                 if (verbose)
                 {
@@ -238,8 +256,17 @@ namespace multiagent.robot
         private void OnCollisionExit(Collision collision)
         {
             isColliding = false;
-            if ((collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle")) && collisionOn)
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
             {
+                if(collisionOn==false){
+                    Collider thisCollider = this.GetComponent<Collider>();
+                    Collider otherCollider = collision.gameObject.GetComponent<Collider>();
+                    if(thisCollider!=null && otherCollider!=null){
+                        Physics.IgnoreCollision(thisCollider, otherCollider);
+                    }
+                    return;
+                }
+
                 changeMaterialColor();
                 collisionTagID = 0;
                 if (verbose)

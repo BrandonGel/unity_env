@@ -10,7 +10,7 @@ namespace multiagent.util
     {
         public List<string[]> dataToExport = new List<string[]>(); // Example data structure
 
-        public void transferData(agentData dataclass, int CurrentEpisode = 1)
+        public void transferData(agentData dataclass, int CurrentEpisode = 1, string savePath = "")
         {
             // Initalize the data export
             dataToExport = new List<string[]>();
@@ -33,19 +33,20 @@ namespace multiagent.util
                 string[] stringEntry = entry.Select(f => f.ToString()).ToArray();
                 dataToExport.Add(stringEntry);
             }
-            ExportToCSV($"robot{dataclass.id}_episode{CurrentEpisode}");
+            ExportToCSV(savePath,$"robot{dataclass.id}");
             
         }
 
-        public void ExportToCSV(string fileName)
+        public void ExportToCSV(string savePath = "", string fileName = "")
         {
             string assetsPath = Application.dataPath;
             string projectPath = Directory.GetParent(assetsPath).FullName;
-            string savePath = Path.Combine(projectPath, "data");
-            if (!Directory.Exists(savePath))
-            {
-                Directory.CreateDirectory(savePath);
-            }
+            if (savePath == "")
+                savePath = Path.Combine(projectPath, "data");
+                if (!Directory.Exists(savePath))
+                {
+                    Directory.CreateDirectory(savePath);
+                }
 
             string filePath = Path.Combine(savePath, fileName + ".csv");
 
@@ -59,7 +60,6 @@ namespace multiagent.util
             }
 
             File.WriteAllText(filePath, csvContent);
-            Debug.Log("CSV exported to: " + filePath);
         }
     }
 }

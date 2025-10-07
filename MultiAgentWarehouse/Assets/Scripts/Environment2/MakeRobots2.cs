@@ -49,6 +49,7 @@ public class MakeRobots2 : MonoBehaviour
                     robot.GetComponent<Robot2>().setID(i);
                     robot.GetComponent<Robot2>().boxSize = boxSize;
                     robot.name = "Robot_" + i+1;
+                    robot.GetComponent<Robot2>().reset();
                     robots.Add(robot);
                 }
                 else
@@ -107,6 +108,7 @@ public class MakeRobots2 : MonoBehaviour
                     robot.GetComponent<Robot2>().boxSize = boxSize;
                     robot.GetComponent<Robot2>().setCollisionOn(false);
                     robot.name = "Robot_" + i;
+                    robot.GetComponent<Robot2>().reset();
                     robots.Add(robot);
                 }
                 else{

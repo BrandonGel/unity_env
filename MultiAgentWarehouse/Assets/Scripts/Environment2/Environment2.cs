@@ -30,6 +30,7 @@ public class Environment2 : MonoBehaviour
     public float task_freq = 1f;
     public int tasks_obs_space = 1;
     public int robots_obs_space = 1;
+    public string savePath;
     public Vector3 scaling;
     public delegate void taskAssignmentMethod();
     public taskAssignmentMethod taskAssignment = default;
@@ -51,7 +52,7 @@ public class Environment2 : MonoBehaviour
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
         robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
         normalizeObservations = param.unityParams.normalizeObservations;
-
+        savePath = Directory.GetParent(Application.dataPath).FullName;;
         if (!param.unityParams.useShadow)
         {
             if (verbose)
@@ -129,7 +130,7 @@ public class Environment2 : MonoBehaviour
                 mo.CreateWorld(_configFile);
             }
         }
-        
+
 
         // Start and Goal Initialization
         msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling, param.goalParams.showRenderer);
@@ -159,18 +160,18 @@ public class Environment2 : MonoBehaviour
             tg.GenerateTasks();
             if (envJson.conf.mode.Contains("envjson"))
             {
-                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling,!alreadyCreated);
+                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
             else if (envJson.conf.mode.Contains("paramjson"))
             {
-                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling,!alreadyCreated);
+                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
         }
         else if (envJson.conf.mode.Contains("download"))
         {
             List<TaskData> tasks = root.tasks;
             tg.DownloadTasks(tasks);
-            mr.initStartLocation(0, root.agents, default, scaling,!alreadyCreated);
+            mr.initStartLocation(0, root.agents, default, scaling, !alreadyCreated);
             if (envJson.conf.mode.Contains("replay"))
             {
                 mr.setCommandInput(false);
@@ -184,7 +185,7 @@ public class Environment2 : MonoBehaviour
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
-        
+
 
         // Task Assignment Declaration
         if (param.goalParams.task_mode.ToLower() == "EarlyStart".ToLower())
@@ -205,11 +206,11 @@ public class Environment2 : MonoBehaviour
 
     void QuitApplication()
     {
-        #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
                 Application.Quit();
-        #endif
+#endif
     }
 
     void Update()
@@ -236,7 +237,7 @@ public class Environment2 : MonoBehaviour
             {
                 replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
             }
-            
+
         }
     }
 
@@ -275,7 +276,7 @@ public class Environment2 : MonoBehaviour
 
 
         }
-        
+
     }
 
     public void exportEpisodeData(int CurrentEpisode)
@@ -284,11 +285,21 @@ public class Environment2 : MonoBehaviour
         {
             if (verbose)
                 Debug.Log("Exporting Episode Data");
+            string robotSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"),"env_" + environment2Agent.getID());
+            if (!Directory.Exists(robotSavePath))
+            {
+                Directory.CreateDirectory(robotSavePath);
+            }
             for (int i = 0; i < mr.robots.Count; i++)
             {
                 Robot2 robotComponent = mr.robots[i].GetComponent<Robot2>();
-                CSVexporter.transferData(robotComponent.aData, CurrentEpisode);
+                CSVexporter.transferData(robotComponent.aData, CurrentEpisode, robotSavePath);
             }
         }
+    }
+
+    public void setSavePath(string savePath)
+    {
+        this.savePath = savePath;
     }
 }

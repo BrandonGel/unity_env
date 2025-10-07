@@ -15,7 +15,6 @@ public class ArrowGenerator : MonoBehaviour
     public float maxLim = 1;
     public string dir = "r";
     public float yOffset = 0;
-    public bool noShowZero = false;
     public bool useNoCylinder = true;
     Vector3 directionalVector,normalVector,stemOrigin,tipOrigin;
     [Range(2, 360)] public int numberAxialPoints = 36;
@@ -189,7 +188,7 @@ public class ArrowGenerator : MonoBehaviour
         }
     }
 
-    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, float[] floatParams = default, bool noShowZero = false, bool useNoCylinder = true)
+    public void setParam(string dir = "r", float minLim = -1, float maxLim = 1, Color color = default, float[] floatParams = default,  bool useNoCylinder = true)
     {
         this.dir = dir;
         this.minLim = minLim;
@@ -200,7 +199,6 @@ public class ArrowGenerator : MonoBehaviour
         this.tipLength = floatParams[2];
         this.tipWidth = floatParams[3];
         this.yOffset = floatParams[4];
-        this.noShowZero = noShowZero;
         this.useNoCylinder = useNoCylinder;
     }
     
@@ -232,7 +230,8 @@ public class ArrowGenerator : MonoBehaviour
         Vector3[] vertices = mesh.vertices;
         for (var i = 0; i < vertices.Length; i++)
         {
-            if (noShowZero && scale <= 1e-6)
+            if (
+                scale <= 1e-3)
             {
                 vertices[i] = new Vector3(0f, 0f, 0f);
                 continue;
@@ -288,7 +287,7 @@ public class ArrowGenerator : MonoBehaviour
 
         for (var i = 0; i < vertices.Length; i++)
         {
-            if (noShowZero && scale <= 1e-6)
+            if (scale <= 1e-3)
             {
                 vertices[i] = new Vector3(0f, 0f, 0f);
                 continue;
@@ -300,6 +299,18 @@ public class ArrowGenerator : MonoBehaviour
 
     public void scaleArrow(float dummyValue, Vector3 direction = default)
     {
+        float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim, 0, 1);
+        
+        if (scale <= 1e-3)
+        {
+            GetComponent<MeshRenderer>().enabled = false;
+            return;
+        }
+        else
+        {
+            GetComponent<MeshRenderer>().enabled = true;
+        }
+
         if (useNoCylinder)
         {
             ScaleArrowWithoutCylinder(dummyValue, direction);

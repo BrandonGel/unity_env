@@ -42,6 +42,9 @@ namespace multiagent.parameterJson
     {
         public bool debugArrow = false;
         public bool debugOnlyDirection = false;
+        public bool debugOnlySpeed = false;
+        public bool debugOnlyAcceleration = false;
+        public bool debugOnlyGoal = false;
         public bool debugArrow2DMode = false;
         public float stemLength = 1f;
         public float stemWidth = 0.1f;
@@ -91,6 +94,7 @@ namespace multiagent.parameterJson
         public float maxAcceleration = 2.72f;
         public float maxRotationAccleration = 8.23f;
         public bool velocityControl = true;
+        public bool infiniteAcceleration = true;
         public bool absoluteCoordinate = false;
         public int seed = 42;
         public int maxTimeSteps = 5001;
@@ -100,6 +104,8 @@ namespace multiagent.parameterJson
         public int lineRendererMaxPathPositionListCount = -1;
         public float lineRendererMinPathDistance = -1;
         public float lineRendererWidth = 25f;
+        public bool allowedlightingOn = false;
+        public bool allowedCollisionOn = true;
         public arrowParameters arrowParams = new arrowParameters();
         public rewardParameters rewardParams = new rewardParameters();
         public lidarParameters rayParams = new lidarParameters();
@@ -113,6 +119,7 @@ namespace multiagent.parameterJson
         public float fixed_timestep = 0.2f;
         public int num_envs = 1;
         public bool useCSVExporter = false;
+        public int CSVRate = 1;
         public bool verbose = false;
         public bool useShadow = true;
         public bool normalizeObservations = false;
@@ -122,11 +129,24 @@ namespace multiagent.parameterJson
     }
 
     [System.Serializable]
+    public class recordingParameters
+    {
+        public bool startRecordingOnPlay = false;
+        public int screenshotWidth = 1920;
+        public int screenshotHeight = 1080;
+        public string recordingDir = "Recordings";
+        public int actionFrameRate = 5;
+        public bool useFullScreenResolution = false;
+    }
+
+
+    [System.Serializable]
     public class parameters
     {
         public unityParameters unityParams = new unityParameters();
         public agentsParameters agentParams = new agentsParameters();
         public goalParameters goalParams = new goalParameters();
+        public recordingParameters recordingParams = new recordingParameters();
 
     }
 

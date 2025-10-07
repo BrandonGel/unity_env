@@ -137,6 +137,21 @@ namespace multiagent.agent
             }
         }
 
+        public void setID(int id)
+        {
+            this.id = id;
+        }
+
+        public int getID()
+        {
+            return id;
+        }
+
+        public int getSize()
+        {
+            return size;
+        }
+
     }
 
 }
