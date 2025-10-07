@@ -38,6 +38,7 @@ public sealed class ScreenRecorder : MonoBehaviour
 	private List<byte[]> screenshotData = new List<byte[]>();
 	private List<string[]> filenames = new List<string[]>();
 	private RenderTexture renderTexture;
+	private string dataPath = "";
 
 	private void Reset()
 	{
@@ -47,9 +48,7 @@ public sealed class ScreenRecorder : MonoBehaviour
 	private void Awake()
 	{
 		// No initialization needed for screenshot-only mode
-		string assetsPath = Application.dataPath;
-		string projectPath = Directory.GetParent(assetsPath).FullName;
-		savePath = Path.Combine(projectPath, "data");
+		savePath = Path.Combine(dataPath, "data");
 		screenshotDirectory = Path.Combine(savePath, recordingDir);
 		width = useFullScreenResolution ? Screen.width : screenshotWidth;
 		height = useFullScreenResolution ? Screen.height : screenshotHeight;
@@ -82,9 +81,7 @@ public sealed class ScreenRecorder : MonoBehaviour
 		height = useFullScreenResolution ? Screen.height : screenshotHeight;
 		screenshot = new Texture2D(width, height, TextureFormat.RGB24, false);
 		renderTexture = new RenderTexture(width, height, 24);
-		string assetsPath = Application.dataPath;
-		string projectPath = Directory.GetParent(assetsPath).FullName;
-		savePath = Path.Combine(projectPath, "data");
+		savePath = Path.Combine(dataPath, "data");
 		screenshotDirectory = Path.Combine(savePath, recordingDir);
 	}
 
@@ -190,9 +187,10 @@ public sealed class ScreenRecorder : MonoBehaviour
 		}
 	}
 
-	public void BuildScreenshotDirectory(string savePath)
+	public void BuildScreenshotDirectory(string savePath = default)
 	{
-		this.savePath = savePath;
+		if( savePath != default)
+			this.savePath = savePath;
 		screenshotDirectory = Path.Combine(savePath, recordingDir);
 		if (!Directory.Exists(screenshotDirectory))
 		{

@@ -15,7 +15,7 @@ public class Environment2Head : MonoBehaviour
     public List<Vector3> envCenters = new List<Vector3>();
     public List<Vector3> envSizes = new List<Vector3>();
     public RegisterStringLogSideChannel registerStringLogSideChannel;
-    public string savePath;
+    public string savePath,dataPath;
     public bool verbose = false;
     public int num_envs = 1;
     public int CurrentEpisode = 1;
@@ -38,8 +38,13 @@ public class Environment2Head : MonoBehaviour
 
         showGUI = param.unityParams.showGUI;
         useOrthographic = param.unityParams.useOrthographic;
+        dataPath = param.unityParams.dataPath;
 
-        BuildSaveDirectory();
+        if (paramJson.param.unityParams.useCSVExporter || paramJson.param.recordingParams.startRecordingOnPlay)
+        {
+            BuildSaveDirectory(dataPath);
+        }
+
         if (!param.unityParams.useShadow)
         {
             if (verbose)
@@ -93,8 +98,6 @@ public class Environment2Head : MonoBehaviour
             string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
             screenRecorder.BuildScreenshotDirectory(screenRecorderSavePath);
         }
-        
-        
     }
 
     void updateEnv()
@@ -129,11 +132,10 @@ public class Environment2Head : MonoBehaviour
         
     }
 
-    private void BuildSaveDirectory()
+    private void BuildSaveDirectory(string dataPath="")
 	{
-		var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
-        string projectPath = Directory.GetParent(Application.dataPath).FullName;
-        savePath = Path.Combine(projectPath, "data",timestamp);
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
+        savePath = Path.Combine(dataPath, "data",timestamp);
         if (!Directory.Exists(savePath))
         {
             Directory.CreateDirectory(savePath);

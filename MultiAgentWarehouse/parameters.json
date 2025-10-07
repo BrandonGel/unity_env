@@ -2,10 +2,11 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 1, 
+    "timescale": 5, 
     "fixed_timestep": 0.02,
     "num_envs": 1,
-    "useCSVExporter": false,
+    "dataPath" : "",
+    "useCSVExporter": true,
     "CSVRate": 10,
     "normalizeObservations" : false,
     "verbose": false,

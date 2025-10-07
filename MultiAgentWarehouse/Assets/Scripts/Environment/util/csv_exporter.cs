@@ -10,7 +10,7 @@ namespace multiagent.util
     {
         public List<string[]> dataToExport = new List<string[]>(); // Example data structure
 
-        public void transferData(agentData dataclass, int CurrentEpisode = 1, string savePath = "")
+        public void transferData(agentData dataclass, int CurrentEpisode = 1, string savePath = default)
         {
             // Initalize the data export
             dataToExport = new List<string[]>();
@@ -37,12 +37,10 @@ namespace multiagent.util
             
         }
 
-        public void ExportToCSV(string savePath = "", string fileName = "")
+        public void ExportToCSV(string savePath = default, string fileName = "")
         {
-            string assetsPath = Application.dataPath;
-            string projectPath = Directory.GetParent(assetsPath).FullName;
-            if (savePath == "")
-                savePath = Path.Combine(projectPath, "data");
+            if (savePath == default)
+                savePath = Path.Combine("", "data");
                 if (!Directory.Exists(savePath))
                 {
                     Directory.CreateDirectory(savePath);
