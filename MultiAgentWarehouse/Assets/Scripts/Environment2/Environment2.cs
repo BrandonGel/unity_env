@@ -147,6 +147,7 @@ public class Environment2 : MonoBehaviour
             task_freq,
             msg.getStartLocations(),
             msg.getGoalLocations(),
+            msg.getNontaskLocations(),
             param.goalParams.verbose
         );
 
@@ -185,6 +186,9 @@ public class Environment2 : MonoBehaviour
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
+        List<float[]> robotSpawnLocations = mr.getSpawnLocations();
+
+        tg.GenerateNonEndpointTasks(robotSpawnLocations);
 
 
         // Task Assignment Declaration
@@ -261,7 +265,7 @@ public class Environment2 : MonoBehaviour
             }
             catch
             {
-                if (robot.GetComponent<Robot2>().getTaskReached())
+                if (robot.GetComponent<Robot2>().getTaskReached() || robot.GetComponent<Robot2>().checkIsIdle())
                 {
                     tg.AssignTaskEarlyStart(robot);
                 }

@@ -19,7 +19,8 @@ namespace multiagent.task
         private bool _busy = false;
         private bool _completed = false;
         public int task_ind = -1;
-        public int taskID = -1;
+        public int taskID = 0;
+        public bool is_non_endpoint_task = false;
         public bool verbose = false;
 
         public Task(float start_time, string task_name, List<GameObject> taskpoint, int taskID = -1, bool verbose = false)
@@ -32,6 +33,8 @@ namespace multiagent.task
             _completed = false;
             task_ind = 0;
             this.taskID = taskID;
+            this.is_non_endpoint_task = task_name.Contains("non_task");
+            Debug.Log("Task: " + task_name + " is_non_endpoint_task: " + is_non_endpoint_task);
             this.verbose = verbose;
         }
 
@@ -132,6 +135,11 @@ namespace multiagent.task
         public int getCurrentGoalType()
         {
             return taskpoint[task_ind].GetComponent<Goal>().goalType;
+        }
+
+        public bool checkNonEndpointTask()
+        {
+            return is_non_endpoint_task;
         }
     }
 }

@@ -36,6 +36,7 @@ namespace multiagent.robot
         public int DecisionPeriod = 0;
         public int collisionTagID = 0;
         public bool verbose = false;
+        public bool _isIdle = true;
 
         public void setDecisionRequestParams(int maxTimeSteps, int decisionPeriod)
         {
@@ -83,10 +84,12 @@ namespace multiagent.robot
             if (taskClass == null)
             {
                 this._goal = transform.position;
+                _isIdle = true;
             }
             else
             {
                 this._goal = taskClass.getCurrentGoal().transform.position;
+                _isIdle = taskClass.checkNonEndpointTask();
             }
         }
 
@@ -113,12 +116,18 @@ namespace multiagent.robot
             {
                 return false;
             }
+            _isIdle = taskClass.checkNonEndpointTask() || taskClass.isCompleted() == true;
             return taskClass.isCompleted();
         }
 
         public Vector3 getGoalPos()
         {
             return _goal;
+        }
+
+        public bool checkIsIdle()
+        {
+            return _isIdle;
         }
 
 

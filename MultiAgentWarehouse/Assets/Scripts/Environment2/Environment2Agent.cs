@@ -125,8 +125,6 @@ public class Environment2Agent : Agent
             Robot2 robotObj = robot.GetComponent<Robot2>();
             float[] agent_obs = robotObj.CollectObservations(normalizeObservations);
             agentBufferSensor.AppendObservation(agent_obs);
-            if (verbose)
-                Debug.Log("Robot " + robotObj.getID() + " task: " + agent_obs[7]);
         }
         timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount, env.maxTimeSteps });
 

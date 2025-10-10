@@ -6,7 +6,7 @@
     "fixed_timestep": 0.02,
     "num_envs": 1,
     "dataPath" : "",
-    "useCSVExporter": true,
+    "useCSVExporter": false,
     "CSVRate": 10,
     "normalizeObservations" : false,
     "verbose": false,
@@ -35,14 +35,14 @@
     "lineRendererMinPathDistance": 0.0,
     "lineRendererWidth": 0.67,
     "allowedlightingOn": false,
-    "allowedCollisionOn": false,
+    "allowedCollisionOn": true,
     "arrowParams":
     {
       "debugArrow": false,
       "debugOnlyDirection": false,
       "debugOnlySpeed": true,
       "debugOnlyAcceleration": false,
-      "debugOnlyGoal": false,
+      "debugOnlyGoal": true,
       "debugArrow2DMode": true,
       "stemLength": 0.5,
       "stemWidth": 0.25,
@@ -71,7 +71,7 @@
     "task_freq": 1,
     "task_mode": "EarlyStart",
     "verbose": false,
-    "showRenderer": false,
+    "showRenderer": true,
     "goals":
     [
       {

@@ -10,7 +10,7 @@ using UnityEngine.PlayerLoop;
 using Unity.Mathematics;
 public class MakeRobots2 : MonoBehaviour
 {
-    public List<List<int[]>> spawnlocations = new List<List<int[]>>();
+    public List<float[]> spawnlocations = new List<float[]>();
     public GameObject robot_prefab; // Assign your obstacle prefab here
     public List<GameObject> robots = new List<GameObject>();
     public int num_spawn_tries = 1;
@@ -26,7 +26,8 @@ public class MakeRobots2 : MonoBehaviour
         }
         // Vector3 offset = new Vector3(0.5f, 0, 0.5f);
         Vector3 offset = new Vector3(0f, 0.5f, 0f);
-        if(instaniate)
+        spawnlocations = new List<float[]>();
+        if (instaniate)
         {
             robots = new List<GameObject>();
         }
@@ -34,7 +35,7 @@ public class MakeRobots2 : MonoBehaviour
         if (agents != default)
         {
             num_of_agents = agents.Count;
-            spawnlocations = new List<List<int[]>>();
+
             int i = 0;
             foreach (AgentData agent in agents)
             {
@@ -48,7 +49,7 @@ public class MakeRobots2 : MonoBehaviour
                     robot.transform.localScale = scaling;
                     robot.GetComponent<Robot2>().setID(i);
                     robot.GetComponent<Robot2>().boxSize = boxSize;
-                    robot.name = "Robot_" + i+1;
+                    robot.name = "Robot_" + i + 1;
                     robot.GetComponent<Robot2>().reset();
                     robots.Add(robot);
                 }
@@ -71,7 +72,7 @@ public class MakeRobots2 : MonoBehaviour
                 Quaternion orientation = Quaternion.identity;
                 int count = 0;
                 Vector3 halfExtents = robot_prefab.GetComponent<BoxCollider>().size; // 0.5 is half the size of the robot's dimension while tol is a minimum tolerance or spacing
-                float radius = MathF.Sqrt(halfExtents.x*halfExtents.x + halfExtents.z*halfExtents.z);
+                float radius = MathF.Sqrt(halfExtents.x * halfExtents.x + halfExtents.z * halfExtents.z);
                 for (int j = 0; j < num_spawn_tries; j++)
                 {
                     (pos, orientation) = findValidPoint();
@@ -92,14 +93,14 @@ public class MakeRobots2 : MonoBehaviour
                     }
                     // Debug.Log("Overlap detected for robot " + i + " at position " + pos + " , retrying...");
                     isOverlapping = false;
-                    count +=1;
+                    count += 1;
                 }
                 // Debug.Log("i: " + i + " count: " + count);
                 if (count == num_spawn_tries)
                 {
                     Debug.LogWarning("Could not find non-overlapping spawn point for robot " + i + ". Placing it anyway.");
                 }
-                if(instaniate)
+                if (instaniate)
                 {
                     GameObject robot = Instantiate(robot_prefab, pos, orientation);
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
@@ -111,12 +112,13 @@ public class MakeRobots2 : MonoBehaviour
                     robot.GetComponent<Robot2>().reset();
                     robots.Add(robot);
                 }
-                else{
+                else
+                {
                     robots[i].transform.position = pos;
                     robots[i].transform.rotation = Quaternion.identity;
                     robots[i].GetComponent<Robot2>().setCollisionOn(false);
                     robots[i].GetComponent<Robot2>().reset();
-                }   
+                }
             }
 
             for (int i = 0; i < num_of_agents; i++)
@@ -124,6 +126,16 @@ public class MakeRobots2 : MonoBehaviour
                 robots[i].GetComponent<Robot2>().setCollisionOn(true);
             }
 
+        }
+
+        for (int i = 0; i < num_of_agents; i++)
+        {
+            float[] loc = new float[2]
+            {
+                robots[i].transform.position.x,
+                robots[i].transform.position.z
+            };
+            spawnlocations.Add(loc);
         }
     }
 
@@ -149,6 +161,11 @@ public class MakeRobots2 : MonoBehaviour
         return robots;
     }
 
+    public List<float[]> getSpawnLocations()
+    {
+        return spawnlocations;
+    }
+
     public void setCommandInput(bool allowCommandsInput)
     {
         foreach (GameObject robot in robots)
@@ -169,6 +186,6 @@ public class MakeRobots2 : MonoBehaviour
             Destroy(child.gameObject);
         }
         robots = new List<GameObject>();
-        spawnlocations = new List<List<int[]>>();
+        spawnlocations = new List<float[]>();
     }
 }

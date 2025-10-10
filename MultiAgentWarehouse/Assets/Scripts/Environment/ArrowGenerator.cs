@@ -29,12 +29,11 @@ public class ArrowGenerator : MonoBehaviour
     public Material Material;
     Color color;
 
-    void Start()
+    void Awake()
     {
         //make sure Mesh Renderer has a material
         mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = mesh;
-        GenerateArrow();
     }
 
     (Vector3, Vector3) getDirection(string dir = "r")
@@ -176,7 +175,7 @@ public class ArrowGenerator : MonoBehaviour
         meshRenderer.material.SetColor("_BaseColor", color);
     }
 
-    void GenerateArrow()
+    public void GenerateArrow()
     {
         if (useNoCylinder)
         {
@@ -300,7 +299,6 @@ public class ArrowGenerator : MonoBehaviour
     public void scaleArrow(float dummyValue, Vector3 direction = default)
     {
         float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim, 0, 1);
-        
         if (scale <= 1e-3)
         {
             GetComponent<MeshRenderer>().enabled = false;

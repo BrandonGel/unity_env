@@ -118,6 +118,7 @@ namespace multiagent.robot
                     arrowObj0 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj0.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.black, debugArrowParams, debugArrow2DMode);
                     arrowObj0.transform.parent = gameObject.transform;
+                    arrowObj0.GetComponent<ArrowGenerator>().GenerateArrow();
                 }
                 if (debugOnlySpeed || debugArrow)
                 {
@@ -125,11 +126,13 @@ namespace multiagent.robot
                     arrowObj1 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj1.GetComponent<ArrowGenerator>().setParam("r", -maxSpeed, maxSpeed, Color.red, debugArrowParams, debugArrow2DMode);
                     arrowObj1.transform.parent = gameObject.transform;
+                    arrowObj1.GetComponent<ArrowGenerator>().GenerateArrow();
 
                     // Angular Velocity Arrow
                     arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, debugArrow2DMode);
                     arrowObj2.transform.parent = gameObject.transform;
+                    arrowObj2.GetComponent<ArrowGenerator>().GenerateArrow();
                 }
                 if (debugOnlyAcceleration || debugArrow)
                 {
@@ -137,11 +140,13 @@ namespace multiagent.robot
                     arrowObj3 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj3.GetComponent<ArrowGenerator>().setParam("r", -maxAcceleration, maxAcceleration, Color.blue, debugArrowParams, debugArrow2DMode);
                     arrowObj3.transform.parent = gameObject.transform;
+                    arrowObj3.GetComponent<ArrowGenerator>().GenerateArrow();
 
                     // Angular Velocity Arrow
                     arrowObj4 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj4.GetComponent<ArrowGenerator>().setParam("u", -maxRotationAccleration, maxRotationAccleration, Color.blue, debugArrowParams, debugArrow2DMode);
                     arrowObj4.transform.parent = gameObject.transform;
+                    arrowObj4.GetComponent<ArrowGenerator>().GenerateArrow();
                 }
                 if (debugOnlyGoal || debugArrow)
                 {
@@ -149,6 +154,7 @@ namespace multiagent.robot
                     arrowObj5 = Instantiate(arrow, arrowPosition, arrowOrientation);
                     arrowObj5.GetComponent<ArrowGenerator>().setParam("r", -1, 1, Color.green, debugArrowParams, debugArrow2DMode);
                     arrowObj5.transform.parent = gameObject.transform;
+                    arrowObj5.GetComponent<ArrowGenerator>().GenerateArrow();
                 }
 
             }
@@ -493,7 +499,6 @@ namespace multiagent.robot
                 Vector3 angularDifference = transform.InverseTransformDirection(transform.up) * rotationDifference;
                 rotationAccelerationVector = angularDifference / Time.fixedDeltaTime;
                 _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
-                Debug.Log(speedDifference + " " + rotationDifference);
                 
             }
             else // Acceleration Plant Model w/ Constraint
