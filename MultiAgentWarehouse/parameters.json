@@ -69,7 +69,7 @@
   {
     "n_tasks": 2,
     "task_freq": 1,
-    "task_mode": "EarlyStart",
+    "task_mode": "",
     "verbose": false,
     "showRenderer": true,
     "goals":

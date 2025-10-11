@@ -113,6 +113,7 @@ public class MakeStartsGoals : MonoBehaviour
             Vector3 pos = new Vector3(loc[0], 0, loc[1]) + nontaskSpawnPosition;
             pos = Vector3.Scale(pos, scaling);
             GameObject non_task = Instantiate(non_task_prefab, pos, Quaternion.identity);
+            non_task.GetComponent<Goal>().setParameters(i, 0, loc, 0f, 0f, 0f);
             non_task.transform.localScale = scaling;
             non_task.transform.parent = gameObject.transform.Find("Nontasks").transform;
             non_task.transform.localPosition = pos;

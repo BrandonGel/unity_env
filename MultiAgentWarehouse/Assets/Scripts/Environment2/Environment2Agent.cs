@@ -90,10 +90,37 @@ public class Environment2Agent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        List<Task> tasks = env.tg.GetIncompleteTasks();
-        if (tasks.Count == 0)
+        List<Task> incompleteTasks = env.tg.GetIncompleteTasks();
+        List<Task> nonEndpointTasks = env.tg.getNonEndpointTasks();
+        List<Task> tasks = new List<Task>(incompleteTasks);
+        tasks.AddRange(nonEndpointTasks);
+        if (incompleteTasks.Count == 0)
         {
             bufferSensor.AppendObservation(new float[bufferSensor.ObservableSize]);
+            foreach (Task task in nonEndpointTasks)
+            {
+                List<GameObject> taskpoint = task.taskpoint;
+                float[] task_obs = new float[bufferSensor.ObservableSize];
+                int ii = 0;
+                foreach (GameObject goal in taskpoint)
+                {
+                    int[] tileArr = goal.GetComponent<Goal>().getTile();
+                    Debug.Log("TileArr: " + tileArr[0] + "," + tileArr[1]);
+                    Vector2 tile = new Vector3(tileArr[0] * scaling.x, tileArr[1] * scaling.z);
+                    if (normalizeObservations)
+                    {
+                        tile.x = tile.x / env.mr.boxSize.x;
+                        tile.y = tile.y / env.mr.boxSize.z;
+                    }
+                    task_obs[2 * ii] = tile.x;
+                    task_obs[2 * ii + 1] = tile.y;
+                    ii += 1;
+                }
+                task_obs[bufferSensor.ObservableSize-3] = task.assignedRobotID;
+                task_obs[bufferSensor.ObservableSize-2] = task.task_ind;
+                task_obs[bufferSensor.ObservableSize-1] = task.taskID;
+                bufferSensor.AppendObservation(task_obs);
+            }
             return;
         }
         foreach (Task task in tasks)
@@ -114,11 +141,12 @@ public class Environment2Agent : Agent
                 task_obs[2 * ii + 1] = tile.y;
                 ii += 1;
             }
-            task_obs[2 * taskpoint.Count] = task.assignedRobotID;
-            task_obs[2 * taskpoint.Count + 1] = task.task_ind;
-            task_obs[2 * taskpoint.Count + 2] = task.taskID;
+            task_obs[bufferSensor.ObservableSize-3] = task.assignedRobotID;
+            task_obs[bufferSensor.ObservableSize-2] = task.task_ind;
+            task_obs[bufferSensor.ObservableSize-1] = task.taskID;
             bufferSensor.AppendObservation(task_obs);
         }
+        
 
         foreach (GameObject robot in robots)
         {
