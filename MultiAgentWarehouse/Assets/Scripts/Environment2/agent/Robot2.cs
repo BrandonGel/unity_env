@@ -21,7 +21,7 @@ namespace multiagent.robot
         private int _safetyViolated = 0; // meters
         private Rigidbody _rigidbody;
         [SerializeField] public Vector2 actionInput;
-        [SerializeField] public bool velocityControl = true;
+        public string controllerType = "velocity";
         [SerializeField] public bool infiniteAcceleration = true;
 
         [SerializeField] float currentSpeed = 0;
@@ -51,7 +51,7 @@ namespace multiagent.robot
         private Quaternion newSpawnOrientation;
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
         private bool allowCommandsInput = true;
-        public int obs_size = 13;
+        private int _obs_size = 14;
         public bool useCSVExport = true;
         public int CSVRate = 1;
         public bool useRadian = false;
@@ -64,30 +64,6 @@ namespace multiagent.robot
         {
             _rigidbody = GetComponent<Rigidbody>();
             initExtra();
-
-            // Initialize the constraints
-            if (velocityControl)
-            {
-                minLim = new float[] {
-                -maxSpeed,
-                -maxRotationSpeed,
-                };
-                maxLim = new float[] {
-                    maxSpeed,
-                    maxRotationSpeed,
-                };
-            }
-            else
-            {
-                minLim = new float[] {
-                -maxAcceleration,
-                -maxRotationAccleration
-                };
-                maxLim = new float[] {
-                    maxAcceleration,
-                    maxRotationAccleration
-                };
-            }
             changeMaterialColor();
             updateState();
             generateArrow();
@@ -357,6 +333,7 @@ namespace multiagent.robot
             float goalPosZ_normalized = 0;
             int taskID = 0;
             int task_ind = -1;
+            int task_busy = 0;
             int completed = 0;
             if (taskClass != null)
             {
@@ -365,6 +342,7 @@ namespace multiagent.robot
                 goalPosX_normalized = goalPos.x;
                 goalPosZ_normalized = goalPos.z;
                 task_ind = taskClass.task_ind;
+                task_busy = taskClass.getBusy() ? 1 : 0;
                 completed = taskClass.isCompleted() ? 1 : 0;
 
                 if( useNormalized)
@@ -387,6 +365,7 @@ namespace multiagent.robot
                 goalPosX_normalized,
                 goalPosZ_normalized,
                 task_ind,
+                task_busy,
                 completed,
                 Reward
             };
@@ -473,8 +452,22 @@ namespace multiagent.robot
 
         public void plant(Vector2 act)
         {
+            if(controllerType == "position")
+            {
+                transform.position = new Vector3(
+                    transform.position.x + act.x,
+                    transform.position.y,
+                    transform.position.z + act.y
+                );
+
+                float angle = Mathf.Atan2(act.y, act.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(0, angle, 0);
+                U_constraint=0;
+                return;
+            }
+
             (float[] action, float U) = checkConstraint(act[0], -act[1]);
-            if (velocityControl) // Velocity Plant Model
+            if (controllerType == "velocity") // Velocity Plant Model
             {
                 float speedCoefficent = action[0];
                 float desiredSpeed = maxSpeed * speedCoefficent;
@@ -712,14 +705,14 @@ namespace multiagent.robot
             maxRotationSpeed = param.agentParams.maxRotationSpeed;
             maxAcceleration = param.agentParams.maxAcceleration;
             maxRotationAccleration = param.agentParams.maxRotationAccleration;
-            velocityControl = param.agentParams.velocityControl;
+            controllerType = param.agentParams.controllerType.ToLower();
             infiniteAcceleration = param.agentParams.infiniteAcceleration;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             debugArrow = param.agentParams.arrowParams.debugArrow;
-            debugOnlyDirection= param.agentParams.arrowParams.debugOnlyDirection;
-            debugOnlySpeed= param.agentParams.arrowParams.debugOnlySpeed;
-            debugOnlyAcceleration= param.agentParams.arrowParams.debugOnlyAcceleration;
-            debugOnlyGoal= param.agentParams.arrowParams.debugOnlyGoal;
+            debugOnlyDirection = param.agentParams.arrowParams.debugOnlyDirection;
+            debugOnlySpeed = param.agentParams.arrowParams.debugOnlySpeed;
+            debugOnlyAcceleration = param.agentParams.arrowParams.debugOnlyAcceleration;
+            debugOnlyGoal = param.agentParams.arrowParams.debugOnlyGoal;
             debugArrow2DMode = param.agentParams.arrowParams.debugArrow2DMode;
             _safetyRadius = param.agentParams.safetyRadius;
             verbose = param.agentParams.verbose;
@@ -768,8 +761,13 @@ namespace multiagent.robot
                 m_rayPerceptionSensorComponent3D.RaysPerDirection = param.agentParams.rayParams.rayDirections;
                 m_rayPerceptionSensorComponent3D.SphereCastRadius = param.agentParams.rayParams.sphereCastRadius;
                 m_rayPerceptionSensorComponent3D.MaxRayDegrees = param.agentParams.rayParams.maxRayDegrees;
-                obs_size = calculateObservationSize(obs_size, param.agentParams.rayParams.rayDirections,param.agentParams.rayParams.maxRayDegrees);
+                _obs_size = calculateObservationSize(_obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
             }
+        }
+        
+        public int getObservationSize()
+        {
+            return _obs_size;
         }
 
         void Start()

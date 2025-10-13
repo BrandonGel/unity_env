@@ -22,7 +22,7 @@ public class Environment2Agent : Agent
     BufferSensorComponent agentBufferSensor;
     BufferSensorComponent timeBufferSensor;
     public List<GameObject> robots = null;
-    Vector3 scaling;
+    Vector3 scaling = Vector3.one;
     public bool verbose = false;
     public bool normalizeObservations = false;
 
@@ -58,8 +58,6 @@ public class Environment2Agent : Agent
         }
         normalizeObservations = env.normalizeObservations;
 
-        scaling = env.scaling;
-
         int num_agents = env.num_agents;
         var behaviorParams = GetComponent<BehaviorParameters>();
         var actionSpec = ActionSpec.MakeContinuous(3 * num_agents);
@@ -70,7 +68,9 @@ public class Environment2Agent : Agent
 
     public override void OnEpisodeBegin()
     {
+        Debug.Log("Episode: " + CurrentEpisode);
         env.t = 0f;
+        scaling = env.scaling;
         if (CurrentEpisode > 0)
         {
             env.exportEpisodeData(CurrentEpisode);
@@ -90,39 +90,9 @@ public class Environment2Agent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        List<Task> incompleteTasks = env.tg.GetIncompleteTasks();
-        List<Task> nonEndpointTasks = env.tg.getNonEndpointTasks();
-        List<Task> tasks = new List<Task>(incompleteTasks);
-        tasks.AddRange(nonEndpointTasks);
-        if (incompleteTasks.Count == 0)
-        {
-            bufferSensor.AppendObservation(new float[bufferSensor.ObservableSize]);
-            foreach (Task task in nonEndpointTasks)
-            {
-                List<GameObject> taskpoint = task.taskpoint;
-                float[] task_obs = new float[bufferSensor.ObservableSize];
-                int ii = 0;
-                foreach (GameObject goal in taskpoint)
-                {
-                    int[] tileArr = goal.GetComponent<Goal>().getTile();
-                    Debug.Log("TileArr: " + tileArr[0] + "," + tileArr[1]);
-                    Vector2 tile = new Vector3(tileArr[0] * scaling.x, tileArr[1] * scaling.z);
-                    if (normalizeObservations)
-                    {
-                        tile.x = tile.x / env.mr.boxSize.x;
-                        tile.y = tile.y / env.mr.boxSize.z;
-                    }
-                    task_obs[2 * ii] = tile.x;
-                    task_obs[2 * ii + 1] = tile.y;
-                    ii += 1;
-                }
-                task_obs[bufferSensor.ObservableSize-3] = task.assignedRobotID;
-                task_obs[bufferSensor.ObservableSize-2] = task.task_ind;
-                task_obs[bufferSensor.ObservableSize-1] = task.taskID;
-                bufferSensor.AppendObservation(task_obs);
-            }
-            return;
-        }
+        Debug.Log(StepCount);
+        List<Task> tasks = env.tg.GetIncompleteTasks();
+        tasks.AddRange(env.tg.getNonEndpointTasks());
         foreach (Task task in tasks)
         {
             List<GameObject> taskpoint = task.taskpoint;
@@ -141,12 +111,20 @@ public class Environment2Agent : Agent
                 task_obs[2 * ii + 1] = tile.y;
                 ii += 1;
             }
-            task_obs[bufferSensor.ObservableSize-3] = task.assignedRobotID;
-            task_obs[bufferSensor.ObservableSize-2] = task.task_ind;
-            task_obs[bufferSensor.ObservableSize-1] = task.taskID;
+            if (ii < (bufferSensor.ObservableSize - 3) / 2)
+            {
+                for (int jj = ii; jj < bufferSensor.ObservableSize / 2 - 1; jj++)
+                {
+                    task_obs[2 * jj] = task_obs[2 * ii - 2];
+                    task_obs[2 * jj + 1] = task_obs[2 * ii - 1];
+                }
+            }
+
+            task_obs[bufferSensor.ObservableSize - 3] = task.assignedRobotID;
+            task_obs[bufferSensor.ObservableSize - 2] = task.task_ind;
+            task_obs[bufferSensor.ObservableSize - 1] = task.taskID;
             bufferSensor.AppendObservation(task_obs);
         }
-        
 
         foreach (GameObject robot in robots)
         {
@@ -154,6 +132,7 @@ public class Environment2Agent : Agent
             float[] agent_obs = robotObj.CollectObservations(normalizeObservations);
             agentBufferSensor.AppendObservation(agent_obs);
         }
+
         timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount, env.maxTimeSteps });
 
     }
@@ -218,8 +197,8 @@ public class Environment2Agent : Agent
         if (robots == null)
         {
             return;
-        }
-
+        }   
+        
         int ii = 0;
         foreach (GameObject robot in robots)
         {

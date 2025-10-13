@@ -3,7 +3,7 @@
   {
     "seed": 42,  
     "timescale": 5, 
-    "fixed_timestep": 0.02,
+    "fixed_timestep": 0.25,
     "num_envs": 1,
     "dataPath" : "",
     "useCSVExporter": false,
@@ -24,18 +24,18 @@
     "maxRotationSpeed": 2.11,
     "maxAcceleration": 2.72,
     "maxRotationAccleration": 8.23,
-    "velocityControl": true,
+    "controllerType": "position",
     "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 5001,
-    "decisionPeriod": 5,
+    "maxTimeSteps": 15001,
+    "decisionPeriod": 1,
     "verbose": false,
-    "lineRendererMaxPathPositionListCount": 200,
+    "lineRendererMaxPathPositionListCount": -1,
     "lineRendererMinPathDistance": 0.0,
-    "lineRendererWidth": 0.67,
+    "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
-    "allowedCollisionOn": true,
+    "allowedCollisionOn": false,
     "arrowParams":
     {
       "debugArrow": false,
@@ -69,9 +69,9 @@
   {
     "n_tasks": 2,
     "task_freq": 1,
-    "task_mode": "",
+    "task_mode": "EarlyStart",
     "verbose": false,
-    "showRenderer": true,
+    "showRenderer": false,
     "goals":
     [
       {

@@ -491,7 +491,7 @@ namespace multiagent.robot
             maxRotationSpeed = param.agentParams.maxRotationSpeed;
             maxAcceleration = param.agentParams.maxAcceleration;
             maxRotationAccleration = param.agentParams.maxRotationAccleration;
-            velocityControl = param.agentParams.velocityControl;
+            // velocityControl = param.agentParams.velocityControl;
             absoluteCoordinate = param.agentParams.absoluteCoordinate;
             // debugArrow = param.agentParams.debugArrow;
             setDecisionRequestParams(param.agentParams.maxTimeSteps, param.agentParams.decisionPeriod);

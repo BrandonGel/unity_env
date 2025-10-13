@@ -50,7 +50,7 @@ public class Environment2 : MonoBehaviour
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
-        robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
+        robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.getObservationSize(), param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
         normalizeObservations = param.unityParams.normalizeObservations;
         savePath = Directory.GetParent(Application.dataPath).FullName;;
         if (!param.unityParams.useShadow)
@@ -133,6 +133,7 @@ public class Environment2 : MonoBehaviour
 
 
         // Start and Goal Initialization
+        msg.DestroyAll();
         msg.initStartLocation(envMap.start_locations, envMap.goal_locations, envMap.non_task_endpoints, param.goalParams, scaling, param.goalParams.showRenderer);
 
         // NavMesh Initialization

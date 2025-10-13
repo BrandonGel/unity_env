@@ -17,6 +17,7 @@ namespace multiagent.task
         public List<GameObject> taskpoint = new List<GameObject>();
         public int assignedRobotID = -1;
         private bool _busy = false;
+        private bool _reached = false;
         private bool _completed = false;
         public int task_ind = -1;
         public int taskID = 0;
@@ -34,7 +35,6 @@ namespace multiagent.task
             task_ind = 0;
             this.taskID = taskID;
             this.is_non_endpoint_task = task_name.Contains("non_task");
-            Debug.Log("Task: " + task_name + " is_non_endpoint_task: " + is_non_endpoint_task);
             this.verbose = verbose;
         }
 
@@ -77,6 +77,7 @@ namespace multiagent.task
                 if (verbose)
                     Debug.Log("Task: " + task_name + " moving to next goal " + (task_ind + 1) + " by Robot " + assignedRobotID);
                 task_ind += 1;
+                _reached = false;
             }
             else
             {
@@ -90,7 +91,13 @@ namespace multiagent.task
             if (verbose)
                 Debug.Log("Task: " + task_name + " Goal " + task_ind + " reached by Robot " + assignedRobotID);
             _busy = true;
+            _reached = true;
             taskpoint[task_ind].GetComponent<Goal>().setBusy();
+        }
+
+        public bool getBusy()
+        {
+            return taskpoint[task_ind].GetComponent<Goal>().isBusy() && _reached;
         }
 
         public bool isBusy()
@@ -120,6 +127,7 @@ namespace multiagent.task
             assignedRobotID = -1;
             _busy = false;
             _completed = false;
+            _reached = false;
         }
 
         public GameObject getCurrentGoal()

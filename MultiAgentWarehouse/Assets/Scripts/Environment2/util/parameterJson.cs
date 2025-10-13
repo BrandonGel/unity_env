@@ -93,7 +93,8 @@ namespace multiagent.parameterJson
         public float maxRotationSpeed = 2.11f;
         public float maxAcceleration = 2.72f;
         public float maxRotationAccleration = 8.23f;
-        public bool velocityControl = true;
+        public string controllerType = "velocity";
+        public bool infiniteVelcoity = true;
         public bool infiniteAcceleration = true;
         public bool absoluteCoordinate = false;
         public int seed = 42;
