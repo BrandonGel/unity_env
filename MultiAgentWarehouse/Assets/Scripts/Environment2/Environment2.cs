@@ -46,7 +46,7 @@ public class Environment2 : MonoBehaviour
         readConfig(_configFile);
         parameters param = paramJson.GetParameter();
         verbose = param.unityParams.verbose;
-        tasks_obs_space = 2 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 3;
+        tasks_obs_space = 2 * (param.goalParams.goals.Count + param.goalParams.starts.Count) + 4;
         maxTimeSteps = param.agentParams.maxTimeSteps;
         decisionPeriod = param.agentParams.decisionPeriod;
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
@@ -85,14 +85,15 @@ public class Environment2 : MonoBehaviour
         Root root = envJson.GetRoot();
         if (envJson.conf.mode.Contains("generate"))
         {
-            n_tasks = param.goalParams.n_tasks;
             task_freq = param.goalParams.task_freq;
             if (envJson.conf.mode.Contains("envjson"))
             {
+                n_tasks = root.n_tasks;
                 num_agents = root.agents.Count;
             }
             else if (envJson.conf.mode.Contains("paramjson"))
             {
+                n_tasks = param.goalParams.n_tasks;
                 num_agents = param.agentParams.num_of_agents;
             }
         }
@@ -188,7 +189,6 @@ public class Environment2 : MonoBehaviour
         }
         mr.updateRobotParameters(param);
         List<float[]> robotSpawnLocations = mr.getSpawnLocations();
-
         tg.GenerateNonEndpointTasks(robotSpawnLocations);
 
 

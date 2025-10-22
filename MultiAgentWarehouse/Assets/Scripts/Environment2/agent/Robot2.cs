@@ -701,6 +701,9 @@ namespace multiagent.robot
         {
             useCSVExport = param.unityParams.useCSVExporter;
             CSVRate = param.unityParams.CSVRate;
+            _rigidbody.mass = param.agentParams.dynamicsParams.bodyMass;
+            _rigidbody.linearDamping = param.agentParams.dynamicsParams.linearDrag;
+            _rigidbody.angularDamping = param.agentParams.dynamicsParams.angularDrag;
             maxSpeed = param.agentParams.maxSpeed;
             maxRotationSpeed = param.agentParams.maxRotationSpeed;
             maxAcceleration = param.agentParams.maxAcceleration;

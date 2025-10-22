@@ -12,23 +12,23 @@
     "verbose": false,
     "useShadow": false,
     "useRadian": true,
-    "showGUI":true,
+    "showGUI":false,
     "useOrthographic": true
   },
   "agentParams":
   {
-    "num_of_agents": 1,
+    "num_of_agents": 32,
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
     "maxRotationSpeed": 2.11,
     "maxAcceleration": 2.72,
     "maxRotationAccleration": 8.23,
-    "controllerType": "position",
+    "controllerType": "velocity",
     "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 15001,
+    "maxTimeSteps": 51,
     "decisionPeriod": 1,
     "verbose": false,
     "lineRendererMaxPathPositionListCount": -1,
@@ -36,13 +36,19 @@
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
     "allowedCollisionOn": false,
+    "dynamicsParams":
+    {
+      "bodyMass": 50.0,
+      "linearDrag": 0.0,
+      "angularDrag": 0.0
+    },
     "arrowParams":
     {
       "debugArrow": false,
       "debugOnlyDirection": false,
       "debugOnlySpeed": true,
       "debugOnlyAcceleration": false,
-      "debugOnlyGoal": true,
+      "debugOnlyGoal": false,
       "debugArrow2DMode": true,
       "stemLength": 0.5,
       "stemWidth": 0.25,
@@ -67,7 +73,7 @@
   },
   "goalParams":
   {
-    "n_tasks": 2,
+    "n_tasks": 10,
     "task_freq": 1,
     "task_mode": "EarlyStart",
     "verbose": false,

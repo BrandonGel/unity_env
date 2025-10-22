@@ -95,7 +95,7 @@ public class MakeRobots2 : MonoBehaviour
                     isOverlapping = false;
                     count += 1;
                 }
-                // Debug.Log("i: " + i + " count: " + count);
+                
                 if (count == num_spawn_tries)
                 {
                     Debug.LogWarning("Could not find non-overlapping spawn point for robot " + i + ". Placing it anyway.");
@@ -114,8 +114,7 @@ public class MakeRobots2 : MonoBehaviour
                 }
                 else
                 {
-                    robots[i].transform.position = pos;
-                    robots[i].transform.rotation = Quaternion.identity;
+                    robots[i].GetComponent<Robot2>().updateSpawnState(pos, orientation);
                     robots[i].GetComponent<Robot2>().setCollisionOn(false);
                     robots[i].GetComponent<Robot2>().reset();
                 }

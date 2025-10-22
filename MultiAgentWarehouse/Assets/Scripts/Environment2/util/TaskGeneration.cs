@@ -51,6 +51,7 @@ public class TaskGeneration
             non_endpoint_tasks.Add(new_task);
         }
 
+
         for (int j = 0; j < robotSpawnLocations.Count; j++)
         {
             for (int i = 0; i < non_tasks.Count; i++)
@@ -181,6 +182,7 @@ public class TaskGeneration
 
     public void AssignTaskEarlyStart(GameObject robot)
     {
+        Debug.Log("Number of Tasks " + available_tasks.Count);
         try
         {
             Robot robotComponent = robot.GetComponent<Robot>();
@@ -198,7 +200,10 @@ public class TaskGeneration
                 robotComponent.setGoal(null);
                 return;
             }
-            non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
+            if (robot_non_endpoint_id.Count > robotComponent.getID())
+            {
+                non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
+            }
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);
@@ -227,7 +232,10 @@ public class TaskGeneration
                 robotComponent.setGoal(null);
                 return;
             }
-            non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
+            if (robot_non_endpoint_id.Count > robotComponent.getID())
+            {
+                non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
+            }
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
             available_tasks[0].assigned(robotComponent.getID());
             available_tasks.RemoveAt(0);

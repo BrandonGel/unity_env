@@ -90,9 +90,8 @@ public class Environment2Agent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        Debug.Log(StepCount);
-        List<Task> tasks = env.tg.GetIncompleteTasks();
-        tasks.AddRange(env.tg.getNonEndpointTasks());
+        List<Task> tasks = env.tg.getAllTasks();
+        // tasks.AddRange(env.tg.getNonEndpointTasks());
         foreach (Task task in tasks)
         {
             List<GameObject> taskpoint = task.taskpoint;
@@ -120,9 +119,10 @@ public class Environment2Agent : Agent
                 }
             }
 
-            task_obs[bufferSensor.ObservableSize - 3] = task.assignedRobotID;
-            task_obs[bufferSensor.ObservableSize - 2] = task.task_ind;
-            task_obs[bufferSensor.ObservableSize - 1] = task.taskID;
+            task_obs[bufferSensor.ObservableSize - 4] = task.assignedRobotID;
+            task_obs[bufferSensor.ObservableSize - 3] = task.task_ind;
+            task_obs[bufferSensor.ObservableSize - 2] = task.taskID;
+            task_obs[bufferSensor.ObservableSize - 1] = task.isCompleted() ? 1f : 0f;
             bufferSensor.AppendObservation(task_obs);
         }
 
@@ -133,7 +133,7 @@ public class Environment2Agent : Agent
             agentBufferSensor.AppendObservation(agent_obs);
         }
 
-        timeBufferSensor.AppendObservation(new float[3] { env.t, StepCount, env.maxTimeSteps });
+        timeBufferSensor.AppendObservation(new float[3] {StepCount*Time.fixedDeltaTime, StepCount, env.maxTimeSteps });
 
     }
 

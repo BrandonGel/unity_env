@@ -84,6 +84,14 @@ namespace multiagent.parameterJson
     }
 
     [System.Serializable]
+    public class dynamicsParameters
+    {
+        public float bodyMass = 50.0f;
+        public float linearDrag = 0.0f;
+        public float angularDrag = 0.0f;
+    }   
+
+    [System.Serializable]
     public class agentsParameters
     {
         public int num_of_agents = 1;
@@ -107,6 +115,7 @@ namespace multiagent.parameterJson
         public float lineRendererWidth = 25f;
         public bool allowedlightingOn = false;
         public bool allowedCollisionOn = true;
+        public dynamicsParameters dynamicsParams = new dynamicsParameters();
         public arrowParameters arrowParams = new arrowParameters();
         public rewardParameters rewardParams = new rewardParameters();
         public lidarParameters rayParams = new lidarParameters();
