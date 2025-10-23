@@ -172,6 +172,7 @@ MonoBehaviour:
   envSizes: []
   registerStringLogSideChannel: {fileID: 81640658}
   savePath: 
+  dataPath: 
   verbose: 0
   num_envs: 1
   CurrentEpisode: 1

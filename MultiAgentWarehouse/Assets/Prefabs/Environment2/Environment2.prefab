@@ -405,6 +405,7 @@ MonoBehaviour:
   task_freq: 1
   tasks_obs_space: 1
   robots_obs_space: 1
+  savePath: 
   scaling: {x: 0, y: 0, z: 0}
   useCSVExporter: 0
   alreadyCreated: 0
@@ -424,7 +425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstaclePrefab: {fileID: 7613047925106939522, guid: 783e24eecd90de341aaa98d69c586711, type: 3}
   groundMaterial: {fileID: 2100000, guid: 3f936ea76f26c83778d9a3269c281ae4, type: 2}
-  obstacleMaterial: {fileID: 2100000, guid: df6141075618f188dbde8e352d8c674d, type: 2}
+  obstacleMaterial: {fileID: 2100000, guid: bbf2a35792655098c98bead8fb97110c, type: 2}
 --- !u!114 &7447488921523759353
 MonoBehaviour:
   m_ObjectHideFlags: 0

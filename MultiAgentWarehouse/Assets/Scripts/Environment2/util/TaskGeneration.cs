@@ -182,7 +182,6 @@ public class TaskGeneration
 
     public void AssignTaskEarlyStart(GameObject robot)
     {
-        Debug.Log("Number of Tasks " + available_tasks.Count);
         try
         {
             Robot robotComponent = robot.GetComponent<Robot>();

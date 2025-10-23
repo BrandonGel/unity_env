@@ -281,12 +281,14 @@ MonoBehaviour:
   DecisionPeriod: 0
   collisionTagID: 0
   verbose: 0
+  _isIdle: 1
   maxSpeed: 0.7
   maxRotationSpeed: 2.11
   maxAcceleration: 2.72
   maxRotationAccleration: 8.23
   actionInput: {x: 0, y: 0}
-  velocityControl: 1
+  controllerType: velocity
+  infiniteAcceleration: 1
   currentSpeed: 0
   currentRotationSpeed: 0
   currentAcceleration: 0
@@ -305,14 +307,13 @@ MonoBehaviour:
   debugOnlyGoal: 0
   debugArrow2DMode: 0
   debugArrowParams: []
-  obs_size: 13
   useCSVExport: 1
+  CSVRate: 1
   useRadian: 0
   lineRendererMaxPathPositionListCount: -1
   lineRendererMinPathDistance: -1
   lineRendererWidth: 25
   allowedlightingOn: 1
-  allowedCollisionOn: 1
 --- !u!1 &696009349590233120
 GameObject:
   m_ObjectHideFlags: 0
@@ -20829,7 +20830,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 2f686cff697641a77a82e4edce4ad59e, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: e16c2ba0ee6e4b7fcbc6cbddcd7f147c, type: 2}
+      objectReference: {fileID: 2100000, guid: 4fbcc473c0c9d58839a2743e767c9b64, type: 2}
     - target: {fileID: 919132149155446097, guid: 2f686cff697641a77a82e4edce4ad59e, type: 3}
       propertyPath: m_Name
       value: Part Studio 1 - Top Plate
