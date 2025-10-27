@@ -9,6 +9,7 @@ TagManager:
   - Wall
   - BottomBox
   - Safe
+  - Human
   layers:
   - Default
   - TransparentFX

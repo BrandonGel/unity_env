@@ -35,7 +35,7 @@
     "lineRendererMinPathDistance": 0.0,
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
-    "allowedCollisionOn": false,
+    "allowedCollisionOn": true,
     "dynamicsParams":
     {
       "bodyMass": 50.0,
@@ -74,7 +74,7 @@
   "goalParams":
   {
     "n_tasks": 10,
-    "task_freq": 1,
+    "task_freq": 32,
     "task_mode": "EarlyStart",
     "verbose": false,
     "showRenderer": false,

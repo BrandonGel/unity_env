@@ -13,9 +13,9 @@ namespace multiagent.robot
     public class Robot2 : Agent2Template
     {
         [SerializeField] public float maxSpeed = .7f; // meters per second
-        [SerializeField] public float maxRotationSpeed = 2.11f; // degrees per second
-        [SerializeField] public float maxAcceleration = 2.72f; // degrees per second
-        [SerializeField] public float maxRotationAccleration = 8.23f; // degrees per second
+        [SerializeField] public float maxRotationSpeed = 2.11f; // radians per second
+        [SerializeField] public float maxAcceleration = 2.72f; // meters per second^2
+        [SerializeField] public float maxRotationAccleration = 8.23f; // radians per second^2
         private float _bodyRadius = 0.331f; // meters
         private float _safetyRadius = 0.273f; // meters
         private int _safetyViolated = 0; // meters
@@ -51,7 +51,7 @@ namespace multiagent.robot
         private Quaternion newSpawnOrientation;
         RayPerceptionSensorComponent3D m_rayPerceptionSensorComponent3D;
         private bool allowCommandsInput = true;
-        private int _obs_size = 14;
+        private int _obs_size = 15;
         public bool useCSVExport = true;
         public int CSVRate = 1;
         public bool useRadian = false;
@@ -187,6 +187,7 @@ namespace multiagent.robot
             StepCount = 0;
             CumulativeReward = 0;
             Reward = 0;
+            collisionTagID = 0;
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             _rigidbody.linearVelocity = Vector3.zero;
@@ -351,8 +352,8 @@ namespace multiagent.robot
                     goalPosZ_normalized = goalPos.z / boxSize.z;
                 }
             }
-
-            
+            // if (collisionTagID > 0)
+            Debug.Log("Robot "+ getID() + " Observation: " + collisionTagID);
             float[] observation = new float[] {
                 robotPosX_normalized,
                 robotPosZ_normalized,
@@ -361,12 +362,13 @@ namespace multiagent.robot
                 currentRotationSpeed_normalized,
                 currentAcceleration_normalized,
                 currentRotationAcceleration_normalized,
+                collisionTagID,
                 taskID,
                 goalPosX_normalized,
                 goalPosZ_normalized,
                 task_ind,
                 task_busy,
-                completed,
+                completed,                
                 Reward
             };
             float[] lidarData = getLidarData(useNormalized);

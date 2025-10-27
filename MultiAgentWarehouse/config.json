@@ -4,6 +4,6 @@
   "imagepath":  "Processed_image.png",
   "schedulepath":  "schedule.json",
   "csvfolder":  "data",
-  "mode": "download",
+  "mode": "generate_paramjson",
   "world_mode": "image"
 }

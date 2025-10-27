@@ -185,7 +185,7 @@ namespace multiagent.robot
 
 
             isColliding = true;
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Human"))
             {
                 if(collisionOn==false){
                     Collider thisCollider = this.GetComponent<Collider>();
@@ -205,7 +205,7 @@ namespace multiagent.robot
                     case "Player":
                         collisionTagID = 2;
                         break;
-                    case "Obstacle":
+                    case "Human":
                         collisionTagID = 3;
                         break;
                     default:
@@ -232,7 +232,7 @@ namespace multiagent.robot
 
         private void OnCollisionStay(Collision collision)
         {
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Human"))
             {
                 if(collisionOn==false){
                     Collider thisCollider = this.GetComponent<Collider>();
@@ -265,7 +265,7 @@ namespace multiagent.robot
         private void OnCollisionExit(Collision collision)
         {
             isColliding = false;
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Obstacle"))
+            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Human"))
             {
                 if(collisionOn==false){
                     Collider thisCollider = this.GetComponent<Collider>();
