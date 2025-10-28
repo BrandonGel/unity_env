@@ -188,6 +188,7 @@ public class Environment2 : MonoBehaviour
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
+        mr.ResetAll();
         List<float[]> robotSpawnLocations = mr.getSpawnLocations();
         tg.GenerateNonEndpointTasks(robotSpawnLocations);
 

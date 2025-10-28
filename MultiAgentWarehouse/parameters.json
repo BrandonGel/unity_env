@@ -6,7 +6,7 @@
     "fixed_timestep": 0.25,
     "num_envs": 1,
     "dataPath" : "",
-    "useCSVExporter": false,
+    "useCSVExporter": true,
     "CSVRate": 10,
     "normalizeObservations" : false,
     "verbose": false,
@@ -17,7 +17,7 @@
   },
   "agentParams":
   {
-    "num_of_agents": 32,
+    "num_of_agents": 1,
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
@@ -28,7 +28,7 @@
     "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 51,
+    "maxTimeSteps": 5001,
     "decisionPeriod": 1,
     "verbose": false,
     "lineRendererMaxPathPositionListCount": -1,
@@ -60,7 +60,7 @@
     {
       "collisionEnterReward": -10,
       "collisionStayReward": -0.05,
-      "timeReward": -2,
+      "timeReward": 0,
       "goalReward": 1
     },
     "rayParams":

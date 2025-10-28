@@ -47,17 +47,15 @@ public class MakeRobots2 : MonoBehaviour
                     GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
                     robot.transform.localScale = scaling;
-                    robot.GetComponent<Robot2>().setID(i);
+                    robot.GetComponent<Robot2>().setID(i + 1);
                     robot.GetComponent<Robot2>().boxSize = boxSize;
-                    robot.name = "Robot_" + i + 1;
-                    robot.GetComponent<Robot2>().reset();
+                    robot.name = "Robot_" + (i + 1);
                     robots.Add(robot);
                 }
                 else
                 {
                     robots[i].transform.position = pos;
                     robots[i].transform.rotation = Quaternion.identity;
-                    robots[i].GetComponent<Robot2>().reset();
                 }
                 i += 1;
             }
@@ -105,18 +103,16 @@ public class MakeRobots2 : MonoBehaviour
                     GameObject robot = Instantiate(robot_prefab, pos, orientation);
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
                     robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
-                    robot.GetComponent<Robot2>().setID(i);
+                    robot.GetComponent<Robot2>().setID(i+1);
                     robot.GetComponent<Robot2>().boxSize = boxSize;
                     robot.GetComponent<Robot2>().setCollisionOn(false);
-                    robot.name = "Robot_" + i;
-                    robot.GetComponent<Robot2>().reset();
+                    robot.name = "Robot_" + (i + 1);
                     robots.Add(robot);
                 }
                 else
                 {
                     robots[i].GetComponent<Robot2>().updateSpawnState(pos, orientation);
                     robots[i].GetComponent<Robot2>().setCollisionOn(false);
-                    robots[i].GetComponent<Robot2>().reset();
                 }
             }
 
@@ -187,4 +183,13 @@ public class MakeRobots2 : MonoBehaviour
         robots = new List<GameObject>();
         spawnlocations = new List<float[]>();
     }
+
+    public void ResetAll()
+    {
+        foreach (GameObject robot in robots)
+        {
+            Robot2 robotObj = robot.GetComponent<Robot2>();
+            robotObj.reset();
+        }
+    }   
 }

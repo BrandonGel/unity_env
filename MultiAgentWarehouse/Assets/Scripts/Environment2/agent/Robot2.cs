@@ -58,7 +58,9 @@ namespace multiagent.robot
         public int lineRendererMaxPathPositionListCount = -1;
         public float lineRendererMinPathDistance = -1f;
         public float lineRendererWidth = 25f;
-        public bool allowedlightingOn= true;
+        public bool allowedlightingOn = true;
+
+        float[] lidarData,lidarDataUnnormalized,safetyData;
 
         public void Awake()
         {
@@ -184,10 +186,7 @@ namespace multiagent.robot
         public virtual void reset()
         {
             CurrentEpisode++;
-            StepCount = 0;
-            CumulativeReward = 0;
-            Reward = 0;
-            collisionTagID = 0;
+            Reset();
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             _rigidbody.linearVelocity = Vector3.zero;
@@ -203,27 +202,30 @@ namespace multiagent.robot
             addInfo();
         }
 
-        public float[] getLidarData(bool useNormalized=true)
+        public (float[],float[]) getLidarData(bool useNormalized=true)
         {
             if (m_rayPerceptionSensorComponent3D == null)
             {
                 Debug.LogError("Lidar Sensor not found!");
-                return new float[0];
+                return (new float[0], new float[0]);
             }
             Dictionary <float, bool> angleDict = new Dictionary<float, bool>();
 
             var rayOutputs = RayPerceptionSensor.Perceive(m_rayPerceptionSensorComponent3D.GetRayPerceptionInput()).RayOutputs;
             int lengthOfRayOutputs = rayOutputs.Length;            
-            float[] rayObs;
+            float[] rayObs,safetyObs;
             if (m_rayPerceptionSensorComponent3D.MaxRayDegrees == 180f)
             {
                 rayObs = new float[3 * (lengthOfRayOutputs - 1)];
+                safetyObs = new float[lengthOfRayOutputs - 1];
             }
             else
             {
-                rayObs= new float[3*lengthOfRayOutputs];
+                rayObs = new float[3 * lengthOfRayOutputs];
+                safetyObs = new float[lengthOfRayOutputs];
             }
-             
+
+            _safetyViolated =  0;
             for (int i = 0; i < lengthOfRayOutputs; i++)
             {
                 GameObject goHit = rayOutputs[i].HitGameObject;
@@ -246,12 +248,13 @@ namespace multiagent.robot
 
 
                 // Check for safety violation
-                _safetyViolated = 0;
                 if (rayHitDistance < _safetyRadius)
                 {
+                    safetyObs[i] = 1f; // Safety Violation
                     _safetyViolated = 1;
                 }
 
+                // Store Lidar Data
                 if (useNormalized)
                 {
                     rayObs[3 * i] = normalizedRayAngle / Mathf.PI; // Angle of the ray w.r.t the robot forward direction
@@ -279,7 +282,7 @@ namespace multiagent.robot
                         case "Robot":
                             rayObs[3 * i + 2] = 2f;
                             break;
-                        case "Obstacle":
+                        case "Human":
                             rayObs[3 * i + 2] = 3f;
                             break;
                         default:
@@ -293,7 +296,7 @@ namespace multiagent.robot
                 }
 
             }
-            return rayObs;
+            return (rayObs, safetyObs);
 
         }
 
@@ -352,8 +355,7 @@ namespace multiagent.robot
                     goalPosZ_normalized = goalPos.z / boxSize.z;
                 }
             }
-            // if (collisionTagID > 0)
-            Debug.Log("Robot "+ getID() + " Observation: " + collisionTagID);
+
             float[] observation = new float[] {
                 robotPosX_normalized,
                 robotPosZ_normalized,
@@ -362,7 +364,7 @@ namespace multiagent.robot
                 currentRotationSpeed_normalized,
                 currentAcceleration_normalized,
                 currentRotationAcceleration_normalized,
-                collisionTagID,
+                getCollisionTagID(),
                 taskID,
                 goalPosX_normalized,
                 goalPosZ_normalized,
@@ -371,7 +373,7 @@ namespace multiagent.robot
                 completed,                
                 Reward
             };
-            float[] lidarData = getLidarData(useNormalized);
+            (lidarData, safetyData) = getLidarData(useNormalized);
 
             float[] robotObs = new float[observation.Length + lidarData.Length];
             observation.CopyTo(robotObs, 0);
@@ -425,7 +427,6 @@ namespace multiagent.robot
 
         public void Step(float[] actions)
         {
-            Reward = 0;
             StepCount += 1;
 
             if (!checkWait() && allowCommandsInput)
@@ -438,7 +439,6 @@ namespace multiagent.robot
             }
 
             addTimeReward();
-            CumulativeReward += Reward;
         }
 
         public (float[], float) checkConstraint(float v, float w)
@@ -618,14 +618,14 @@ namespace multiagent.robot
                 sData.add(0);
                 sData.add(-1);
             }
-            sData.add(collisionTagID); // Collision Tag ID
+            sData.add(getCollisionTagID()); // Collision Tag ID
             sData.add(Reward); // Reward
             sData.add(_safetyViolated); // Safety Violated
             sData.add(U_constraint); // Control Constraint
-            float[] lidarData = getLidarData(false);
-            sData.add(lidarData); // Lidar Data (rayAngle, rayDistance, rayTag) * num_rays
 
-            
+            (lidarDataUnnormalized, safetyData) = getLidarData(false);
+            sData.add(lidarDataUnnormalized); // Lidar Data (rayAngle, rayDistance, rayTag) * num_rays
+
             if (aData.header.Count == 0)
             {
                 List<String> header = new List<String> {
@@ -636,7 +636,7 @@ namespace multiagent.robot
                  "xg", "yg",
                   "goalID", "goalType", "collisionTagID", "reward", "safetyViolated", "U_constraint"
                 }; 
-                for (int i = 0; i < lidarData.Length/3; i++)
+                for (int i = 0; i < lidarDataUnnormalized.Length/3; i++)
                 {
                     header.Add($"rayAngle_{i}");
                     header.Add($"rayDistance_{i}");

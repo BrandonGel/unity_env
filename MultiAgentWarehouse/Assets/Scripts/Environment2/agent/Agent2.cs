@@ -34,7 +34,7 @@ namespace multiagent.robot
         public int StepCount = 0;
         public float Reward = 0;
         public int DecisionPeriod = 0;
-        public int collisionTagID = 0;
+        private int _collisionTagID = 0;
         public bool verbose = false;
         public bool _isIdle = true;
 
@@ -49,6 +49,9 @@ namespace multiagent.robot
             StepCount = 0;
             CumulativeReward = 0;
             Reward = 0;
+            _collisionTagID = 0;
+            _goalReached = false;
+            _wait = false;
         }
 
         public void step(float[] action)
@@ -200,16 +203,16 @@ namespace multiagent.robot
                 switch (collision.gameObject.tag)
                 {
                     case "Wall":
-                        collisionTagID = 1;
+                        _collisionTagID = 1;
                         break;
                     case "Player":
-                        collisionTagID = 2;
+                        _collisionTagID = 2;
                         break;
                     case "Human":
-                        collisionTagID = 3;
+                        _collisionTagID = 3;
                         break;
                     default:
-                        collisionTagID = 0;
+                        _collisionTagID = 0;
                         break;
                 }
                 if (verbose)
@@ -267,6 +270,7 @@ namespace multiagent.robot
             isColliding = false;
             if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Human"))
             {
+                _collisionTagID = 0;
                 if(collisionOn==false){
                     Collider thisCollider = this.GetComponent<Collider>();
                     Collider otherCollider = collision.gameObject.GetComponent<Collider>();
@@ -277,7 +281,6 @@ namespace multiagent.robot
                 }
 
                 changeMaterialColor();
-                collisionTagID = 0;
                 if (verbose)
                 {
                     if (collision.gameObject.CompareTag("Player"))
@@ -366,7 +369,10 @@ namespace multiagent.robot
             return isColliding;
         }
 
-
+        public int getCollisionTagID()
+        {
+            return _collisionTagID;
+        }
     }
 
 }
