@@ -37,7 +37,7 @@ public class GUI_environment2 : MonoBehaviour
         _mainCamera.enabled = true;
 
         useOrthographic =_envHead.GetComponent<Environment2Head>().useOrthographic;
-        _mainCamera.orthographic = useOrthographic;
+        // _mainCamera.orthographic = useOrthographic;
 
         Scene currentScene = SceneManager.GetActiveScene();
         foreach (Transform child in _envHead.transform)
@@ -117,27 +117,27 @@ public class GUI_environment2 : MonoBehaviour
             envID += 1;
             envID %= _envCameras.Count;
         }
-        if (_mainCamera.enabled == true)
-        {
-            Vector3 envCenter = _envHead.GetComponent<Environment2Head>().envCenters[envID];
-            Vector3 envSize = _envHead.GetComponent<Environment2Head>().envSizes[envID];
-            float maxLength = Mathf.Max(envSize.x, envSize.z);
+        // if (_mainCamera.enabled == true)
+        // {
+        //     Vector3 envCenter = _envHead.GetComponent<Environment2Head>().envCenters[envID];
+        //     Vector3 envSize = _envHead.GetComponent<Environment2Head>().envSizes[envID];
+        //     float maxLength = Mathf.Max(envSize.x, envSize.z);
 
-            Camera.main.fieldOfView = fov;
-            if (maxLength == envSize.x)
-            {
-                float currentAspectRatio = (float)Screen.width / Screen.height;
-                Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
-            }
+        //     Camera.main.fieldOfView = fov;
+        //     if (maxLength == envSize.x)
+        //     {
+        //         float currentAspectRatio = (float)Screen.width / Screen.height;
+        //         Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
+        //     }
 
-            envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));   
+        //     envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));   
             
-            if (useOrthographic)
-            {
-                Camera.main.orthographicSize = envSize.z / 2 + 1;
-            }
+        //     if (useOrthographic)
+        //     {
+        //         Camera.main.orthographicSize = envSize.z / 2 + 1;
+        //     }
             
-            _mainCamera.transform.position = envCenter;
-        }
+        //     _mainCamera.transform.position = envCenter;
+        // }
     }
 }

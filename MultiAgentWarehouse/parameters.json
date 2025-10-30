@@ -2,11 +2,11 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 5, 
+    "timescale": 3, 
     "fixed_timestep": 0.25,
     "num_envs": 1,
     "dataPath" : "",
-    "useCSVExporter": true,
+    "useCSVExporter": false,
     "CSVRate": 10,
     "normalizeObservations" : false,
     "verbose": false,
@@ -17,7 +17,7 @@
   },
   "agentParams":
   {
-    "num_of_agents": 1,
+    "num_of_agents": 16,
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
@@ -31,7 +31,7 @@
     "maxTimeSteps": 5001,
     "decisionPeriod": 1,
     "verbose": false,
-    "lineRendererMaxPathPositionListCount": -1,
+    "lineRendererMaxPathPositionListCount": 0,
     "lineRendererMinPathDistance": 0.0,
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,

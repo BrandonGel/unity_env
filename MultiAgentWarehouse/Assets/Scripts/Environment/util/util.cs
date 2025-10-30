@@ -106,6 +106,10 @@ namespace multiagent.util
 
         public static float linearInterpolate(float a, float b, float x)
         {
+            if (a == b)
+            {
+                return 0f;
+            }
             float frac = (x - a) / (b - a);
             frac = Mathf.Clamp(frac, 0, 1);
             return frac;

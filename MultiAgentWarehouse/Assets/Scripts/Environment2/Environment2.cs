@@ -231,11 +231,7 @@ public class Environment2 : MonoBehaviour
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
-        tg.CheckAvailableTasks(t);
-        if (taskAssignment != default)
-        {
-            taskAssignment();
-        }
+        
 
         if (envJson.conf.mode.Contains("download"))
         {
@@ -243,7 +239,14 @@ public class Environment2 : MonoBehaviour
             {
                 replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
             }
-
+        }
+        else
+        {
+            tg.CheckAvailableTasks(t);
+            if (taskAssignment != default)
+            {
+                taskAssignment();
+            }    
         }
     }
 

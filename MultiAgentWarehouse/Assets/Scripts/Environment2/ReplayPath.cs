@@ -14,7 +14,7 @@ public class ReplayPath
         {
             scale = new Vector3(1, 1, 1);
         }
-
+        bool termination_state = true;
         for (int robotId = 0; robotId < robots.Count; robotId++)
         {
             string robotKey = schedule.Keys.ElementAt(robotId);
@@ -24,11 +24,15 @@ public class ReplayPath
             // Get New Position
             int idx = Mathf.Min((int)t, traj.Count - 1);
             int idxNext = Mathf.Min((int)t + 1, traj.Count - 1);
+            if (idx == traj.Count - 1) // In termination state
+            {
+                continue;
+            }
             Vector3 pos1 = new Vector3(traj[idx].x , 0, traj[idx].y );
             Vector3 pos2 = new Vector3(traj[idxNext].x,  0, traj[idxNext].y );
             float frac = Util.linearInterpolate(traj[idx].t, traj[idxNext].t, t);
             Vector3 newPosition = Util.interpolate(pos1, pos2, frac);
-            newPosition = Vector3.Scale(newPosition, scale);    
+            newPosition = Vector3.Scale(newPosition, scale);
 
             // Get Heading
             Vector3 prevPosition = robot.transform.position;
@@ -46,13 +50,15 @@ public class ReplayPath
             float bestHeading = targetHeading;
 
             // Update Robot
-            float headingRotationSpeed = robot.GetComponent<Robot2>().maxRotationSpeed*360f/Mathf.PI; // degrees per second
+            float headingRotationSpeed = robot.GetComponent<Robot2>().maxRotationSpeed * 360f / Mathf.PI; // degrees per second
             robot.transform.rotation = Quaternion.RotateTowards(
                                             robot.transform.rotation,
                                             Quaternion.Euler(0, bestHeading, 0),
                                             headingRotationSpeed * Time.deltaTime
                                         );
             robot.transform.position = newPosition;
+
+            
         }
 
     }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -6,7 +7,7 @@ namespace multiagent.camera
     public class Camera_Follow : MonoBehaviour
     {
         [Range(0,360)][SerializeField] public float yawAngle = 0; // rotate y axis
-        [Range(0,360)][SerializeField] public float pitchAngle = 0; // rotate x axis
+        [Range(-90,90)][SerializeField] public float pitchAngle = 0; // rotate x axis
         [SerializeField] public float offsetDistance;
         [SerializeField] public int playerIndex = 0;
         Vector3 directionVector;
@@ -53,7 +54,7 @@ namespace multiagent.camera
                     pitchAngle += -0.5f;
                 }
                 yawAngle %= 360;
-                pitchAngle %= 360;
+                pitchAngle = Mathf.Clamp(pitchAngle,-89.9f,89.9f);
 
 
                 playerIndex = Mathf.Clamp(playerIndex,0,Mathf.Max(0,players.Length-1));
