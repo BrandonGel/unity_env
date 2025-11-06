@@ -2,7 +2,7 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 8, 
+    "timescale": 5, 
     "fixed_timestep": 0.25,
     "num_envs": 1,
     "dataPath" : "",

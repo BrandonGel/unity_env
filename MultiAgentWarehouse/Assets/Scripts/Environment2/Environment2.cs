@@ -190,10 +190,16 @@ public class Environment2 : MonoBehaviour
         mn_agent.StartMesh("SRS 1P");
         mn_dynamic_obstacle.setParameters(mn_dynamic_obstacle.spawnShape, boxSize, mapCenter, 0);
         mn_dynamic_obstacle.StartMesh("Humanoid");
+        mn_agent.setParameters(mn_agent.spawnShape, boxSize, mapCenter, 0);
+        mn_agent.StartMesh("SRS 1P");
+        mn_dynamic_obstacle.setParameters(mn_dynamic_obstacle.spawnShape, boxSize, mapCenter, 0);
+        mn_dynamic_obstacle.StartMesh("Humanoid");
         if (!alreadyCreated)
         {
             mr.DestroyAll();
             mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
+            md.DestroyAll();
+            md.setParameters(param.dynamicObstacleParams.num_spawn_tries, param.dynamicObstacleParams.min_spacing);
             md.DestroyAll();
             md.setParameters(param.dynamicObstacleParams.num_spawn_tries, param.dynamicObstacleParams.min_spacing);
         }
@@ -203,12 +209,16 @@ public class Environment2 : MonoBehaviour
             if (envJson.conf.mode.Contains("envjson"))
             {
                 mr.initStartLocation(root.agents.Count, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                // mr.initStartLocation(root.agents.Count, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
                 // md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
             else if (envJson.conf.mode.Contains("paramjson"))
             {
                 mr.initStartLocation(param.agentParams.num_of_agents, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
                 md.initStartLocation(param.dynamicObstacleParams.num_of_dyn_obs, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                // mr.initStartLocation(param.agentParams.num_of_agents, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                // md.initStartLocation(param.dynamicObstacleParams.num_of_dyn_obs, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
         }
         else if (envJson.conf.mode.Contains("download"))
