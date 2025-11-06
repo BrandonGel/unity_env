@@ -19,7 +19,7 @@ public class Schedule
 public class scheduleJson
 {
     public Schedule data;
-    public config conf;
+    public Config conf;
     // Read the JSON file and deserialize it into the Root object
     public void ReadJson(string fileName = "config.json")
     {
@@ -34,7 +34,7 @@ public class scheduleJson
             Debug.Log("File: " + filepath);
             Debug.LogError("Config filepath was not found!!!!");
         }
-        conf = JsonUtility.FromJson<config>(jsonText);
+        conf = JsonUtility.FromJson<Config>(jsonText);
 
 
         string filePath = conf.schedulepath;

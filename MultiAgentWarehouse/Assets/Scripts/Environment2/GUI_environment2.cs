@@ -7,6 +7,10 @@ public class GUI_environment2 : MonoBehaviour
 {
     [SerializeField] private GameObject _envHead;
     [SerializeField] private Camera _mainCamera;
+    [Range(0,360)][SerializeField] public float yawAngle = 0; // rotate y axis
+    [Range(-90, 90)][SerializeField] public float rollAngle = 0; // rotate x axis
+    public float dx = 0; // rotate y axis
+    public float dy = 0; // rotate x axis
     private List<Camera> _envCameras = new List<Camera>();
     private List<Environment2Agent> _envAgents = new List<Environment2Agent>();
     float fov = 60f;
@@ -103,6 +107,55 @@ public class GUI_environment2 : MonoBehaviour
 
     }
 
+    private void change_poses()
+    {
+        if (Input.GetKey(KeyCode.A))
+        {
+            yawAngle += -0.5f;
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            yawAngle += 0.5f;
+        }
+        if(Input.GetKey(KeyCode.W))
+        {
+            rollAngle += 0.5f;
+        }
+        else if(Input.GetKey(KeyCode.S))
+        {
+            rollAngle += -0.5f;
+        }
+        yawAngle %= 360;
+        rollAngle = Mathf.Clamp(rollAngle, -89.9f, 89.9f);
+        
+
+        if (Input.GetKey(KeyCode.J))
+        {
+            dx += -1f;
+        }
+        else if (Input.GetKey(KeyCode.L))
+        {
+            dx += 1f;
+        }
+        if (Input.GetKey(KeyCode.I))
+        {
+            dy += 0.5f;
+        }
+        else if (Input.GetKey(KeyCode.K))
+        {
+            dy += -1f;
+        }
+        
+        if (Input.GetKey(KeyCode.R))
+        {
+            yawAngle = 0;
+            rollAngle = 0;
+            dx = 0;
+            dy = 0;
+        }
+    }
+
+
 
     // Update is called once per frame
     void Update()
@@ -116,28 +169,36 @@ public class GUI_environment2 : MonoBehaviour
         {
             envID += 1;
             envID %= _envCameras.Count;
+            yawAngle = 0;
+            rollAngle = 0;
+            dx = 0;
+            dy = 0;
         }
-        // if (_mainCamera.enabled == true)
-        // {
-        //     Vector3 envCenter = _envHead.GetComponent<Environment2Head>().envCenters[envID];
-        //     Vector3 envSize = _envHead.GetComponent<Environment2Head>().envSizes[envID];
-        //     float maxLength = Mathf.Max(envSize.x, envSize.z);
+        if (_mainCamera.enabled == true)
+        {
+            Vector3 envCenter = _envHead.GetComponent<Environment2Head>().envCenters[envID];
+            Vector3 envSize = _envHead.GetComponent<Environment2Head>().envSizes[envID];
+            float maxLength = Mathf.Max(envSize.x, envSize.z);
 
-        //     Camera.main.fieldOfView = fov;
-        //     if (maxLength == envSize.x)
-        //     {
-        //         float currentAspectRatio = (float)Screen.width / Screen.height;
-        //         Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
-        //     }
+            Camera.main.fieldOfView = fov;
+            if (maxLength == envSize.x)
+            {
+                float currentAspectRatio = (float)Screen.width / Screen.height;
+                Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
+            }
 
-        //     envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));   
-            
-        //     if (useOrthographic)
-        //     {
-        //         Camera.main.orthographicSize = envSize.z / 2 + 1;
-        //     }
-            
-        //     _mainCamera.transform.position = envCenter;
-        // }
+            envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));
+
+            if (useOrthographic)
+            {
+                _mainCamera.orthographicSize = envSize.z / 2 + 1;
+            }
+
+            change_poses();
+
+
+            _mainCamera.transform.localRotation =  Quaternion.Euler(90+rollAngle, yawAngle%360f, 0);
+            _mainCamera.transform.position = envCenter + new Vector3(dx, 0, dy);
+        }
     }
 }

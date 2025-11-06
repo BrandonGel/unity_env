@@ -28,7 +28,7 @@ namespace multiagent.camera
 
         void Update()
         {
-            if (players != null)
+            if (players != null && players.Length > 0)
             {
                 if (GetComponent<Camera>().enabled && Input.GetKeyDown(KeyCode.Tab)) {
                     playerIndex +=1;

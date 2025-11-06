@@ -4,13 +4,14 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 [System.Serializable]
-public class config
+public class Config
 {
     public string envpath = "";
     public string filepath = "";
     public string imagepath = "";
     public string schedulepath = "";
     public string csvfolder = "";
+    public string csvpath = "";
     public string mode = "";
     public string world_mode = "";
 }
@@ -19,7 +20,7 @@ public class config
 public class AgentData
 {
     public string name;
-    public int[] start;
+    public float[] start;
 }   
 
 [System.Serializable]
@@ -56,7 +57,7 @@ public class Root
 public class environmentJson
 {
     public Root root;
-    public config conf;
+    public Config conf;
     // Read the JSON file and deserialize it into the Root object
     public void ReadJson(string fileName = "config.json")
     {
@@ -71,7 +72,7 @@ public class environmentJson
             Debug.Log("File: " + filepath);
             Debug.LogError("Config filepath was not found!!!!");
         }
-        conf = JsonUtility.FromJson<config>(jsonText);
+        conf = JsonUtility.FromJson<Config>(jsonText);
 
 
         string filePath = conf.envpath;
@@ -121,11 +122,16 @@ public class environmentJson
     public Map GetMap()
     {
         return root.map;
-    }   
+    }
 
     public Root GetRoot()
     {
         return root;
+    }
+    
+    public Config GetConfig()
+    {
+        return conf;
     }
 
 }

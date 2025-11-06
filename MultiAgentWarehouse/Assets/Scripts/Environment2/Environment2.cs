@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using multiagent.parameterJson;
 using multiagent.robot;
+using multiagent.agent;
 using multiagent.camera;
 using multiagent.util;
 using UnityEngine.Assertions;
@@ -37,6 +38,7 @@ public class Environment2 : MonoBehaviour
     private string _configFile = "config.json";
     public csv_exporter CSVexporter = new csv_exporter();
     [SerializeField] public bool useCSVExporter = false;
+    private Dictionary<string, List<PositionOrientation>> agentPoses = new Dictionary<string, List<PositionOrientation>>();
     public bool alreadyCreated = false;
     public bool verbose = false;
     public bool normalizeObservations = false;
@@ -81,6 +83,7 @@ public class Environment2 : MonoBehaviour
         envJson.ReadJson(file);
         paramJson.ReadJson(file);
         scheduleJson.ReadJson(file);
+        Config conf = envJson.GetConfig();
         parameters param = paramJson.GetParameter();
         Root root = envJson.GetRoot();
         if (envJson.conf.mode.Contains("generate"))
@@ -97,6 +100,13 @@ public class Environment2 : MonoBehaviour
                 num_agents = param.agentParams.num_of_agents;
             }
         }
+        else if (envJson.conf.mode.Contains("csv"))
+        {
+            Config config = envJson.GetConfig();
+            csv_data reader = new csv_data();
+            num_agents = reader.CountRobotCSVFiles(config.csvpath, verbose: param.unityParams.verbose);
+            n_tasks = root.tasks.Count;
+        }
         else
         {
             n_tasks = root.n_tasks;
@@ -104,7 +114,8 @@ public class Environment2 : MonoBehaviour
             num_agents = root.agents.Count;
         }
         Debug.Log("num tasks: " + n_tasks + " , task freq: " + task_freq + " , num agents: " + num_agents);
-        useCSVExporter = param.unityParams.useCSVExporter;
+        useCSVExporter = param.unityParams.useCSVExporter & (envJson.conf.mode != "csv");
+
     }
 
     public void init()
@@ -182,9 +193,14 @@ public class Environment2 : MonoBehaviour
         }
         else if (envJson.conf.mode == "csv")
         {
+            
             List<TaskData> tasks = root.tasks;
             tg.DownloadTasks(tasks);
-            // mr.initStartLocation(0, ###, default, default);
+            Config config = envJson.GetConfig();
+            csv_data reader = new csv_data();
+            List<AgentData> agentDataList = reader.ReadAllCSVFirstPositionAsAgentData(config.csvpath, verbose: param.unityParams.verbose);
+            agentPoses = reader.ReadAllCSVPositionsAndOrientations(config.csvpath, verbose: param.unityParams.verbose);
+            mr.initStartLocation(0, agentDataList, default, scaling, !alreadyCreated);
             mr.setCommandInput(false);
         }
         mr.updateRobotParameters(param);
@@ -231,7 +247,7 @@ public class Environment2 : MonoBehaviour
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
-        
+
 
         if (envJson.conf.mode.Contains("download"))
         {
@@ -240,13 +256,17 @@ public class Environment2 : MonoBehaviour
                 replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
             }
         }
+        else if (envJson.conf.mode == "csv")
+        {
+            replayPath.updateCSVPath(t, mr.robots, agentPoses, scaling);
+        }
         else
         {
             tg.CheckAvailableTasks(t);
             if (taskAssignment != default)
             {
                 taskAssignment();
-            }    
+            }
         }
     }
 
@@ -254,36 +274,18 @@ public class Environment2 : MonoBehaviour
     {
         foreach (GameObject robot in mr.robots)
         {
-            try
+
+            if (robot.GetComponent<Robot2>().getTaskReached() || robot.GetComponent<Robot2>().checkIsIdle())
             {
-                if (robot.GetComponent<Robot>().getTaskReached())
+                tg.AssignTaskEarlyStart(robot);
+            }
+            else
+            {
+                if (robot.GetComponent<Robot2>().taskClass == null)
                 {
                     tg.AssignTaskEarlyStart(robot);
                 }
-                else
-                {
-                    if (robot.GetComponent<Robot>().taskClass == null)
-                    {
-                        tg.AssignTaskEarlyStart(robot);
-                    }
-                }
             }
-            catch
-            {
-                if (robot.GetComponent<Robot2>().getTaskReached() || robot.GetComponent<Robot2>().checkIsIdle())
-                {
-                    tg.AssignTaskEarlyStart(robot);
-                }
-                else
-                {
-                    if (robot.GetComponent<Robot2>().taskClass == null)
-                    {
-                        tg.AssignTaskEarlyStart(robot);
-                    }
-                }
-            }
-
-
         }
 
     }

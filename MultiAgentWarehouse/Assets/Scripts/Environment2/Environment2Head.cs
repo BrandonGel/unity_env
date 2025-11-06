@@ -28,6 +28,7 @@ public class Environment2Head : MonoBehaviour
     {
         paramJson.ReadJson(configFile);
         envJson.ReadJson(configFile);
+        Config conf = envJson.GetConfig();
         verbose = paramJson.GetParameter().unityParams.verbose;
 
         parameters param = paramJson.GetParameter();
@@ -39,10 +40,18 @@ public class Environment2Head : MonoBehaviour
         showGUI = param.unityParams.showGUI;
         useOrthographic = param.unityParams.useOrthographic;
         dataPath = param.unityParams.dataPath;
-
-        if (paramJson.param.unityParams.useCSVExporter || paramJson.param.recordingParams.startRecordingOnPlay)
+        startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
+        if (paramJson.param.unityParams.useCSVExporter || startRecordingOnPlay)
         {
-            BuildSaveDirectory(dataPath);
+            if (conf.mode != "csv" && !envJson.conf.mode.Contains("replay"))
+            {
+                BuildSaveDirectory(dataPath);
+            }
+            else
+            {
+                savePath = conf.csvpath;
+                startRecordingOnPlay = false;
+            }
         }
 
         if (!param.unityParams.useShadow)
@@ -85,14 +94,14 @@ public class Environment2Head : MonoBehaviour
 
         registerMsg["new_map"] = 0f;
         screenRecorder.GetComponent<ScreenRecorder>().setParams(
-            paramJson.param.recordingParams.startRecordingOnPlay,
+            startRecordingOnPlay,
             paramJson.param.recordingParams.screenshotWidth,
             paramJson.param.recordingParams.screenshotHeight,
             paramJson.param.recordingParams.recordingDir,
             paramJson.param.recordingParams.actionFrameRate,
             paramJson.param.recordingParams.useFullScreenResolution);
 
-        startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
+        
         if (startRecordingOnPlay)
         {
             string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));

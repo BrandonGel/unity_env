@@ -164,7 +164,7 @@ namespace multiagent.parameterJson
     public class parameterJson
     {
         public parameters param;
-        config conf;
+        Config conf;
 
         // Read a config file and update the parameters of the environment
         public void ReadJson(string fileName = "config.json")
@@ -180,7 +180,7 @@ namespace multiagent.parameterJson
                 Debug.Log("File: " + filepath);
                 Debug.LogError("Config filepath was not found!!!!");
             }
-            conf = JsonUtility.FromJson<config>(jsonText);
+            conf = JsonUtility.FromJson<Config>(jsonText);
 
             filepath = conf.filepath;
             if (File.Exists(filepath))

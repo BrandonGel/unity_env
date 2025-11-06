@@ -14,7 +14,6 @@ public class ReplayPath
         {
             scale = new Vector3(1, 1, 1);
         }
-        bool termination_state = true;
         for (int robotId = 0; robotId < robots.Count; robotId++)
         {
             string robotKey = schedule.Keys.ElementAt(robotId);
@@ -56,11 +55,112 @@ public class ReplayPath
                                             Quaternion.Euler(0, bestHeading, 0),
                                             headingRotationSpeed * Time.deltaTime
                                         );
-            robot.transform.position = newPosition;
+            robot.transform.position = newPosition;  
+        }
+    }
 
-            
+    public void updateCSVPath(float t, List<GameObject> robots, Dictionary<string, List<PositionOrientation>> agentPoses, Vector3 scale = default)
+    {
+        if (scale == default)
+        {
+            scale = new Vector3(1, 1, 1);
         }
 
+        if (agentPoses == null || agentPoses.Count == 0)
+        {
+            return;
+        }
+
+        // Get list of robot keys in order
+        List<string> robotKeys = agentPoses.Keys.ToList();
+        
+        for (int robotId = 0; robotId < robots.Count && robotId < robotKeys.Count; robotId++)
+        {
+            string robotKey = robotKeys[robotId];
+            GameObject robot = robots[robotId];
+            
+            if (!agentPoses.ContainsKey(robotKey))
+            {
+                continue;
+            }
+
+            List<PositionOrientation> traj = agentPoses[robotKey];
+
+            if (traj == null || traj.Count == 0)
+            {
+                continue;
+            }
+
+            // Find the correct indices based on time
+            int idx = 0;
+            int idxNext = 0;
+            
+            // Find the index where time is less than or equal to current time
+            for (int i = 0; i < traj.Count; i++)
+            {
+                if (traj[i].time <= t)
+                {
+                    idx = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // Check if we're at the end of the trajectory
+            if (idx >= traj.Count - 1)
+            {
+                // Use the last position
+                PositionOrientation lastPos = traj[traj.Count - 1];
+                Vector3 finalPosition = new Vector3(lastPos.x, 0, lastPos.y);
+                finalPosition = Vector3.Scale(finalPosition, scale);
+                
+                // Use theta directly for orientation (convert from radians to degrees)
+                float finalHeading = lastPos.theta * Mathf.Rad2Deg;
+                
+                robot.transform.position = finalPosition;
+                robot.transform.rotation = Quaternion.Euler(0, finalHeading, 0);
+                continue;
+            }
+
+            idxNext = idx + 1;
+
+            // Get positions for interpolation
+            PositionOrientation pos1 = traj[idx];
+            PositionOrientation pos2 = traj[idxNext];
+            
+            Vector3 vecPos1 = new Vector3(pos1.x, 0, pos1.y);
+            Vector3 vecPos2 = new Vector3(pos2.x, 0, pos2.y);
+
+            // Interpolate position
+            float frac = Util.linearInterpolate(pos1.time, pos2.time, t);
+            Vector3 newPosition = Util.interpolate(vecPos1, vecPos2, frac);
+            newPosition = Vector3.Scale(newPosition, scale);
+
+            // Interpolate orientation (theta)
+            float theta1 = pos1.theta * Mathf.Rad2Deg; // Convert radians to degrees
+            float theta2 = pos2.theta * Mathf.Rad2Deg;
+            
+            // Handle angle wrapping for interpolation
+            float angleDiff = Mathf.DeltaAngle(theta1, theta2);
+            float targetHeading = theta1 + angleDiff * frac;
+            
+            // Normalize to 0-360 range
+            if (targetHeading < 0)
+                targetHeading += 360f;
+            if (targetHeading >= 360f)
+                targetHeading -= 360f;
+
+            // Update Robot with smooth rotation
+            float headingRotationSpeed = robot.GetComponent<Robot2>().maxRotationSpeed * 360f / Mathf.PI; // degrees per second
+            robot.transform.rotation = Quaternion.RotateTowards(
+                                                robot.transform.rotation,
+                                                Quaternion.Euler(0, targetHeading, 0),
+                                                headingRotationSpeed * Time.deltaTime
+                                            );
+            robot.transform.position = newPosition;
+        }
     }
 
 }

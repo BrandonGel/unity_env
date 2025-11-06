@@ -35,7 +35,7 @@ public class MakeRobots : MonoBehaviour
             int i = 0;
             foreach (AgentData agent in agents)
             {
-                int[] loc = agent.start;
+                float[] loc = agent.start;
                 Vector3 pos = new Vector3(loc[0], 0, loc[1]) + offset;
                 pos = Vector3.Scale(pos, scaling);
                 GameObject robot = Instantiate(robot_prefab, pos, Quaternion.identity);
