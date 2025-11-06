@@ -68,7 +68,7 @@ public class Environment2Agent : Agent
 
     public override void OnEpisodeBegin()
     {
-        Debug.Log("Episode: " + CurrentEpisode);
+        
         env.t = 0f;
         scaling = env.scaling;
         if (CurrentEpisode > 0)
@@ -78,13 +78,10 @@ public class Environment2Agent : Agent
 
         CurrentEpisode += 1;
         CumulativeReward = 0f;
-        if (CurrentEpisode > 1)
-        {
-            env.readConfig(env.getConfigFile());
-            env.init();
-        }
+        env.readConfig(env.getConfigFile());
+        env.init();
         robots = env.mr.getRobots();
-        if (verbose)
+        if (verbose && !env.isEndRun())
             Debug.Log("Episode: " + CurrentEpisode);
     }
 
@@ -264,9 +261,14 @@ public class Environment2Agent : Agent
     {
         return _id;
     }
-    
+
     public int getCurrentEpisode()
     {
         return CurrentEpisode;
+    }
+
+    public void setCurrentEpisode(int episode)
+    {
+        CurrentEpisode = episode;
     }
 }

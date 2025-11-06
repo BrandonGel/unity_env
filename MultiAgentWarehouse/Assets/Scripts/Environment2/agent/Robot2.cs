@@ -594,15 +594,25 @@ namespace multiagent.robot
             {
                 return;
             }
+            float stepTime = Mathf.Round(StepCount * Time.deltaTime * 1000) / 1000;
+            subAgentData lastEntry = aData.getLastEntry();
+            if (lastEntry != null && lastEntry.entry.Count > 0)
+            {
+                float lastTime = (float)lastEntry.entry[0];
+                if (Mathf.Abs(stepTime - lastTime) < 0.0001f)
+                {
+                    return;
+                }
+            }
+
             subAgentData sData = new subAgentData();
-            
             Vector3 abs_state = new Vector3(transform.localPosition.x, transform.localPosition.z, transform.localRotation.eulerAngles.y * MathF.PI / 180);
             Vector3 abs_dstate = new Vector3(
                     _rigidbody.linearVelocity.x,
                     _rigidbody.linearVelocity.z,
                     _rigidbody.angularVelocity.y
                 );
-            sData.add(Mathf.Round(StepCount * Time.deltaTime*1000)/1000); // Current Time
+            sData.add(stepTime); // Current Time
             sData.add(abs_state); // State (x,y,theta)
             sData.add(abs_dstate); // Derivative of State (x',y',theta')
             sData.add(actionInput); // Action Input (v,w)

@@ -152,6 +152,15 @@ namespace multiagent.agent
             return size;
         }
 
+        public subAgentData getLastEntry()
+        {
+            if(dataEntries.Count == 0)
+            {
+                return null;
+            }
+            return dataEntries[dataEntries.Count - 1];
+        }
+
     }
 
 }

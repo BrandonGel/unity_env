@@ -42,6 +42,9 @@ public class Environment2 : MonoBehaviour
     public bool alreadyCreated = false;
     public bool verbose = false;
     public bool normalizeObservations = false;
+    public List<int> episodeNumbers = new List<int>();
+    public int episodeIndex = 0;
+    public bool endRun = false;
 
     void Awake()
     {
@@ -113,14 +116,34 @@ public class Environment2 : MonoBehaviour
             task_freq = root.task_freq[0];
             num_agents = root.agents.Count;
         }
-        Debug.Log("num tasks: " + n_tasks + " , task freq: " + task_freq + " , num agents: " + num_agents);
         useCSVExporter = param.unityParams.useCSVExporter & (envJson.conf.mode != "csv");
 
+    }
+
+    public string getEpisodePath(int episodeNumber)
+    {
+        return Path.Combine(savePath, "episode_" + episodeNumber.ToString("D4"),"env_" + environment2Agent.getID());
     }
 
     public void init()
     {
         t = 0f;
+        if (episodeNumbers.Count > 0)
+        {
+            if (episodeIndex < episodeNumbers.Count)
+            {
+                environment2Agent.setCurrentEpisode(episodeNumbers[episodeIndex]);
+                episodeIndex += 1;
+            }
+            else
+            {
+                useCSVExporter = false;
+                endRun = true;
+                Debug.Log("All episodes completed. Ending run.");
+                return;
+            }
+        }
+
         Root root = envJson.GetRoot();
         parameters param = paramJson.GetParameter();
         int[] dims = root.map.dimensions;
@@ -193,13 +216,13 @@ public class Environment2 : MonoBehaviour
         }
         else if (envJson.conf.mode == "csv")
         {
-            
+
             List<TaskData> tasks = root.tasks;
             tg.DownloadTasks(tasks);
-            Config config = envJson.GetConfig();
+            string csvpath = getEpisodePath(environment2Agent.getCurrentEpisode());
             csv_data reader = new csv_data();
-            List<AgentData> agentDataList = reader.ReadAllCSVFirstPositionAsAgentData(config.csvpath, verbose: param.unityParams.verbose);
-            agentPoses = reader.ReadAllCSVPositionsAndOrientations(config.csvpath, verbose: param.unityParams.verbose);
+            List<AgentData> agentDataList = reader.ReadAllCSVFirstPositionAsAgentData(csvpath, verbose: param.unityParams.verbose);
+            agentPoses = reader.ReadAllCSVPositionsAndOrientations(csvpath, verbose: param.unityParams.verbose);
             mr.initStartLocation(0, agentDataList, default, scaling, !alreadyCreated);
             mr.setCommandInput(false);
         }
@@ -222,17 +245,17 @@ public class Environment2 : MonoBehaviour
 
     void Start()
     {
-        init();
+        // init();
         CSVexporter = new csv_exporter();
     }
 
     void QuitApplication()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 
     void Update()
@@ -241,24 +264,23 @@ public class Environment2 : MonoBehaviour
         {
             QuitApplication();
         }
-        // mo.OnRenderObject();
     }
 
     void FixedUpdate()
     {
         t += Time.fixedDeltaTime;
-
+        bool terminal_state = false;
 
         if (envJson.conf.mode.Contains("download"))
         {
             if (envJson.conf.mode.Contains("replay"))
             {
-                replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
+                terminal_state = replayPath.updatePath(t, mr.robots, scheduleJson.data.schedule, scaling);
             }
         }
         else if (envJson.conf.mode == "csv")
         {
-            replayPath.updateCSVPath(t, mr.robots, agentPoses, scaling);
+            terminal_state = replayPath.updateCSVPath(t, mr.robots, agentPoses, scaling);
         }
         else
         {
@@ -267,6 +289,13 @@ public class Environment2 : MonoBehaviour
             {
                 taskAssignment();
             }
+        }
+        
+        if (terminal_state || environment2Agent.StepCount >= maxTimeSteps)
+        {
+            if (verbose)
+                Debug.Log("Resetting Environment at Step: " + environment2Agent.StepCount);
+            environment2Agent.EndEpisode();            
         }
     }
 
@@ -296,7 +325,7 @@ public class Environment2 : MonoBehaviour
         {
             if (verbose)
                 Debug.Log("Exporting Episode Data");
-            string robotSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"),"env_" + environment2Agent.getID());
+            string robotSavePath = getEpisodePath(CurrentEpisode);
             if (!Directory.Exists(robotSavePath))
             {
                 Directory.CreateDirectory(robotSavePath);
@@ -312,5 +341,19 @@ public class Environment2 : MonoBehaviour
     public void setSavePath(string savePath)
     {
         this.savePath = savePath;
+    }
+
+    public void setEpisodeNumber(List<int> episodeNumbers)
+    {
+        if (episodeNumbers.Count > 0)
+        {
+            this.episodeNumbers = episodeNumbers;
+            episodeIndex = 0;
+        }
+    }
+
+    public bool isEndRun()
+    {
+        return endRun;
     }
 }

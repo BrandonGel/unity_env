@@ -148,8 +148,8 @@ namespace multiagent.util
         {
             _renderer.enabled = turnon;
         }
-        
-       public static Texture2D LoadTexture(string path)
+
+        public static Texture2D LoadTexture(string path)
         {
             if (!File.Exists(path))
             {
@@ -157,9 +157,209 @@ namespace multiagent.util
                 return null;
             }
             byte[] fileData = File.ReadAllBytes(path);
-            Texture2D tex = new Texture2D(2, 2); // size doesn’t matter, LoadImage will replace it
+            Texture2D tex = new Texture2D(2, 2); // size doesn't matter, LoadImage will replace it
             tex.LoadImage(fileData); // Loads PNG/JPG bytes into texture
             return tex;
         }
+
+        /// <summary>
+        /// Counts the number of directories matching the pattern "env#" (where # is a number) in the specified folder
+        /// </summary>
+        /// <param name="folderPath">Path to the folder to search in</param>
+        /// <returns>Number of directories matching the "env#" pattern, or -1 if folder doesn't exist</returns>
+        public static int CountEnvFolders(string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogError($"Folder not found: {folderPath}");
+                return -1;
+            }
+
+            try
+            {
+                string[] directories = Directory.GetDirectories(folderPath);
+                int count = 0;
+                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"^env_\d+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                foreach (string dirPath in directories)
+                {
+                    string dirName = Path.GetFileName(dirPath);
+                    if (regex.IsMatch(dirName))
+                    {
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error counting env folders: {e.Message}");
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of all subdirectories in the specified folder path
+        /// </summary>
+        /// <param name="folderPath">Path to the folder to search in</param>
+        /// <returns>List of subdirectory names (without full path), or null if folder doesn't exist</returns>
+        public static List<string> GetSubdirectories(string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogError($"Folder not found: {folderPath}");
+                return null;
+            }
+
+            try
+            {
+                string[] directories = Directory.GetDirectories(folderPath);
+                List<string> subdirNames = new List<string>();
+
+                foreach (string dirPath in directories)
+                {
+                    string dirName = Path.GetFileName(dirPath);
+                    subdirNames.Add(dirName);
+                }
+
+                return subdirNames;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error getting subdirectories: {e.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of all subdirectory full paths in the specified folder path
+        /// </summary>
+        /// <param name="folderPath">Path to the folder to search in</param>
+        /// <returns>List of full paths to subdirectories, or null if folder doesn't exist</returns>
+        public static List<string> GetSubdirectoryPaths(string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogError($"Folder not found: {folderPath}");
+                return null;
+            }
+
+            try
+            {
+                string[] directories = Directory.GetDirectories(folderPath);
+                return new List<string>(directories);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error getting subdirectory paths: {e.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parses out all numbers from a string and returns them as a list of integers
+        /// </summary>
+        /// <param name="input">Input string to parse</param>
+        /// <returns>List of integers found in the string</returns>
+        public static List<int> ParseNumbers(string input)
+        {
+            List<int> numbers = new List<int>();
+            
+            if (string.IsNullOrEmpty(input))
+            {
+                return numbers;
+            }
+
+            try
+            {
+                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\d+");
+                System.Text.RegularExpressions.MatchCollection matches = regex.Matches(input);
+
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+                    if (int.TryParse(match.Value, out int number))
+                    {
+                        numbers.Add(number);
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error parsing numbers from string: {e.Message}");
+            }
+
+            return numbers;
+        }
+
+        /// <summary>
+        /// Parses out the first number found in a string and returns it as an integer
+        /// </summary>
+        /// <param name="input">Input string to parse</param>
+        /// <returns>First integer found in the string, or -1 if no number is found</returns>
+        public static int ParseFirstNumber(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return -1;
+            }
+
+            try
+            {
+                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\d+");
+                System.Text.RegularExpressions.Match match = regex.Match(input);
+
+                if (match.Success && int.TryParse(match.Value, out int number))
+                {
+                    return number;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error parsing first number from string: {e.Message}");
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Parses out all numbers from a string and returns them as a list of floats
+        /// </summary>
+        /// <param name="input">Input string to parse</param>
+        /// <returns>List of floats found in the string</returns>
+        public static List<float> ParseFloatNumbers(string input)
+        {
+            List<float> numbers = new List<float>();
+            
+            if (string.IsNullOrEmpty(input))
+            {
+                return numbers;
+            }
+
+            try
+            {
+                // Match integers and floating point numbers (including decimals)
+                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"-?\d+\.?\d*");
+                System.Text.RegularExpressions.MatchCollection matches = regex.Matches(input);
+
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+                    if (float.TryParse(match.Value, out float number))
+                    {
+                        numbers.Add(number);
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error parsing float numbers from string: {e.Message}");
+            }
+
+            return numbers;
+        }
+
+        
+
     }
+
 }

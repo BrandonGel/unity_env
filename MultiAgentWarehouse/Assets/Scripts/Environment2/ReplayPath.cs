@@ -8,25 +8,53 @@ using multiagent.util;
 public class ReplayPath
 {
 
-    public void updatePath(float t,List<GameObject> robots, Dictionary<string, List<Position>> schedule, Vector3 scale = default)
+    public bool updatePath(float t,List<GameObject> robots, Dictionary<string, List<Position>> schedule, Vector3 scale = default)
     {
         if (scale == default)
         {
             scale = new Vector3(1, 1, 1);
         }
-        for (int robotId = 0; robotId < robots.Count; robotId++)
+
+        if (schedule == null || schedule.Count == 0)
+        {
+            return true;
+        }
+
+        int totalAgents = 0;
+        int agentsAtEnd = 0;
+
+        for (int robotId = 0; robotId < robots.Count && robotId < schedule.Count; robotId++)
         {
             string robotKey = schedule.Keys.ElementAt(robotId);
             GameObject robot = robots[robotId];
+            
+            if (!schedule.ContainsKey(robotKey))
+            {
+                continue;
+            }
+
             List<Position> traj = schedule[robotKey];
+
+            if (traj == null || traj.Count == 0)
+            {
+                continue;
+            }
+
+            totalAgents++;
 
             // Get New Position
             int idx = Mathf.Min((int)t, traj.Count - 1);
             int idxNext = Mathf.Min((int)t + 1, traj.Count - 1);
-            if (idx == traj.Count - 1) // In termination state
+            
+            // Check if we're at the end of the trajectory
+            bool isAtEnd = idx == traj.Count - 1;
+            
+            if (isAtEnd) // In termination state
             {
+                agentsAtEnd++;
                 continue;
             }
+            
             Vector3 pos1 = new Vector3(traj[idx].x , 0, traj[idx].y );
             Vector3 pos2 = new Vector3(traj[idxNext].x,  0, traj[idxNext].y );
             float frac = Util.linearInterpolate(traj[idx].t, traj[idxNext].t, t);
@@ -51,15 +79,18 @@ public class ReplayPath
             // Update Robot
             float headingRotationSpeed = robot.GetComponent<Robot2>().maxRotationSpeed * 360f / Mathf.PI; // degrees per second
             robot.transform.rotation = Quaternion.RotateTowards(
-                                            robot.transform.rotation,
-                                            Quaternion.Euler(0, bestHeading, 0),
-                                            headingRotationSpeed * Time.deltaTime
-                                        );
+                                                robot.transform.rotation,
+                                                Quaternion.Euler(0, bestHeading, 0),
+                                                headingRotationSpeed * Time.deltaTime
+                                            );
             robot.transform.position = newPosition;  
         }
+
+        // Return true only if all agents have reached the end of their trajectories
+        return totalAgents > 0 && agentsAtEnd == totalAgents;
     }
 
-    public void updateCSVPath(float t, List<GameObject> robots, Dictionary<string, List<PositionOrientation>> agentPoses, Vector3 scale = default)
+    public bool updateCSVPath(float t, List<GameObject> robots, Dictionary<string, List<PositionOrientation>> agentPoses, Vector3 scale = default)
     {
         if (scale == default)
         {
@@ -68,12 +99,14 @@ public class ReplayPath
 
         if (agentPoses == null || agentPoses.Count == 0)
         {
-            return;
+            return true;
         }
 
         // Get list of robot keys in order
         List<string> robotKeys = agentPoses.Keys.ToList();
-        
+        int totalAgents = 0;
+        int agentsAtEnd = 0;
+
         for (int robotId = 0; robotId < robots.Count && robotId < robotKeys.Count; robotId++)
         {
             string robotKey = robotKeys[robotId];
@@ -90,6 +123,8 @@ public class ReplayPath
             {
                 continue;
             }
+
+            totalAgents++;
 
             // Find the correct indices based on time
             int idx = 0;
@@ -109,8 +144,11 @@ public class ReplayPath
             }
 
             // Check if we're at the end of the trajectory
-            if (idx >= traj.Count - 1)
+            bool isAtEnd = idx >= traj.Count - 1;
+            
+            if (isAtEnd)
             {
+                agentsAtEnd++;
                 // Use the last position
                 PositionOrientation lastPos = traj[traj.Count - 1];
                 Vector3 finalPosition = new Vector3(lastPos.x, 0, lastPos.y);
@@ -161,6 +199,9 @@ public class ReplayPath
                                             );
             robot.transform.position = newPosition;
         }
+
+        // Return true only if all agents have reached the end of their trajectories
+        return totalAgents > 0 && agentsAtEnd == totalAgents;
     }
 
 }

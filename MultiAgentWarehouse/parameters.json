@@ -2,8 +2,8 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 20, 
-    "fixed_timestep": 0.25,
+    "timescale": 8, 
+    "fixed_timestep": 0.02,
     "num_envs": 1,
     "dataPath" : "",
     "useCSVExporter": true,
@@ -28,8 +28,8 @@
     "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 5001,
-    "decisionPeriod": 1,
+    "maxTimeSteps": 501,
+    "decisionPeriod": 5,
     "verbose": false,
     "lineRendererMaxPathPositionListCount": 0,
     "lineRendererMinPathDistance": 0.0,
@@ -107,11 +107,11 @@
   },
   "recordingParams":
   {
-    "startRecordingOnPlay": false,
+    "startRecordingOnPlay": true,
     "screenshotWidth": 1920,
     "screenshotHeight": 1080,
     "recordingDir": "Recordings",
-    "actionFrameRate": 10,
+    "actionFrameRate": 4,
     "useFullScreenResolution": false
   }
 }

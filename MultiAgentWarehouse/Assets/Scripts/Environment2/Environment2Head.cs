@@ -41,6 +41,7 @@ public class Environment2Head : MonoBehaviour
         useOrthographic = param.unityParams.useOrthographic;
         dataPath = param.unityParams.dataPath;
         startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
+        List<int> episodeNumbers = new List<int>();
         if (paramJson.param.unityParams.useCSVExporter || startRecordingOnPlay)
         {
             if (conf.mode != "csv" && !envJson.conf.mode.Contains("replay"))
@@ -50,7 +51,19 @@ public class Environment2Head : MonoBehaviour
             else
             {
                 savePath = conf.csvpath;
-                startRecordingOnPlay = false;
+                List<string> subdirs = Util.GetSubdirectories(conf.csvpath);
+                foreach (string subdir in subdirs)
+                {
+                    List<int> number = Util.ParseNumbers(subdir);
+                    episodeNumbers.AddRange(number);
+                }   
+                
+                List<string> subdirPaths = Util.GetSubdirectoryPaths(conf.csvpath);
+                if (subdirPaths.Count > 0)
+                    num_envs = Util.CountEnvFolders(subdirPaths[0]);
+                if (verbose)
+                    Debug.Log("Using CSV Exporter/Recording with save path: " + savePath);
+                CurrentEpisode = episodeNumbers[0];
             }
         }
 
@@ -84,6 +97,7 @@ public class Environment2Head : MonoBehaviour
             GameObject env = Instantiate(environment2Prefab, new Vector3(offsetX, 0, offsetZ), Quaternion.identity);
             env.name = "Environment2_" + i;
             env.GetComponent<Environment2>().setConfigFile(configFile);
+            env.GetComponent<Environment2>().setEpisodeNumber(episodeNumbers);
             env.GetComponent<Environment2Agent>().setID(i);
             env.GetComponent<Environment2>().setSavePath(savePath);
             env.transform.parent = gameObject.transform;
@@ -101,7 +115,6 @@ public class Environment2Head : MonoBehaviour
             paramJson.param.recordingParams.actionFrameRate,
             paramJson.param.recordingParams.useFullScreenResolution);
 
-        
         if (startRecordingOnPlay)
         {
             string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
@@ -130,15 +143,41 @@ public class Environment2Head : MonoBehaviour
                     break;
             }
         }
+
+        int envsAtEnd = 0;
+        int totalEnvs = envs.Count;
+        foreach (GameObject env in envs)
+        {
+            if (env.GetComponent<Environment2>().isEndRun())
+            {
+                envsAtEnd++;
+            }
+        }
+        
+
         int CurrentEpisode = envs[0].GetComponent<Environment2Agent>().getCurrentEpisode();
-        if (startRecordingOnPlay && CurrentEpisode != this.CurrentEpisode)
+        bool envsEndRun = envs[0].GetComponent<Environment2>().isEndRun();
+        if (!envsEndRun && startRecordingOnPlay && CurrentEpisode != this.CurrentEpisode)
         {
             this.CurrentEpisode = CurrentEpisode;
             string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
             screenRecorder.BuildScreenshotDirectory(screenRecorderSavePath);
             screenRecorder.resetCounter();
         }
+        if (envsEndRun && startRecordingOnPlay)
+        {
+            screenRecorder.StopRecording();
+        }
         
+
+        if (envsAtEnd > 0 && envsAtEnd == totalEnvs)
+        {
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
     }
 
     private void BuildSaveDirectory(string dataPath="")

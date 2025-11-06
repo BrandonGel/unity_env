@@ -522,7 +522,7 @@ namespace multiagent.util
                 Debug.LogError($"Directory not found: {directoryPath}");
                 return positionsDict;
             }
-
+            Debug.Log("CSV Path:" + directoryPath);
             try
             {
                 string[] csvFiles = Directory.GetFiles(directoryPath, searchPattern);
