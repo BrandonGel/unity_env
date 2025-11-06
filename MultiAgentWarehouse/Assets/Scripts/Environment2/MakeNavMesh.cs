@@ -9,8 +9,10 @@ public class MakeNavMesh : MonoBehaviour
     public Vector3 boxSize = Vector3.zero;
     public Vector3 center = Vector3.zero;
     public Vector3 spawningOffset = Vector3.zero;
+    public NavMeshQueryFilter filter;
     public float spawn_radius = 0;
     public float meshMaxDist = 0;
+    public Dictionary<string, int> meshTypeID = new Dictionary<string, int>();
     public enum SpawnShape
     {
         Circle,
@@ -42,8 +44,9 @@ public class MakeNavMesh : MonoBehaviour
 
         // Check to find valid position in Mesh
         NavMeshHit hit;
-        int myLayer = LayerMask.NameToLayer("Walkable");
-        if (NavMesh.SamplePosition(randomPoint, out hit, meshMaxDist, myLayer))
+        filter.agentTypeID = navMeshSurface.agentTypeID;
+        filter.areaMask = NavMesh.AllAreas;
+        if (NavMesh.SamplePosition(randomPoint, out hit, meshMaxDist, filter))
         {
             return (hit.position, orientation); //Return a valid position in the mesh
         }
@@ -112,13 +115,20 @@ public class MakeNavMesh : MonoBehaviour
         center = transform.localPosition + spawningOffset;
     }
 
-    public void StartMesh()
+    public void StartMesh(string agentTypeName = "SRS 1P")
     {
-        navMeshSurface = GetComponent<NavMeshSurface>();
+        // navMeshSurface = GetComponent<NavMeshSurface>();
+        // NavMeshSurface[] navMeshSurfaces = GetComponents<NavMeshSurface>();
+        
+        // if (!meshTypeID.ContainsKey(agentTypeName))
+        // {
+        //     meshTypeID.Add(agentTypeName, meshTypeID.Count);
+        // }
+
         if (navMeshSurface != null)
         {
+            // navMeshSurface = navMeshSurfaces[meshTypeID[agentTypeName]];
             // Configure NavMeshSurface properties (optional, but recommended)
-            string agentTypeName = "SRS 1P"; // The name of your agent type in the Navigation window
             int? AgentID = GetNavMeshAgentID(agentTypeName);
             if (AgentID.HasValue)
             {

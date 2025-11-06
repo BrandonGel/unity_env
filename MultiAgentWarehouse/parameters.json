@@ -3,7 +3,7 @@
   {
     "seed": 42,  
     "timescale": 8, 
-    "fixed_timestep": 0.02,
+    "fixed_timestep": 0.25,
     "num_envs": 1,
     "dataPath" : "",
     "useCSVExporter": true,
@@ -29,7 +29,7 @@
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
     "maxTimeSteps": 501,
-    "decisionPeriod": 5,
+    "decisionPeriod": 1,
     "verbose": false,
     "lineRendererMaxPathPositionListCount": 0,
     "lineRendererMinPathDistance": 0.0,
@@ -104,6 +104,29 @@
         "goalWaitPenalty": [0,0]
       }
     ]
+  },
+   "dynamicObstaclParams":
+  {
+    "num_of_dyn_obs": 0,
+    "min_spacing": 0.1,
+    "num_spawn_tries": 10000,
+    "maxSpeed": 1,
+    "maxRotationSpeed": 3.3,
+    "maxAcceleration": 10,
+    "maxRotationAccleration": 33,
+    "infiniteAcceleration":false,
+    "absoluteCoordinate": false,
+    "verbose": false,
+    "lineRendererMaxPathPositionListCount": -1,
+    "lineRendererMinPathDistance": 0.0,
+    "lineRendererWidth": 0.25,
+    "allowedCollisionOn": true,
+    "dynamicsParams":
+    {
+      "bodyMass": 80.0,
+      "linearDrag": 0.0,
+      "angularDrag": 0.0
+    }
   },
   "recordingParams":
   {

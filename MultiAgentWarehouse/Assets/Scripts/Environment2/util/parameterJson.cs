@@ -122,6 +122,27 @@ namespace multiagent.parameterJson
     }
 
     [System.Serializable]
+    public class dynamicObstacleParams
+    {
+        public int num_of_dyn_obs = 1;
+        public float min_spacing = 0.1f;
+        public int num_spawn_tries = 100;
+        public float maxSpeed = 0.7f;
+        public float maxRotationSpeed = 2.11f;
+        public float maxAcceleration = 2.72f;
+        public float maxRotationAccleration = 8.23f;
+        public bool infiniteAcceleration = true;
+        public bool absoluteCoordinate = false;
+        public bool verbose = false;
+        public int lineRendererMaxPathPositionListCount = -1;
+        public float lineRendererMinPathDistance = -1;
+        public float lineRendererWidth = 25f;
+        public bool allowedCollisionOn = true;
+        public dynamicsParameters dynamicsParams = new dynamicsParameters();
+    }
+
+
+    [System.Serializable]
     public class unityParameters
     {
         public int seed = 42;
@@ -158,7 +179,7 @@ namespace multiagent.parameterJson
         public agentsParameters agentParams = new agentsParameters();
         public goalParameters goalParams = new goalParameters();
         public recordingParameters recordingParams = new recordingParameters();
-
+        public dynamicObstacleParams dynamicObstacleParams = new dynamicObstacleParams();
     }
 
     public class parameterJson

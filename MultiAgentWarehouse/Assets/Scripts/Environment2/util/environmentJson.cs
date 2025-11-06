@@ -29,6 +29,14 @@ public class TaskData
     public float start_time;
     public string task_name;
     public List<int[]> waypoints;
+}
+
+
+[System.Serializable]
+public class DynObsData
+{
+    public string name;
+    public int[] start;
 }   
 
 [System.Serializable]

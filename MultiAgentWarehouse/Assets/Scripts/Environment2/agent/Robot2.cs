@@ -355,7 +355,6 @@ namespace multiagent.robot
                     goalPosZ_normalized = goalPos.z / boxSize.z;
                 }
             }
-
             float[] observation = new float[] {
                 robotPosX_normalized,
                 robotPosZ_normalized,

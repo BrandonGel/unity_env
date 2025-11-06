@@ -351,6 +351,11 @@ namespace multiagent.robot
             return _id;
         }
 
+        public void setBoxSize(Vector3 boxSize)
+        {
+            this.boxSize = boxSize;
+        }
+
         public void modifyReward(float collisionEnterReward = -1f, float collisionStayReward = -0.05f, float timeReward = -2f, float goalReward = 1f)
         {
             _collisionEnterReward = collisionEnterReward;
