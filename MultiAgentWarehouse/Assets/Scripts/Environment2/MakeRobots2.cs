@@ -48,8 +48,9 @@ public class MakeRobots2 : MonoBehaviour
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
                     robot.transform.localScale = scaling;
                     robot.GetComponent<Robot2>().setID(i + 1);
-                    robot.GetComponent<Robot2>().boxSize = boxSize;
+                    robot.GetComponent<Robot2>().setBoxSize(boxSize);
                     robot.name = "Robot_" + (i + 1);
+                    robot.GetComponent<Robot2>().reset();
                     robots.Add(robot);
                 }
                 else
@@ -104,7 +105,7 @@ public class MakeRobots2 : MonoBehaviour
                     robot.transform.parent = gameObject.transform.Find("Robots").transform;
                     robot.transform.localScale = Vector3.Scale(robot_prefab.transform.localScale, scaling);
                     robot.GetComponent<Robot2>().setID(i+1);
-                    robot.GetComponent<Robot2>().boxSize = boxSize;
+                    robot.GetComponent<Robot2>().setBoxSize(boxSize);
                     robot.GetComponent<Robot2>().setCollisionOn(false);
                     robot.name = "Robot_" + (i + 1);
                     robots.Add(robot);

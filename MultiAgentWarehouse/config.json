@@ -3,7 +3,7 @@
   "envpath":  "env.json",
   "imagepath":  "Processed_image.png",
   "schedulepath":  "schedule.json",
-  "csvpath":  "data/20251105_232746",
+  "csvpath":  "data/20251106_091753",
   "csvfolder":  "data",
   "mode": "csv",
   "world_mode": "image"

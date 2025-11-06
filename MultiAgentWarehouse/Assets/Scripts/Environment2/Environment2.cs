@@ -17,7 +17,8 @@ public class Environment2 : MonoBehaviour
     public environmentJson envJson = new environmentJson();
     public TaskGeneration tg;
     public MakeRobots2 mr;
-    public MakeNavMesh mn;
+    public MakeNavMesh mn_agent, mn_dynamic_obstacle;
+    public MakeDynamicObstacles md;
     public parameterJson paramJson = new parameterJson();
     public scheduleJson scheduleJson = new scheduleJson();
     public ReplayPath replayPath = new ReplayPath();
@@ -174,8 +175,6 @@ public class Environment2 : MonoBehaviour
         // NavMesh Initialization
         Vector3 boxSize = new Vector3(dims[0] * scale[0], 1, dims[1] * scale[1]);
         Vector3 mapCenter = new Vector3((dims[0] * scale[0]) / 2, 0, (dims[1] * scale[1]) / 2);
-        mn.setParameters(MakeNavMesh.SpawnShape.Box, boxSize, mapCenter, 0);
-        mn.StartMesh();
 
         // Robot Initialization & Task Generation Initialization
         tg = new TaskGeneration(
@@ -187,21 +186,29 @@ public class Environment2 : MonoBehaviour
             param.goalParams.verbose
         );
 
+        mn_agent.setParameters(mn_agent.spawnShape, boxSize, mapCenter, 0);
+        mn_agent.StartMesh("SRS 1P");
+        mn_dynamic_obstacle.setParameters(mn_dynamic_obstacle.spawnShape, boxSize, mapCenter, 0);
+        mn_dynamic_obstacle.StartMesh("Humanoid");
         if (!alreadyCreated)
         {
             mr.DestroyAll();
             mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
+            md.DestroyAll();
+            md.setParameters(param.dynamicObstacleParams.num_spawn_tries, param.dynamicObstacleParams.min_spacing);
         }
         if (envJson.conf.mode.Contains("generate"))
         {
             tg.GenerateTasks();
             if (envJson.conf.mode.Contains("envjson"))
             {
-                mr.initStartLocation(root.agents.Count, default, mn.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                mr.initStartLocation(root.agents.Count, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                // md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
             else if (envJson.conf.mode.Contains("paramjson"))
             {
-                mr.initStartLocation(param.agentParams.num_of_agents, default, mn.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                mr.initStartLocation(param.agentParams.num_of_agents, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                md.initStartLocation(param.dynamicObstacleParams.num_of_dyn_obs, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
         }
         else if (envJson.conf.mode.Contains("download"))
@@ -270,7 +277,7 @@ public class Environment2 : MonoBehaviour
     {
         t += Time.fixedDeltaTime;
         bool terminal_state = false;
-
+        md.step();
         if (envJson.conf.mode.Contains("download"))
         {
             if (envJson.conf.mode.Contains("replay"))
