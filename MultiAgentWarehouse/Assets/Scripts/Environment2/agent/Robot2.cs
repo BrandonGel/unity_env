@@ -9,7 +9,47 @@ using System.Collections.Generic;
 
 namespace multiagent.robot
 {
+    public class agentCollisionEffectClass
+    {
+        public List<float> noise_effect = new List<float>();
+        public Vector2 disturbance_effect = Vector2.zero;
+        public bool delay_effect = false;
+        public bool lidar_malfunctioning_effect = false;
 
+        public agentCollisionEffectClass()
+        {
+        }
+
+        public void set(List<float> noise_effect_in = default, Vector2 disturbance_effect_in = default, bool delay_effect_in = default, bool lidar_malfunctioning_effect_in = default)
+        {
+            if (noise_effect_in != default)
+            {
+                noise_effect = noise_effect_in;
+            }
+            if (disturbance_effect_in != default)
+            {
+                disturbance_effect = disturbance_effect_in;
+            }
+            if (delay_effect_in != default)
+            {
+                delay_effect = delay_effect_in;
+            }
+            if (lidar_malfunctioning_effect_in != default)
+            {
+                lidar_malfunctioning_effect = lidar_malfunctioning_effect_in;
+            }
+        }
+
+        public void clear()
+        {
+            noise_effect = new List<float>();
+            disturbance_effect = Vector2.zero;
+            delay_effect = false;
+            lidar_malfunctioning_effect = false;
+        }
+
+        
+    }
     public class Robot2 : Agent2Template
     {
         [SerializeField] public float maxSpeed = .7f; // meters per second
@@ -59,8 +99,10 @@ namespace multiagent.robot
         public float lineRendererMinPathDistance = -1f;
         public float lineRendererWidth = 25f;
         public bool allowedlightingOn = true;
+        public int num_lidar_rays = 1;
 
-        float[] lidarData,lidarDataUnnormalized,safetyData;
+        float[] lidarData, lidarDataUnnormalized, safetyData;
+        public agentCollisionEffectClass collisionEffect  = new agentCollisionEffectClass();
 
         public void Awake()
         {
@@ -202,7 +244,7 @@ namespace multiagent.robot
             addInfo();
         }
 
-        public (float[],float[]) getLidarData(bool useNormalized=true)
+        public (float[],float[]) getLidarData(bool useNormalized=true, bool lidar_malfunctioning_effect = false)
         {
             if (m_rayPerceptionSensorComponent3D == null)
             {
@@ -225,15 +267,28 @@ namespace multiagent.robot
                 safetyObs = new float[lengthOfRayOutputs];
             }
 
-            _safetyViolated =  0;
+            _safetyViolated = 0;
             for (int i = 0; i < lengthOfRayOutputs; i++)
             {
                 GameObject goHit = rayOutputs[i].HitGameObject;
                 var rayDirection = rayOutputs[i].EndPositionWorld - rayOutputs[i].StartPositionWorld;
                 rayDirection = transform.InverseTransformDirection(rayDirection);
+
                 var scaledRayLength = rayDirection.magnitude;
+                if(collisionEffect.noise_effect.Count >= 6 + lengthOfRayOutputs)
+                {
+                    scaledRayLength += collisionEffect.noise_effect[6 + i];
+                }
+                scaledRayLength = Mathf.Clamp(scaledRayLength, 0.0f, m_rayPerceptionSensorComponent3D.RayLength);
                 float rayHitDistance = rayOutputs[i].HitFraction * scaledRayLength;
                 float normalizedRayAngle = Mathf.Atan2(rayDirection.z, rayDirection.x);
+
+                if (lidar_malfunctioning_effect)
+                {
+                    goHit = null;
+                    rayHitDistance = m_rayPerceptionSensorComponent3D.RayLength ;
+
+                }
 
                 float roundAngle = Mathf.Round(normalizedRayAngle * 100) / 100;
                 if (angleDict.ContainsKey(roundAngle))
@@ -244,8 +299,6 @@ namespace multiagent.robot
 
                 // float cosRayAngle = Mathf.Cos(rayAngle);
                 // float sinRayAngle = Mathf.Sin(rayAngle);
-
-
 
                 // Check for safety violation
                 if (rayHitDistance < _safetyRadius)
@@ -300,16 +353,26 @@ namespace multiagent.robot
 
         }
 
-
-        public float[] CollectObservations(bool useNormalized=true)
+        public float[] CollectObservations(bool useNormalized = true)
         {
             float robotPosX_normalized = transform.localPosition.x;
             float robotPosZ_normalized = transform.localPosition.z;
-            float angleRotation_normalized = (360f-transform.localRotation.eulerAngles.y + 180f)% 360f  - 180f; // Minus for right hand rule                    
+            float angleRotation_normalized = (360f - transform.localRotation.eulerAngles.y + 180f) % 360f - 180f; // Minus for right hand rule                    
             float currentSpeed_normalized = new Vector2(_rigidbody.linearVelocity.x, _rigidbody.linearVelocity.z).magnitude;
             float currentRotationSpeed_normalized = -_rigidbody.angularVelocity.y;
             float currentAcceleration_normalized = currentAcceleration;
             float currentRotationAcceleration_normalized = currentRotationAcceleration;
+
+            if(collisionEffect.noise_effect.Count > 0)
+            {
+                robotPosX_normalized += collisionEffect.noise_effect[0];
+                robotPosZ_normalized += collisionEffect.noise_effect[1];
+                angleRotation_normalized = (360f - transform.localRotation.eulerAngles.y + 180f+ collisionEffect.noise_effect[2]) % 360f - 180f;
+                currentSpeed_normalized = new Vector2(_rigidbody.linearVelocity.x + collisionEffect.noise_effect[3], _rigidbody.linearVelocity.z + collisionEffect.noise_effect[4]).magnitude;
+                currentSpeed_normalized = Mathf.Clamp(currentSpeed_normalized, -maxSpeed, maxSpeed);
+                currentRotationSpeed_normalized += collisionEffect.noise_effect[5];
+                currentRotationSpeed_normalized = Mathf.Clamp(currentRotationSpeed_normalized, -maxRotationSpeed, maxRotationSpeed);
+            }
 
             // float sinAngle = Mathf.Sin(angleRotation_normalized*Mathf.Deg2Rad); // Sine of the angle ->[-180, 180) -> [-1, 1]
             // float cosAngle = Mathf.Cos(angleRotation_normalized*Mathf.Deg2Rad); // Cosine of the angle ->[-180, 180) -> [-1, 1]
@@ -319,7 +382,7 @@ namespace multiagent.robot
                 angleRotation_normalized = angleRotation_normalized * Mathf.Deg2Rad; // Convert to Radian
                 angleNormalizedFactor = Mathf.PI;
             }
-            
+
             if (useNormalized)
             {
                 robotPosX_normalized = transform.localPosition.x / boxSize.x;
@@ -330,10 +393,10 @@ namespace multiagent.robot
                 currentAcceleration_normalized = currentAcceleration / maxAcceleration;
                 currentRotationAcceleration_normalized = currentRotationAcceleration / maxRotationAccleration;
             }
-            
-        
+
+
             Vector3 goalPos = Vector3.zero;
-            float goalPosX_normalized = 0; 
+            float goalPosX_normalized = 0;
             float goalPosZ_normalized = 0;
             int taskID = 0;
             int task_ind = -1;
@@ -349,7 +412,7 @@ namespace multiagent.robot
                 task_busy = taskClass.getBusy() ? 1 : 0;
                 completed = taskClass.isCompleted() ? 1 : 0;
 
-                if( useNormalized)
+                if (useNormalized)
                 {
                     goalPosX_normalized = goalPos.x / boxSize.x;
                     goalPosZ_normalized = goalPos.z / boxSize.z;
@@ -369,10 +432,10 @@ namespace multiagent.robot
                 goalPosZ_normalized,
                 task_ind,
                 task_busy,
-                completed,                
+                completed,
                 Reward
             };
-            (lidarData, safetyData) = getLidarData(useNormalized);
+            (lidarData, safetyData) = getLidarData(useNormalized, collisionEffect.lidar_malfunctioning_effect == true);
 
             float[] robotObs = new float[observation.Length + lidarData.Length];
             observation.CopyTo(robotObs, 0);
@@ -537,11 +600,21 @@ namespace multiagent.robot
             Vector3 localVelocity = transform.InverseTransformDirection(_rigidbody.linearVelocity);
             localVelocity.z = 0;
             _rigidbody.linearVelocity = transform.TransformDirection(localVelocity);
+
+            if(collisionEffect.disturbance_effect != Vector2.zero || collisionEffect.disturbance_effect != default)
+            {
+                Vector3 disturbanceVelocity = transform.right * collisionEffect.disturbance_effect.x + transform.forward * collisionEffect.disturbance_effect.y;
+                _rigidbody.AddForce(transform.InverseTransformDirection(disturbanceVelocity), ForceMode.VelocityChange);
+            }
         }
 
         public void MoveAgent(float[] action)
         {
             actionInput = new Vector2(action[0], action[1]);
+            if(collisionEffect.delay_effect  == true)
+            {
+                return;
+            }
             if (absoluteCoordinate)
             {
                 u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
@@ -609,8 +682,32 @@ namespace multiagent.robot
             Vector3 abs_dstate = new Vector3(
                     _rigidbody.linearVelocity.x,
                     _rigidbody.linearVelocity.z,
-                    _rigidbody.angularVelocity.y
+                    -_rigidbody.angularVelocity.y
                 );
+
+            if(collisionEffect.noise_effect.Count >1)
+            {
+                abs_state = new Vector3(
+                transform.localPosition.x + collisionEffect.noise_effect[0],
+                transform.localPosition.z + collisionEffect.noise_effect[1],
+                (transform.localRotation.eulerAngles.y+collisionEffect.noise_effect[2]) * MathF.PI / 180
+                ); 
+                
+                float currentSpeed_normalized = new Vector2(_rigidbody.linearVelocity.x + collisionEffect.noise_effect[3], _rigidbody.linearVelocity.z + collisionEffect.noise_effect[4]).magnitude;
+                currentSpeed_normalized = Mathf.Clamp(currentSpeed_normalized, -maxSpeed, maxSpeed);
+                float angle = abs_state[2];
+                Vector2 velocityDir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))*currentSpeed_normalized;
+                float currentRotationSpeed_normalized = -_rigidbody.angularVelocity.y +  collisionEffect.noise_effect[5];
+                currentRotationSpeed_normalized = Mathf.Clamp(currentRotationSpeed_normalized, -maxRotationSpeed, maxRotationSpeed);
+
+                   
+                abs_dstate += new Vector3(
+                    velocityDir.x,
+                    velocityDir.y,
+                    currentRotationSpeed_normalized
+                );
+            }
+            
             sData.add(stepTime); // Current Time
             sData.add(abs_state); // State (x,y,theta)
             sData.add(abs_dstate); // Derivative of State (x',y',theta')
@@ -632,7 +729,7 @@ namespace multiagent.robot
             sData.add(_safetyViolated); // Safety Violated
             sData.add(U_constraint); // Control Constraint
 
-            (lidarDataUnnormalized, safetyData) = getLidarData(false);
+            (lidarDataUnnormalized, safetyData) = getLidarData(false,collisionEffect.lidar_malfunctioning_effect  == true);
             sData.add(lidarDataUnnormalized); // Lidar Data (rayAngle, rayDistance, rayTag) * num_rays
 
             if (aData.header.Count == 0)
@@ -699,12 +796,13 @@ namespace multiagent.robot
             if (angle == 180f)
             {
                 obsSize += 3 * num_rays * 2;
+                num_lidar_rays = num_rays * 2;
             }
             else
             {
                 obsSize += 3 * (num_rays * 2 + 1);
+                num_lidar_rays = num_rays * 2 + 1;
             }
-            
             return obsSize;
         }
 
@@ -778,16 +876,25 @@ namespace multiagent.robot
                 _obs_size = calculateObservationSize(_obs_size, param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
             }
         }
-        
+
         public int getObservationSize()
         {
             return _obs_size;
         }
+
+        public void set_collisionEffectset(List<float> noise_effect_in = default, Vector2 disturbance_effect_in = default, bool delay_effect_in = default, bool lidar_malfunctioning_effect_in = default)
+        {
+            collisionEffect.set(noise_effect_in, disturbance_effect_in, delay_effect_in, lidar_malfunctioning_effect_in);
+        }
+        
+        public void clear_collisionEffectset()
+        {
+            collisionEffect.clear();
+        }   
 
         void Start()
         {
             m_rayPerceptionSensorComponent3D.name = "RayPerceptionSensor_" + getID();
         }
     }
-
 }

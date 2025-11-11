@@ -265,7 +265,7 @@ namespace multiagent.util
         public static List<int> ParseNumbers(string input)
         {
             List<int> numbers = new List<int>();
-            
+
             if (string.IsNullOrEmpty(input))
             {
                 return numbers;
@@ -330,7 +330,7 @@ namespace multiagent.util
         public static List<float> ParseFloatNumbers(string input)
         {
             List<float> numbers = new List<float>();
-            
+
             if (string.IsNullOrEmpty(input))
             {
                 return numbers;
@@ -358,8 +358,291 @@ namespace multiagent.util
             return numbers;
         }
 
-        
+        public static List<int> sample_affected_agents_efficient(int number_of_affected, int total_agents)
+        {
+            System.Random random = new System.Random();
+            int count = Mathf.Max(Mathf.Min(number_of_affected, total_agents), 0);
+            if (count == 0)
+            {
+                return new List<int>();
+            }
+
+            List<int> agents = new List<int>();
+            // Create list of all agent indices from 0 to total_agents-1
+            for (int i = 0; i < total_agents; i++)
+            {
+                agents.Add(i);
+            }
+
+            // Shuffle first 'count' elements using Fisher-Yates algorithm
+            for (int i = 0; i < number_of_affected; i++)
+            {
+                int randomIndex = random.Next(i, total_agents);
+                int temp = agents[i];
+                agents[i] = agents[randomIndex];
+                agents[randomIndex] = temp;
+            }
+
+            // Return first 'count' elements
+            return agents.GetRange(0, count);
+        }
+
+        public static int sample_num_uniformly(int number_of_affected, float u)
+        {
+            System.Random random = new System.Random();
+
+            int num_of_affected = 0;
+            for (int i = 0; i < number_of_affected; i++)
+            {
+                float x = (float)random.NextDouble();
+                if (x <= u)
+                {
+                    num_of_affected += 1;
+                }
+            }
+
+            // Return first 'count' elements
+            return num_of_affected;
+        }
+        public static List<float> sample_float_list(int number_of_affected, float[] time_length)
+        {
+            if (number_of_affected == 0)
+            {
+                return new List<float>();
+            }
+
+            System.Random random = new System.Random();
+            List<float> time_samples = new List<float>();
+            // Shuffle first 'count' elements using Fisher-Yates algorithm
+            for (int i = 0; i < number_of_affected; i++)
+            {
+                float x = (float)random.NextDouble();
+                float t = time_length[0] + (time_length[1] - time_length[0]) * x;
+                time_samples.Add(t);
+            }
+
+            // Return first 'count' elements
+            return time_samples;
+        }
+
+        public static List<GameObject> GetGameObjectsFromChild(Transform transform, string childName)
+        {
+            List<GameObject> objects = new List<GameObject>();
+
+            if (transform == null)
+            {
+                Debug.LogWarning("Parent object is null");
+                return objects;
+            }
+
+            Transform childTransform = transform.Find(childName);
+            if (childTransform != null)
+            {
+                for (int i = 0; i < childTransform.childCount; i++)
+                {
+                    objects.Add(childTransform.GetChild(i).gameObject);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"'{childName}' child not found in " + transform.name);
+            }
+
+            return objects;
+        }
+
+        public static List<GameObject> GetNearbyGameObjects(GameObject targetObject, float radius, int layerMask = -1, string tag = "everyone")
+        {
+            List<GameObject> nearbyObjects = new List<GameObject>();
+
+            if(tag == "everyone")
+            {
+                return nearbyObjects;
+            }
+
+            if (targetObject == null)
+            {
+                Debug.LogWarning("Target object is null");
+                return nearbyObjects;
+            }
+
+            Vector3 targetPosition = targetObject.transform.position;
+
+            // Get all colliders in the radius
+            Collider[] colliders = Physics.OverlapSphere(targetPosition, radius, layerMask);
+
+            foreach (Collider col in colliders)
+            {
+                // Exclude the target object itself
+                if (col.gameObject != targetObject && col.gameObject.CompareTag(tag))
+                {
+                    nearbyObjects.Add(col.gameObject);
+                }
+            }
+
+
+            return nearbyObjects;
+        }
+
+        public static GameObject GetNearestGameObject(GameObject targetObject, List<GameObject> objectList)
+        {
+            GameObject nearestObject = null;
+            float minDistance = float.MaxValue;
+
+            if (targetObject == null || objectList == null || objectList.Count == 0)
+            {
+                Debug.LogWarning("Target object is null or object list is empty");
+                return nearestObject;
+            }
+
+            // Collect all colliders on target (including children)
+            Collider[] targetColliders = targetObject.GetComponentsInChildren<Collider>();
+            bool hasTargetColliders = targetColliders != null && targetColliders.Length > 0;
+
+            foreach (GameObject candidate in objectList)
+            {
+                if (candidate == null || candidate == targetObject)
+                {
+                    continue;
+                }
+
+                // Collect all colliders on candidate (including children)
+                Collider[] candidateColliders = candidate.GetComponentsInChildren<Collider>();
+                bool hasCandidateColliders = candidateColliders != null && candidateColliders.Length > 0;
+
+                float candidateMinDistance = float.MaxValue;
+
+                if (hasTargetColliders && hasCandidateColliders)
+                {
+                    // Compute minimum distance between any pair of colliders
+                    foreach (Collider tc in targetColliders)
+                    {
+                        foreach (Collider cc in candidateColliders)
+                        {
+                            // If overlapping, effective distance is 0
+                            Vector3 dir;
+                            float penetrationDistance;
+                            bool overlapped = Physics.ComputePenetration(
+                                tc, tc.transform.position, tc.transform.rotation,
+                                cc, cc.transform.position, cc.transform.rotation,
+                                out dir, out penetrationDistance);
+
+                            if (overlapped)
+                            {
+                                candidateMinDistance = 0f;
+                                // Can't get smaller than 0, so short-circuit
+                                break;
+                            }
+                            else
+                            {
+                                // Estimate closest separation using ClosestPoint on both colliders
+                                Vector3 pointOnTarget = tc.ClosestPoint(cc.bounds.center);
+                                Vector3 pointOnCandidate = cc.ClosestPoint(pointOnTarget);
+                                float d = Vector3.Distance(pointOnTarget, pointOnCandidate);
+                                if (d < candidateMinDistance)
+                                {
+                                    candidateMinDistance = d;
+                                }
+                            }
+                        }
+
+                        if (candidateMinDistance <= 0f)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    // Fallback to transform distance if either object lacks colliders
+                    float d = Vector3.Distance(targetObject.transform.position, candidate.transform.position);
+                    candidateMinDistance = d;
+                }
+
+                if (candidateMinDistance < minDistance)
+                {
+                    minDistance = candidateMinDistance;
+                    nearestObject = candidate;
+                }
+            }
+
+            return nearestObject;
+        }
+
+        public static List<GameObject> GetNearbyGameObjectsByRaycast(GameObject targetObject, float radius, int rays = 36, int layerMask = -1, string tag = "everyone", float sphereRadius = 0.1f, float height = -1f)
+        {
+            List<GameObject> nearbyObjects = new List<GameObject>();
+            if (targetObject == null)
+            {
+                Debug.LogWarning("Target object is null");
+                return nearbyObjects;
+            }
+            if (radius <= 0f || rays <= 0)
+            {
+                return nearbyObjects;
+            }
+
+            Vector3 origin = targetObject.transform.position;
+            if (height > 0f)
+            {
+                origin.y = height;
+                Debug.Log("origin height set to " + height);
+            }
+            HashSet<GameObject> seen = new HashSet<GameObject>();
+
+            // Cast rays around the horizontal plane
+            for (int i = 0; i < rays; i++)
+            {
+                float angle = (Mathf.PI * 2f) * (i / (float)rays);
+                Vector3 dir = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+
+                if (sphereRadius > 0f)
+                {
+                    RaycastHit[] hits = Physics.SphereCastAll(origin, sphereRadius, dir, radius, layerMask, QueryTriggerInteraction.Ignore);
+                    foreach (RaycastHit hit in hits)
+                    {
+                        GameObject go = hit.collider != null ? hit.collider.gameObject : null;
+                        if (go == null || go == targetObject)
+                        {
+                            continue;
+                        }
+                        if (tag != "everyone" && !go.CompareTag(tag))
+                        {
+                            continue;
+                        }
+                        if (seen.Add(go))
+                        {
+                            nearbyObjects.Add(go);
+                        }
+                    }
+                }
+                else
+                {
+                    RaycastHit[] hits = Physics.RaycastAll(origin, dir, radius, layerMask, QueryTriggerInteraction.Ignore);
+                    foreach (RaycastHit hit in hits)
+                    {
+                        GameObject go = hit.collider != null ? hit.collider.gameObject : null;
+                        if (go == null || go == targetObject)
+                        {
+                            continue;
+                        }
+                        if (tag != "everyone" && !go.CompareTag(tag))
+                        {
+                            continue;
+                        }
+                        if (seen.Add(go))
+                        {
+                            nearbyObjects.Add(go);
+                        }
+                    }
+                }
+            }
+
+            return nearbyObjects;
+        }
+
 
     }
+    
 
 }

@@ -8,6 +8,7 @@ public class Config
 {
     public string envpath = "";
     public string filepath = "";
+    public string collisionpath = "";
     public string imagepath = "";
     public string schedulepath = "";
     public string csvfolder = "";

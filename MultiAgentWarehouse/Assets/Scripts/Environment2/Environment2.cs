@@ -7,8 +7,10 @@ using multiagent.robot;
 using multiagent.agent;
 using multiagent.camera;
 using multiagent.util;
+using multiagent.collisionGeneratorSpace;
 using UnityEngine.Assertions;
 using Unity.Barracuda;
+using Unity.VisualScripting;
 public class Environment2 : MonoBehaviour
 {
     public new GameObject camera;
@@ -23,6 +25,7 @@ public class Environment2 : MonoBehaviour
     public scheduleJson scheduleJson = new scheduleJson();
     public ReplayPath replayPath = new ReplayPath();
     public Environment2Agent environment2Agent;
+    public collisionGenerator cg = new collisionGenerator();
     public float t = 0f;
 
     public int maxTimeSteps = 1000;
@@ -46,6 +49,8 @@ public class Environment2 : MonoBehaviour
     public List<int> episodeNumbers = new List<int>();
     public int episodeIndex = 0;
     public bool endRun = false;
+
+    public List<GameObject> robotsObjList, dynamicObstaclesObjList;
 
     void Awake()
     {
@@ -200,8 +205,6 @@ public class Environment2 : MonoBehaviour
             mr.setParameters(param.agentParams.num_spawn_tries, param.agentParams.min_spacing, boxSize);
             md.DestroyAll();
             md.setParameters(param.dynamicObstacleParams.num_spawn_tries, param.dynamicObstacleParams.min_spacing);
-            md.DestroyAll();
-            md.setParameters(param.dynamicObstacleParams.num_spawn_tries, param.dynamicObstacleParams.min_spacing);
         }
         if (envJson.conf.mode.Contains("generate"))
         {
@@ -209,7 +212,7 @@ public class Environment2 : MonoBehaviour
             if (envJson.conf.mode.Contains("envjson"))
             {
                 mr.initStartLocation(root.agents.Count, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
-                md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
+                // md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
                 // mr.initStartLocation(root.agents.Count, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
                 // md.initStartLocation(root.n_tasks, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
@@ -258,6 +261,12 @@ public class Environment2 : MonoBehaviour
         // Camera Assignment
         camera.GetComponent<Camera_Follow>().getPlayers(mr.robots.ToArray());
         alreadyCreated = true;
+        // Get objects from just "Robots"
+        robotsObjList = mr.robots;
+        dynamicObstaclesObjList = md.dynamic_obstacles;
+        cg.set_collision_params(param.collisionParams,robotsObjList, dynamicObstaclesObjList);
+
+
     }
 
     void Start()
@@ -287,6 +296,8 @@ public class Environment2 : MonoBehaviour
     {
         t += Time.fixedDeltaTime;
         bool terminal_state = false;
+        
+        cg.check_collision_param_time(t);
         md.step();
         if (envJson.conf.mode.Contains("download"))
         {
@@ -314,6 +325,7 @@ public class Environment2 : MonoBehaviour
                 Debug.Log("Resetting Environment at Step: " + environment2Agent.StepCount);
             environment2Agent.EndEpisode();            
         }
+        
     }
 
     public void AssignTaskEarlyStart()

@@ -4,6 +4,7 @@ using multiagent.agent;
 using multiagent.parameterJson;
 using UnityEngine.Assertions;
 using System.Collections.Generic;
+using multiagent.util;
 using multiagent.robot;
 using UnityEngine.UI;
 using UnityEngine.AI;
@@ -45,8 +46,14 @@ namespace multiagent.dynamic_obstacle
         public bool useCSVExport = true;
         public int CSVRate = 1;
         public int collisionTagID = 0;
+        public string movement_type = "random_walk";
+        public float movement_delay = 2f;
         public NavMeshAgent navMeshAgent;
         private List<Vector3> _goal_points = new List<Vector3>();
+        public bool adversary_mode = false;
+        public float adversary_radius = 0f;
+        public string adversary_target_tag= "Everyone";
+        [SerializeField] public float headingDeadbandDeg = 2f;
 
         public void Awake()
         {
@@ -98,20 +105,40 @@ namespace multiagent.dynamic_obstacle
         public void Step()
         {
             StepCount += 1;
+            if(adversary_mode)
+            {
+                List<GameObject> nearbyPlayers = Util.GetNearbyGameObjectsByRaycast(gameObject, adversary_radius, 36, -1, adversary_target_tag, height: 0.25f);
+                GameObject nearbyPlayer = Util.GetNearestGameObject(gameObject, nearbyPlayers);
+                if (nearbyPlayer != null)
+                {
+                    Vector3 directionToPlayer = (nearbyPlayer.transform.position - transform.position);
+                    directionToPlayer.y = 0f;
+                    directionToPlayer = directionToPlayer.normalized;
+                    if (directionToPlayer.sqrMagnitude > 1e-6f)
+                    {
+                        // Align the object's right-axis (movement axis) to face the player
+                        Vector3 targetDir = new Vector3(directionToPlayer.x, 0f, directionToPlayer.z);
+                        Quaternion targetRotation = Quaternion.FromToRotation(Vector3.right, targetDir);
+                        _rigidbody.MoveRotation(targetRotation);
+                    }
+                    u = new Vector2(1f, 0f);
+                }
+                return;
+            }
+
+            if (movement_delay > 0f && StepCount % Mathf.RoundToInt(movement_delay / Time.fixedDeltaTime) != 0)
+            {
+                return;
+            }
+
             u = Vector2.zero;
-
-            Vector2 abs_goalPos = new Vector2(getGoalPos().x, getGoalPos().z);
+            if (movement_type == "random_walk")
+            {
+                float v = UnityEngine.Random.Range(-1.0f, 1.0f);
+                float w = UnityEngine.Random.Range(-1.0f, 1.0f);
+                u = new Vector2(v, w);
+            }
             
-
-            // actionInput = new Vector2(action[0], action[1]);
-            // if (absoluteCoordinate)
-            // {
-            //     u = new Vector2(_state[0] + action[0], _state[1] + action[1]);
-            // }
-            // else
-            // {
-            //     u = new Vector2( action[0], action[1]);
-            // }
         }
 
         public void plant(Vector2 act)
@@ -143,7 +170,9 @@ namespace multiagent.dynamic_obstacle
             _rigidbody.AddTorque(_rigidbody.inertiaTensor.y * rotationAccelerationVector, ForceMode.Force);
 
             Vector3 localVelocity = transform.InverseTransformDirection(_rigidbody.linearVelocity);
+            // Remove lateral (forward) and vertical components to suppress jitter
             localVelocity.z = 0;
+            localVelocity.y = 0;
             _rigidbody.linearVelocity = transform.TransformDirection(localVelocity);
         }
 
@@ -205,17 +234,20 @@ namespace multiagent.dynamic_obstacle
             }
             if (Vector3.Distance(transform.position, _goal) > 0.25f)
             {
-                Debug.Log("Not close enough to goal yet");
+                // Debug.Log("Not close enough to goal yet");
                 return;
             }
-            Debug.Log("Reached goal, moving to next goal");
+            // Debug.Log("Reached goal, moving to next goal");
 
             _goal_idx += 1;
             _goal_idx %= _goal_points.Count;
 
             _goal = _goal_points[_goal_idx];
-            Debug.Log("New goal idx: " + _goal_idx + " goal position: " + _goal);
-            navMeshAgent.SetDestination(_goal);
+            // Debug.Log("New goal idx: " + _goal_idx + " goal position: " + _goal);
+            if( movement_type == "goal_reaching"){
+                navMeshAgent.SetDestination(_goal);
+            }
+            
         }   
         
 
@@ -417,6 +449,8 @@ namespace multiagent.dynamic_obstacle
             lineRendererMinPathDistance = param.agentParams.lineRendererMinPathDistance;
             lineRendererWidth = param.agentParams.lineRendererWidth;
             setCollisionOn(param.agentParams.allowedCollisionOn);
+            movement_type = param.dynamicObstacleParams.movement_type;
+            movement_delay = param.dynamicObstacleParams.movement_delay;
             Assert.IsTrue(maxSpeed > 0, "maxSpeed must be positive");
             Assert.IsTrue(maxRotationSpeed > 0, "maxRotationSpeed must be positive");
             Assert.IsTrue(maxAcceleration > 0, "maxAcceleration must be positive");

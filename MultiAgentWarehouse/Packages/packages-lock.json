@@ -31,7 +31,7 @@
     },
     "com.unity.burst": {
       "version": "1.8.21",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
@@ -140,6 +140,18 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.perception": {
+      "version": "1.0.0-preview.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.burst": "1.7.3",
+        "com.unity.collections": "1.2.4",
+        "com.unity.nuget.newtonsoft-json": "3.0.2",
+        "com.unity.render-pipelines.core": "12.1.7"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.performance.profile-analyzer": {

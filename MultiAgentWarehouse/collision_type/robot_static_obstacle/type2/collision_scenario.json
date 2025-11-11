@@ -1,0 +1,29 @@
+{
+  "collisionParams":
+  {
+    "noise":
+    {
+      "position_alpha": 1,
+      "position_beta": 0,
+      "orientation_alpha": 1,
+      "orientation_beta": 0,
+      "velocity_alpha": 1,
+      "velocity_beta": 0,
+      "angular_velocity_alpha": 1,
+      "angular_velocity_beta": 0,
+      "lidar_alpha": 1,
+      "lidar_beta": 0,
+      "class_bias_tag": "everyone",
+      "class_bias_radius": 1.0
+    },
+    "delay":
+    {
+      "probability":0.0,
+      "time_length": [1,10],
+      "time_frequency": 2,
+      "class_bias_tag": "Wall",
+      "class_bias_radius": 1.0,
+      "number_of_affected": 1
+    }
+  }
+}

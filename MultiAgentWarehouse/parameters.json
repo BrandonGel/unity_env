@@ -17,7 +17,7 @@
   },
   "agentParams":
   {
-    "num_of_agents": 16,
+    "num_of_agents": 2,
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
@@ -28,7 +28,7 @@
     "infiniteAcceleration":false,
     "absoluteCoordinate": false,
     "safetyRadius": 1.0,
-    "maxTimeSteps": 501,
+    "maxTimeSteps": 50001,
     "decisionPeriod": 1,
     "verbose": false,
     "lineRendererMaxPathPositionListCount": 0,
@@ -104,29 +104,6 @@
         "goalWaitPenalty": [0,0]
       }
     ]
-  },
-   "dynamicObstaclParams":
-  {
-    "num_of_dyn_obs": 0,
-    "min_spacing": 0.1,
-    "num_spawn_tries": 10000,
-    "maxSpeed": 1,
-    "maxRotationSpeed": 3.3,
-    "maxAcceleration": 10,
-    "maxRotationAccleration": 33,
-    "infiniteAcceleration":false,
-    "absoluteCoordinate": false,
-    "verbose": false,
-    "lineRendererMaxPathPositionListCount": -1,
-    "lineRendererMinPathDistance": 0.0,
-    "lineRendererWidth": 0.25,
-    "allowedCollisionOn": true,
-    "dynamicsParams":
-    {
-      "bodyMass": 80.0,
-      "linearDrag": 0.0,
-      "angularDrag": 0.0
-    }
   },
   "recordingParams":
   {
