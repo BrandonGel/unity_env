@@ -458,7 +458,7 @@ namespace multiagent.parameterJson
         public float timescale = 5f;
         public float fixed_timestep = 0.2f;
         public int num_envs = 1;
-        public string dataPath = "";
+
         public bool useCSVExporter = false;
         public int CSVRate = 1;
         public bool verbose = false;

@@ -13,6 +13,7 @@ public class Config
     public string schedulepath = "";
     public string csvfolder = "";
     public string csvpath = "";
+    public string dataPath = "";
     public string mode = "";
     public string world_mode = "";
 }

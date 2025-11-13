@@ -6,6 +6,7 @@
   "schedulepath":  "schedule.json",
   "csvpath":  "data/20251106_091753",
   "csvfolder":  "data",
+  "dataPath" : "data",
   "mode": "generate_envjson",
   "world_mode": "image"
 }

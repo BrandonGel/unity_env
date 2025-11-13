@@ -40,7 +40,7 @@ public class Environment2Head : MonoBehaviour
 
         showGUI = param.unityParams.showGUI;
         useOrthographic = param.unityParams.useOrthographic;
-        dataPath = param.unityParams.dataPath;
+        dataPath = conf.dataPath;
         startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
         endlessMode = paramJson.param.unityParams.endlessMode;
         List<int> episodeNumbers = new List<int>();
