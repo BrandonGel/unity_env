@@ -114,7 +114,7 @@ namespace multiagent.robot
             newSpawnPosition = transform.position;
             newSpawnOrientation = transform.rotation;
             setGoal();
-            m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Dummy Lidar").GetComponent<RayPerceptionSensorComponent3D>();
+            m_rayPerceptionSensorComponent3D = transform.Find("Body").Find("Invisible Lidar").GetComponent<RayPerceptionSensorComponent3D>();
             aData = new agentData(getID());
         }
 
@@ -894,7 +894,7 @@ namespace multiagent.robot
 
         void Start()
         {
-            m_rayPerceptionSensorComponent3D.name = "RayPerceptionSensor_" + getID();
+            m_rayPerceptionSensorComponent3D.name = "Lidar" + getID();
         }
     }
 }

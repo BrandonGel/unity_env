@@ -467,6 +467,7 @@ namespace multiagent.parameterJson
         public bool useRadian = true;
         public bool showGUI = false;
         public bool useOrthographic = false;
+        public bool endlessMode = false;
     }
 
     [System.Serializable]

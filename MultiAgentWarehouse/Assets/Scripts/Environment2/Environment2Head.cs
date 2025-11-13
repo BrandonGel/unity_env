@@ -24,6 +24,7 @@ public class Environment2Head : MonoBehaviour
     public bool useOrthographic = true;
     public ScreenRecorder screenRecorder;
     public bool startRecordingOnPlay = false;
+    public bool endlessMode = false;
     void Awake()
     {
         paramJson.ReadJson(configFile);
@@ -41,6 +42,7 @@ public class Environment2Head : MonoBehaviour
         useOrthographic = param.unityParams.useOrthographic;
         dataPath = param.unityParams.dataPath;
         startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
+        endlessMode = paramJson.param.unityParams.endlessMode;
         List<int> episodeNumbers = new List<int>();
         if (paramJson.param.unityParams.useCSVExporter || startRecordingOnPlay)
         {
@@ -164,13 +166,13 @@ public class Environment2Head : MonoBehaviour
             screenRecorder.BuildScreenshotDirectory(screenRecorderSavePath);
             screenRecorder.resetCounter();
         }
-        if (envsEndRun && startRecordingOnPlay)
+        if (envsEndRun && startRecordingOnPlay && !endlessMode)
         {
             screenRecorder.StopRecording();
         }
         
 
-        if (envsAtEnd > 0 && envsAtEnd == totalEnvs)
+        if (envsAtEnd > 0 && envsAtEnd == totalEnvs && !endlessMode)
         {
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
