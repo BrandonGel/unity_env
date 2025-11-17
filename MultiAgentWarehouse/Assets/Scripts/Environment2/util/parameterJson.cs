@@ -401,6 +401,7 @@ namespace multiagent.parameterJson
     [System.Serializable]
     public class agentsParameters
     {
+        public string robotPrefabName = "SRS1P";
         public int num_of_agents = 1;
         public float min_spacing = 0.1f;
         public int num_spawn_tries = 100;
@@ -466,6 +467,7 @@ namespace multiagent.parameterJson
         public bool normalizeObservations = false;
         public bool useRadian = true;
         public bool showGUI = false;
+        public bool showGUITime = false;
         public bool useOrthographic = false;
         public bool endlessMode = false;
     }

@@ -18,6 +18,7 @@
   "agentParams":
   {
     "num_of_agents": 1,
+    "robotPrefab": "SRS1P",
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
@@ -35,7 +36,7 @@
     "lineRendererMinPathDistance": 0.0,
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
-    "allowedCollisionOn": true,
+    "allowedCollisionOn": false,
     "dynamicsParams":
     {
       "bodyMass": 50.0,

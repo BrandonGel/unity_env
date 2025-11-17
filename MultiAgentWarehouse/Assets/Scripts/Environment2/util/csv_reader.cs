@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using multiagent.agent;
@@ -12,6 +13,7 @@ namespace multiagent.util
     [System.Serializable]
     public class PositionOrientation
     {
+        public float unix_time;
         public float time;
         public float x;
         public float y;
@@ -296,6 +298,8 @@ namespace multiagent.util
 
     public class csv_data
     {
+        private DateTime? firstDateTime = null;
+
         /// <summary>
         /// Reads all CSV files from a directory and converts each into a separate agentData instance
         /// </summary>
@@ -566,6 +570,21 @@ namespace multiagent.util
                         {
                             // Use header to find column indices
                             timeIndex = reader.header.IndexOf("time");
+                            // Check if header contains "time" (case-sensitive)
+                            bool hasTimeColumn = reader.header.Contains("time");
+                            bool hasDatetimeColumn = reader.header.Contains("datatime");
+                            if (hasTimeColumn)
+                            {
+                                timeIndex = reader.header.IndexOf("time");
+                            }
+                            else if (hasDatetimeColumn)
+                            {
+                                timeIndex = reader.header.IndexOf("datatime");
+                            }
+                            else
+                            {
+                                timeIndex = 0;
+                            }
                             xIndex = reader.header.IndexOf("x");
                             yIndex = reader.header.IndexOf("y");
                             thetaIndex = reader.header.IndexOf("theta");
@@ -604,11 +623,26 @@ namespace multiagent.util
 
                             // Parse time (optional, default to row index if not found)
                             float time = 0f;
+                            float unix_time = 0f;
                             if (timeIndex != -1 && timeIndex < row.Length)
                             {
                                 if (!float.TryParse(row[timeIndex], out time))
                                 {
-                                    time = 0f;
+                                    if (DateTime.TryParse(row[timeIndex], out DateTime dateTime))
+                                    {
+                                        // Save the first datetime value as the t0 for offsetting subsequent times
+                                        if (firstDateTime == null)
+                                        {
+                                            firstDateTime = dateTime;
+                                        }
+                                        unix_time =  (float)dateTime.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                                        time = (float)(dateTime - firstDateTime.Value).TotalSeconds;
+                                    }
+                                    else
+                                    {
+                                        time = 0f;
+                                        unix_time = 0f;
+                                    }
                                 }
                             }
 
@@ -625,15 +659,14 @@ namespace multiagent.util
                                         theta = 0f;
                                     }
                                 }
-
                                 PositionOrientation pos = new PositionOrientation
                                 {
+                                    unix_time = unix_time,
                                     time = time,
                                     x = x,
                                     y = y,
                                     theta = theta
                                 };
-
                                 positions.Add(pos);
                             }
                             else

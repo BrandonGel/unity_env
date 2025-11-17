@@ -21,6 +21,7 @@ public class Environment2Head : MonoBehaviour
     public int CurrentEpisode = 1;
     public Dictionary<string, float> registerMsg = new Dictionary<string, float>();
     public bool showGUI = true;
+    public bool showGUITime = false;
     public bool useOrthographic = true;
     public ScreenRecorder screenRecorder;
     public bool startRecordingOnPlay = false;
@@ -39,6 +40,7 @@ public class Environment2Head : MonoBehaviour
         num_envs = param.unityParams.num_envs;
 
         showGUI = param.unityParams.showGUI;
+        showGUITime = param.unityParams.showGUITime;
         useOrthographic = param.unityParams.useOrthographic;
         dataPath = conf.dataPath;
         startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
@@ -62,10 +64,18 @@ public class Environment2Head : MonoBehaviour
                 
                 List<string> subdirPaths = Util.GetSubdirectoryPaths(conf.csvpath);
                 if (subdirPaths.Count > 0)
-                    num_envs = Util.CountEnvFolders(subdirPaths[0]);
+                    num_envs = Mathf.Max(1,Util.CountEnvFolders(subdirPaths[0]));
                 if (verbose)
                     Debug.Log("Using CSV Exporter/Recording with save path: " + savePath);
-                CurrentEpisode = episodeNumbers[0];
+
+                if (episodeNumbers.Count > 0)
+                {
+                    CurrentEpisode = episodeNumbers[0];
+                }
+                else
+                {
+                    CurrentEpisode = -1;
+                }
             }
         }
 
@@ -83,18 +93,16 @@ public class Environment2Head : MonoBehaviour
 
         Root root = envJson.GetRoot();
         int[] dims = root.map.dimensions;
-        if (envJson.conf.world_mode == "image")
-        {
-            float[] scale = root.map.scale;
-            dims = new int[] { (int)(scale[0] * dims[0]), (int)(scale[1] * dims[1]) };
-        }
-
+        float[] scale = root.map.scale;
+        int[] offsets  = root.map.offset;
+        dims = new int[] { (int)(scale[0] * dims[0]), (int)(scale[1] * dims[1]) };
+        
         int rows = (int)Mathf.Sqrt(num_envs);
         for (int i = 0; i < num_envs; i++)
         {
             int r = i / rows;
             int c = i % rows;
-            float offsetX = c * dims[0] * 1.1f;
+            float offsetX =  c * dims[0] * 1.1f;
             float offsetZ = r * dims[1] * 1.1f;
             GameObject env = Instantiate(environment2Prefab, new Vector3(offsetX, 0, offsetZ), Quaternion.identity);
             env.name = "Environment2_" + i;
@@ -103,7 +111,7 @@ public class Environment2Head : MonoBehaviour
             env.GetComponent<Environment2Agent>().setID(i);
             env.GetComponent<Environment2>().setSavePath(savePath);
             env.transform.parent = gameObject.transform;
-            envCenters.Add(new Vector3(offsetX + dims[0] * 0.5f, 0, offsetZ + dims[1] * 0.5f));
+            envCenters.Add(new Vector3(offsets[0] + offsetX + dims[0] * 0.5f, 0, offsets[1] + offsetZ + dims[1] * 0.5f));
             envSizes.Add(new Vector3(dims[0], 0, dims[1]));
             envs.Add(env);
         }
@@ -119,7 +127,9 @@ public class Environment2Head : MonoBehaviour
 
         if (startRecordingOnPlay)
         {
-            string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
+            string screenRecorderSavePath = Path.GetDirectoryName(savePath);
+            if (CurrentEpisode > 0)
+                screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
             screenRecorder.BuildScreenshotDirectory(screenRecorderSavePath);
         }
     }
@@ -162,7 +172,11 @@ public class Environment2Head : MonoBehaviour
         if (!envsEndRun && startRecordingOnPlay && CurrentEpisode != this.CurrentEpisode)
         {
             this.CurrentEpisode = CurrentEpisode;
-            string screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
+            string screenRecorderSavePath = Path.GetDirectoryName(savePath);;
+            if (this.CurrentEpisode > 0)
+            {
+                screenRecorderSavePath = Path.Combine(savePath, "episode_" + CurrentEpisode.ToString("D4"));
+            }
             screenRecorder.BuildScreenshotDirectory(screenRecorderSavePath);
             screenRecorder.resetCounter();
         }

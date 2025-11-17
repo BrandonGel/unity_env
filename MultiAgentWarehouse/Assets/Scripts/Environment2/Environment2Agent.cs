@@ -11,6 +11,7 @@ using multiagent.taskgoal;
 using multiagent.robot;
 using multiagent.util;
 using System;
+using System.Security;
 public class Environment2Agent : Agent
 {
     Environment2 env;
@@ -25,6 +26,7 @@ public class Environment2Agent : Agent
     Vector3 scaling = Vector3.one;
     public bool verbose = false;
     public bool normalizeObservations = false;
+    public float unix_time = -1f;
 
     void Awake()
     {
@@ -74,11 +76,11 @@ public class Environment2Agent : Agent
         if (CurrentEpisode > 0)
         {
             env.exportEpisodeData(CurrentEpisode);
-        }
-
-        CurrentEpisode += 1;
+            CurrentEpisode += 1;
+        }            
         CumulativeReward = 0f;
         env.readConfig(env.getConfigFile());
+        Debug.Log("Episode: " + CurrentEpisode);
         env.init();
         robots = env.mr.getRobots();
         if (verbose && !env.isEndRun())
@@ -270,5 +272,14 @@ public class Environment2Agent : Agent
     public void setCurrentEpisode(int episode)
     {
         CurrentEpisode = episode;
+    }
+
+    public float getUnixTime()
+    {
+        if (robots.Count > 0)
+        {
+            return robots[0].GetComponent<Robot2>().unix_time;
+        }
+        return -1f;
     }
 }

@@ -128,6 +128,10 @@ public class Environment2 : MonoBehaviour
 
     public string getEpisodePath(int episodeNumber)
     {
+        if (episodeNumber <= 0)
+        {
+            return savePath;
+        }
         return Path.Combine(savePath, "episode_" + episodeNumber.ToString("D4"),"env_" + environment2Agent.getID());
     }
 
@@ -158,6 +162,8 @@ public class Environment2 : MonoBehaviour
         Map envMap = envJson.GetMap();
 
         // Create the World
+        int[] offsets  = root.map.offset;
+        mo.setOffset(offsets);
         if (!alreadyCreated)
         {
             mo.DestroyAll();

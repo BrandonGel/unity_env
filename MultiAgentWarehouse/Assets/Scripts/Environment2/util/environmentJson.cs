@@ -46,6 +46,7 @@ public class Map
 {
 
     public int[] dimensions;
+    public int[] offset = {0,0};
     public float[] scale = {1.0f,1.0f};
     public List<List<int[]>> goal_locations;
     public List<int[]> non_task_endpoints = new List<int[]>();

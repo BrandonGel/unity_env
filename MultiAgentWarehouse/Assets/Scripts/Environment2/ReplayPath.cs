@@ -4,6 +4,7 @@ using System.Linq;
 using multiagent.robot;
 using multiagent.task;
 using multiagent.util;
+using System;
 
 public class ReplayPath
 {
@@ -159,6 +160,7 @@ public class ReplayPath
                 
                 robot.transform.position = finalPosition;
                 robot.transform.rotation = Quaternion.Euler(0, finalHeading, 0);
+                robot.GetComponent<Robot2>().setUnixtime(lastPos.unix_time);
                 continue;
             }
 
