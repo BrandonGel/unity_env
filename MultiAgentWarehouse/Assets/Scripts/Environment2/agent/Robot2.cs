@@ -909,6 +909,12 @@ namespace multiagent.robot
             this.unix_time = unix_time;
         }
 
+        // Use this in csv update path function
+        public void setUnixtime(float unix_time)
+        {
+            this.unix_time = unix_time;
+        }
+
         void Start()
         {
             m_rayPerceptionSensorComponent3D.name = "Lidar" + getID();

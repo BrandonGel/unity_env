@@ -162,8 +162,6 @@ public class ReplayPath
                 
                 robot.transform.position = finalPosition;
                 robot.transform.rotation = Quaternion.Euler(0, finalHeading, 0);
-                robot.GetComponent<Robot2>().setUnixtime(lastPos.unix_time);
-                robot.GetComponent<Robot2>().StepCount = 0;
                 continue;
             }
 

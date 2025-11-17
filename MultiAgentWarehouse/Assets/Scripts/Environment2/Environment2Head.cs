@@ -46,36 +46,29 @@ public class Environment2Head : MonoBehaviour
         startRecordingOnPlay = paramJson.param.recordingParams.startRecordingOnPlay;
         endlessMode = paramJson.param.unityParams.endlessMode;
         List<int> episodeNumbers = new List<int>();
-        if (conf.mode != "csv" && !envJson.conf.mode.Contains("replay"))
+        if (paramJson.param.unityParams.useCSVExporter || startRecordingOnPlay)
         {
-            BuildSaveDirectory(dataPath);
-        }
-        else
-        {
-            savePath = conf.csvpath;
-            List<string> subdirs = Util.GetSubdirectories(conf.csvpath);
-            foreach (string subdir in subdirs)
+            if (conf.mode != "csv" && !envJson.conf.mode.Contains("replay"))
             {
-                List<int> number = Util.ParseNumbers(subdir);
-                episodeNumbers.AddRange(number);
-            }   
-            
-            List<string> subdirPaths = Util.GetSubdirectoryPaths(conf.csvpath);
-            if (subdirPaths.Count > 0)
-            {
-                num_envs = Mathf.Max(1,Util.CountEnvFolders(subdirPaths[0]));
+                BuildSaveDirectory(dataPath);
             }
-            if (verbose)
-                Debug.Log("Using CSV Exporter/Recording with save path: " + savePath);
-
-                if (episodeNumbers.Count > 0)
+            else
+            {
+                savePath = conf.csvpath;
+                List<string> subdirs = Util.GetSubdirectories(conf.csvpath);
+                foreach (string subdir in subdirs)
                 {
+                    List<int> number = Util.ParseNumbers(subdir);
+                    episodeNumbers.AddRange(number);
+                }   
+                
+                List<string> subdirPaths = Util.GetSubdirectoryPaths(conf.csvpath);
+                if (subdirPaths.Count > 0)
+                    num_envs = Util.CountEnvFolders(subdirPaths[0]);
+                if (verbose)
+                    Debug.Log("Using CSV Exporter/Recording with save path: " + savePath);
                 CurrentEpisode = episodeNumbers[0];
-                }
-                else
-                {
-                    CurrentEpisode = -1;
-                }
+            }
         }
 
 

@@ -698,63 +698,6 @@ namespace multiagent.util
                                         theta = 0f;
                                     }
                                 }
-                            
-                                if (vxIndex != -1 && vxIndex < row.Length)
-                                {
-                                    if (!float.TryParse(row[vxIndex], out vx))
-                                    {
-                                        vx = 0f;
-                                    }
-                                }
-                                if (vyIndex != -1 && vyIndex < row.Length)
-                                {
-                                    if (!float.TryParse(row[vyIndex], out vy))
-                                    {
-                                        vy = 0f;
-                                    }
-                                }
-                                if (wIndex != -1 && wIndex < row.Length)
-                                {
-                                    if (!float.TryParse(row[wIndex], out w))
-                                    {
-                                        w = 0f;
-                                    }
-                                }
-                                if (collisionTagIDIndex != -1 && collisionTagIDIndex < row.Length)
-                                {
-                                    if (!int.TryParse(row[collisionTagIDIndex], out collisionTagID))
-                                    {
-                                        collisionTagID = 0;
-                                    }
-                                }
-                                if (goalIdIndex != -1 && goalIdIndex < row.Length)
-                                {
-                                    if (!int.TryParse(row[goalIdIndex], out goalId))
-                                    {
-                                        goalId = 0;
-                                    }
-                                }
-                                if (goalTypeIndex != -1 && goalTypeIndex < row.Length)
-                                {
-                                    if (!int.TryParse(row[goalTypeIndex], out goalType))
-                                    {
-                                        goalType = -1;
-                                    }
-                                }
-                                if (xgIndex != -1 && xgIndex < row.Length)
-                                {
-                                    if (!float.TryParse(row[xgIndex], out xg))
-                                    {
-                                        xg = 0f;
-                                    }
-                                }
-                                if (ygIndex != -1 && ygIndex < row.Length)
-                                {
-                                    if (!float.TryParse(row[ygIndex], out yg))
-                                    {
-                                        yg = 0f;
-                                    }
-                                }
 
                                 PositionOrientation pos = new PositionOrientation
                                 {
