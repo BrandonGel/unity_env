@@ -15,7 +15,7 @@ public class MakeObstacles : MonoBehaviour
     private environmentJson envJson = new environmentJson();
     private int worldX, worldY, worldZ;
 
-    
+    public Vector3 offsets = Vector3.zero;
 
     public void CreateRandomObstacles(int x, int z, float obstacleDensity)
     {
@@ -153,7 +153,7 @@ public class MakeObstacles : MonoBehaviour
         ground.name = "GroundPlane";
         ground.transform.parent = gameObject.transform.Find("Ground").transform;
         Vector3 position = new Vector3((worldX - 1) / 2f, 0, (worldZ - 1) / 2f); // Center the plane
-        position = Vector3.Scale(position, this.scale);
+        position = Vector3.Scale(position, this.scale) + offsets;
         ground.transform.localPosition = position;
         Vector3 groundScale = new Vector3(worldX / 10f, 1, worldZ / 10f); // Unity's plane is 10x10 units
         groundScale = Vector3.Scale(groundScale, this.scale);
@@ -167,7 +167,7 @@ public class MakeObstacles : MonoBehaviour
         GameObject obs = Instantiate(obstaclePrefab, currentPosition, Quaternion.identity);
         obs.transform.localScale = this.scale;
         obs.transform.parent = gameObject.transform.Find("Obstacles").transform;
-        obs.transform.localPosition = currentPosition;
+        obs.transform.localPosition = currentPosition + offsets;
         obs.transform.localRotation = Quaternion.identity;
         obs.GetComponent<Renderer>().material= obstacleMaterial;
         if (color != default)
@@ -225,5 +225,10 @@ public class MakeObstacles : MonoBehaviour
             Destroy(child.gameObject);
         }
         Destroy(ground);
+    }
+
+    public void setOffset(int[] offsets)
+    {
+        this.offsets = new Vector3(offsets[0], 0, offsets[1]);
     }
 }

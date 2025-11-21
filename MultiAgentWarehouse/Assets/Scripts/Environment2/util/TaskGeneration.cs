@@ -4,6 +4,7 @@ using multiagent.robot;
 using multiagent.task;
 using multiagent.taskgoal;
 using UnityEngine.Assertions;
+using multiagent.util;
 public class TaskGeneration
 {
     int n_tasks_started = 0;
@@ -140,6 +141,60 @@ public class TaskGeneration
         }
     }
 
+    public void DownloadCSVTasks(List<GameObject> robots)
+    {
+        tasks = new List<Task>();
+        n_tasks = robots.Count;
+        for (int i = 0; i < n_tasks; i++)
+        {
+            int x = Random.Range(0, starts.Count);
+            int y = Random.Range(0, goals.Count);
+
+            List<GameObject> taskpoint = new List<GameObject>
+            {
+                starts[x][0],
+                goals[y][0],
+                goals[y][1],
+                starts[x][1]
+            };
+            Task new_task = new Task(
+                0,
+                "task_" + (i + 1).ToString(),
+                taskpoint,
+                i + 1,
+                verbose);
+            new_task.assigned(i, robots[i].transform);
+            tasks.Add(new_task);
+        }
+    }
+
+    public void updateCSVTasks(float t,Dictionary<string, List<PositionOrientation>> agentPoses)
+    {
+        int robotID = 0;
+        foreach (var agent in agentPoses)
+        {
+            List<PositionOrientation> agentPosesList = agent.Value;
+            for (int i = 0; i < agentPosesList.Count; i++)
+            {
+                
+                PositionOrientation pos = agentPosesList[i];
+                if (pos.unix_time > t)
+                {
+                    break;
+                }
+
+                if (pos.goalType == -1)
+                {
+                    continue;
+                }
+
+                int x = starts[pos.goalId][0].GetComponent<Goal>().getTile()[0];
+                int y = starts[pos.goalId][0].GetComponent<Goal>().getTile()[1];
+
+
+            }
+        }
+    }
     public void CheckAvailableTasks(float t)
     {
         for (int i = n_tasks_started; i < tasks.Count; i++)

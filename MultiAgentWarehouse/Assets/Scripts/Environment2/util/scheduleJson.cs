@@ -41,7 +41,7 @@ public class scheduleJson
         // Check if the file exists
         if (!File.Exists(filePath))
         {
-            Debug.LogError("JSON file not found at " + filePath);
+            Debug.LogWarning("No schedule file provided");
             return;
         }
 

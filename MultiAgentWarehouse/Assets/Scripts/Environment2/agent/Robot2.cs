@@ -100,6 +100,7 @@ namespace multiagent.robot
         public float lineRendererWidth = 25f;
         public bool allowedlightingOn = true;
         public int num_lidar_rays = 1;
+        public float unix_time = -1f;
 
         float[] lidarData, lidarDataUnnormalized, safetyData;
         public agentCollisionEffectClass collisionEffect  = new agentCollisionEffectClass();
@@ -900,6 +901,12 @@ namespace multiagent.robot
         public void set_angularVelocity(Vector3 angularVelocity)
         {
             _rigidbody.angularVelocity = angularVelocity;
+        }
+
+        // Use this in csv update path function
+        public void setUnixtime(float unix_time)
+        {
+            this.unix_time = unix_time;
         }
 
         void Start()

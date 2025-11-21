@@ -1,0 +1,11 @@
+{
+  "filepath":  "parameters.json",
+  "collisionpath":  "",
+  "envpath":  "/home/brandon-ho/Dropbox/Team_Path_Planning/Hyundai_MetaPlant_LogData/Data_251001_9AM-10AM/env.json",
+  "imagepath":  "",
+  "schedulepath":  "",
+  "csvpath":  "/home/brandon-ho/Dropbox/Team_Path_Planning/Hyundai_MetaPlant_LogData/Data_251001_9AM-10AM/Pos_CSV",
+  "csvfolder":  "/home/brandon-ho/Dropbox/Team_Path_Planning/Hyundai_MetaPlant_LogData/Data_251001_9AM-10AM/data",
+  "mode": "csv",
+  "world_mode": "grid"
+}

@@ -128,6 +128,10 @@ public class Environment2 : MonoBehaviour
 
     public string getEpisodePath(int episodeNumber)
     {
+        if (episodeNumber <= 0)
+        {
+            return savePath;
+        }
         return Path.Combine(savePath, "episode_" + episodeNumber.ToString("D4"),"env_" + environment2Agent.getID());
     }
 
@@ -158,6 +162,8 @@ public class Environment2 : MonoBehaviour
         Map envMap = envJson.GetMap();
 
         // Create the World
+        int[] offsets  = root.map.offset;
+        mo.setOffset(offsets);
         if (!alreadyCreated)
         {
             mo.DestroyAll();
@@ -236,15 +242,14 @@ public class Environment2 : MonoBehaviour
         }
         else if (envJson.conf.mode == "csv")
         {
-
-            List<TaskData> tasks = root.tasks;
-            tg.DownloadTasks(tasks);
+            
             string csvpath = getEpisodePath(environment2Agent.getCurrentEpisode());
             csv_data reader = new csv_data();
             List<AgentData> agentDataList = reader.ReadAllCSVFirstPositionAsAgentData(csvpath, verbose: param.unityParams.verbose);
             agentPoses = reader.ReadAllCSVPositionsAndOrientations(csvpath, verbose: param.unityParams.verbose);
             mr.initStartLocation(0, agentDataList, default, scaling, !alreadyCreated);
             mr.setCommandInput(false);
+            tg.DownloadCSVTasks(mr.robots);
         }
         mr.updateRobotParameters(param);
         mr.ResetAll();
@@ -309,6 +314,7 @@ public class Environment2 : MonoBehaviour
         else if (envJson.conf.mode == "csv")
         {
             terminal_state = replayPath.updateCSVPath(t, mr.robots, agentPoses, scaling);
+            tg.updateCSVTasks(t,agentPoses);
         }
         else
         {

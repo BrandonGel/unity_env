@@ -11,7 +11,7 @@ using Unity.Mathematics;
 public class MakeRobots2 : MonoBehaviour
 {
     public List<float[]> spawnlocations = new List<float[]>();
-    public GameObject robot_prefab; // Assign your obstacle prefab here
+    public GameObject robot_prefab; // Assign your robot prefab here
     public List<GameObject> robots = new List<GameObject>();
     public int num_spawn_tries = 1;
     public Vector3 boxSize = new Vector3(1f, 0.5f, 1f);

@@ -12,12 +12,13 @@
     "useShadow": false,
     "useRadian": true,
     "showGUI":false,
+    "showGUITime":true,
     "useOrthographic": false,
     "endlessMode": true
   },
   "agentParams":
   {
-    "num_of_agents": 1,
+    "num_of_agents": 2,
     "min_spacing": 0.1,
     "num_spawn_tries": 10000,
     "maxSpeed": 0.7,
@@ -35,7 +36,7 @@
     "lineRendererMinPathDistance": 0.5,
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
-    "allowedCollisionOn": true,
+    "allowedCollisionOn": false,
     "dynamicsParams":
     {
       "bodyMass": 50.0,

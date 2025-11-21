@@ -1,8 +1,9 @@
 using UnityEngine;
+using System;
 using multiagent.camera;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-
+using multiagent.agent;
 public class GUI_environment2 : MonoBehaviour
 {
     [SerializeField] private GameObject _envHead;
@@ -68,6 +69,21 @@ public class GUI_environment2 : MonoBehaviour
     {
         if (!_envHead.GetComponent<Environment2Head>().showGUI)
         {
+            return;
+        }
+
+        if (_envHead.GetComponent<Environment2Head>().showGUITime)
+        {
+            
+            string debugTime = "Time: " +  Mathf.Round(_envAgents[envID].StepCount*Time.fixedDeltaTime*100)/100 +"s";
+            // float unix_time = _envAgents[envID].getUnixTime();
+            // if (unix_time > 0f)
+            // {
+            //     DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            //     DateTime dateTime = epoch.AddSeconds(unix_time).ToLocalTime();
+            //     debugTime = dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            // }
+            GUI.Label(new Rect(20, 20, 500, 30), debugTime, _defaultStyle);
             return;
         }
 
