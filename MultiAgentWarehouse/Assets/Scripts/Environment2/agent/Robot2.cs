@@ -890,7 +890,17 @@ namespace multiagent.robot
         public void clear_collisionEffectset()
         {
             collisionEffect.clear();
-        }   
+        }
+
+        public void set_linearVelocity(Vector3 velocity)
+        {
+            _rigidbody.linearVelocity = velocity;
+        }
+
+        public void set_angularVelocity(Vector3 angularVelocity)
+        {
+            _rigidbody.angularVelocity = angularVelocity;
+        }
 
         void Start()
         {

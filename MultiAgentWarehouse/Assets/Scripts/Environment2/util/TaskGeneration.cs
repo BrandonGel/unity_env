@@ -19,7 +19,7 @@ public class TaskGeneration
     List<Task> incompleted_tasks = new List<Task>();
     System.Random random = new System.Random();
     bool verbose = false;
-
+    bool showRenderer = false;
 
     public TaskGeneration(int n_tasks, float task_freq, List<List<GameObject>> starts, List<List<GameObject>> goals, List<GameObject> non_tasks, bool verbose = false)
     {
@@ -191,7 +191,7 @@ public class TaskGeneration
                 {
                     Task non_endpoint_task = non_endpoint_tasks[robot_non_endpoint_id[0]];
                     robotComponent.setGoal(non_endpoint_task);
-                    non_endpoint_task.assigned(robotComponent.getID());
+                    non_endpoint_task.assigned(robotComponent.getID(), robot.transform);
                     if (verbose)
                         Debug.Log("Robot " + robotComponent.getID() + " assigned to non-endpoint task " + robotComponent.taskClass.task_name);
                     return;
@@ -204,7 +204,7 @@ public class TaskGeneration
                 non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
             }
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
-            available_tasks[0].assigned(robotComponent.getID());
+            available_tasks[0].assigned(robotComponent.getID(), robot.transform);
             available_tasks.RemoveAt(0);
         }
         catch
@@ -223,7 +223,7 @@ public class TaskGeneration
                 {
                     Task non_endpoint_task = non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]];
                     robotComponent.setGoal(non_endpoint_task);
-                    non_endpoint_task.assigned(robotComponent.getID());
+                    non_endpoint_task.assigned(robotComponent.getID(), robot.transform);
                     if (verbose)
                         Debug.Log("Robot " + robotComponent.getID() + " assigned to non-endpoint task " + robotComponent.taskClass.task_name);
                     return;
@@ -236,7 +236,7 @@ public class TaskGeneration
                 non_endpoint_tasks[robot_non_endpoint_id[robotComponent.getID()]].resetAll();
             }
             robotComponent.setGoal(available_tasks[0]); // Reset goal before assigning new one
-            available_tasks[0].assigned(robotComponent.getID());
+            available_tasks[0].assigned(robotComponent.getID(), robot.transform);
             available_tasks.RemoveAt(0);
             if (verbose)
                 Debug.Log("Robot " + robotComponent.getID() + " assigned to task " + robotComponent.taskClass.task_name);
@@ -275,13 +275,13 @@ public class TaskGeneration
             {
                 Robot robotComponent = robots[i].GetComponent<Robot>();
                 robotComponent.setGoal(task); // Reset goal before assigning new one
-                task.assigned(robotComponent.getID());
+                task.assigned(robotComponent.getID(), robots[i].transform);
             }
             catch
             {
                 Robot2 robotComponent = robots[i].GetComponent<Robot2>();
                 robotComponent.setGoal(task); // Reset goal before assigning new one
-                task.assigned(robotComponent.getID());
+                task.assigned(robotComponent.getID(), robots[i].transform);
             }
         }
         // Remove assigned tasks from available tasks in descending order to avoid index shifting
@@ -307,6 +307,27 @@ public class TaskGeneration
     public List<Task> getNonEndpointTasks()
     {
         return non_endpoint_tasks;
+    }
+
+    public void setShowRenderer(bool showRenderer)
+    {
+        this.showRenderer = showRenderer;
+        foreach (Task task in tasks)
+        {
+            task.setShowRenderer(showRenderer);
+        }
+        foreach (Task task in non_endpoint_tasks)
+        {
+            task.setShowRenderer(showRenderer);
+        }
+    }
+
+    public void activateRenderer()
+    {
+        foreach (Task task in tasks)
+        {
+            task.activateRenderer();
+        }
     }
 
 }

@@ -2,7 +2,7 @@
   "unityParams":
   {
     "seed": 42,  
-    "timescale": 5, 
+    "timescale": 10, 
     "fixed_timestep": 0.25,
     "num_envs": 1,
     "useCSVExporter": false,
@@ -11,8 +11,8 @@
     "verbose": false,
     "useShadow": false,
     "useRadian": true,
-    "showGUI":true,
-    "useOrthographic": true,
+    "showGUI":false,
+    "useOrthographic": false,
     "endlessMode": true
   },
   "agentParams":
@@ -31,8 +31,8 @@
     "maxTimeSteps": 50001,
     "decisionPeriod": 1,
     "verbose": false,
-    "lineRendererMaxPathPositionListCount": 0,
-    "lineRendererMinPathDistance": 0.0,
+    "lineRendererMaxPathPositionListCount": 10,
+    "lineRendererMinPathDistance": 0.5,
     "lineRendererWidth": 0.25,
     "allowedlightingOn": false,
     "allowedCollisionOn": true,
@@ -73,11 +73,11 @@
   },
   "goalParams":
   {
-    "n_tasks": 10,
-    "task_freq": 32,
+    "n_tasks": 1,
+    "task_freq": 10,
     "task_mode": "EarlyStart",
     "verbose": false,
-    "showRenderer": false,
+    "showRenderer": true,
     "goals":
     [
       {

@@ -56,10 +56,7 @@ public class MakeStartsGoals : MonoBehaviour
                 start.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(start);
 
-                if(!showRenderer)
-                {
-                    Util.enableRenderer(start.GetComponent<Renderer>(), false);
-                }
+                Util.enableRenderer(start.GetComponent<Renderer>(), false);
 
                 j += 1;
             }
@@ -92,10 +89,7 @@ public class MakeStartsGoals : MonoBehaviour
                 goal.transform.localRotation = Quaternion.identity;
                 gameobject_list.Add(goal);
 
-                if(!showRenderer)
-                {
-                    Util.enableRenderer(goal.GetComponent<Renderer>(), false);
-                }
+                Util.enableRenderer(goal.GetComponent<Renderer>(), false);
 
                 j += 1;
             }
@@ -120,10 +114,7 @@ public class MakeStartsGoals : MonoBehaviour
             non_task.transform.localRotation = Quaternion.identity;
             non_tasks.Add(non_task);
 
-            if(!showRenderer)
-            {
-                Util.enableRenderer(non_task.GetComponent<Renderer>(), false);
-            }
+            Util.enableRenderer(non_task.GetComponent<Renderer>(), false);
 
             i += 1;
         }

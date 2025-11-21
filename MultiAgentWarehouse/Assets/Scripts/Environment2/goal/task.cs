@@ -23,7 +23,9 @@ namespace multiagent.task
         public int taskID = 0;
         public bool is_non_endpoint_task = false;
         public bool verbose = false;
-
+        public bool showRenderer = false;
+        public Transform robotPosition = null;
+        
         public Task(float start_time, string task_name, List<GameObject> taskpoint, int taskID = -1, bool verbose = false)
         {
             this.start_time = start_time;
@@ -55,6 +57,7 @@ namespace multiagent.task
             UnityEngine.Assertions.Assert.IsTrue(oldRobotID >= 0);
             UnityEngine.Assertions.Assert.IsTrue(newRobotID >= 0);
             assignedRobotID = newRobotID;
+            activateRenderer(); 
         }
 
         public void removed()
@@ -62,26 +65,34 @@ namespace multiagent.task
             assignedRobotID = -1;
         }
 
-        public void assigned(int robotID)
+        public void assigned(int robotID, Transform robotPosition = default)
         {
             UnityEngine.Assertions.Assert.IsTrue(robotID >= 0);
             assignedRobotID = robotID;
+            activateRenderer();
+            if (robotPosition != default)
+            {
+                this.robotPosition = robotPosition;
+            }
             if (verbose)
                 Debug.Log("Task: " + task_name + " assigned to Robot " + assignedRobotID);
         }
 
         public void moveNext()
         {
+            
             if (task_ind + 1 < taskpoint.Count)
             {
+                task_ind += 1;
                 if (verbose)
                     Debug.Log("Task: " + task_name + " moving to next goal " + (task_ind + 1) + " by Robot " + assignedRobotID);
-                task_ind += 1;
                 _reached = false;
+                activateRenderer();
             }
             else
             {
                 // Debug.Log("Task: " + task_name + " completed by Robot " + assignedRobotID);
+                task_ind = taskpoint.Count;
                 _completed = true;
             }
 
@@ -148,6 +159,63 @@ namespace multiagent.task
         public bool checkNonEndpointTask()
         {
             return is_non_endpoint_task;
+        }
+        
+        public void setShowRenderer(bool showRenderer)
+        {
+            this.showRenderer = showRenderer;
+        }
+
+        public void activateRenderer()
+        {
+            if(!showRenderer)
+            {
+                return;
+            }
+            switch (task_ind)
+            {
+                case -1:
+                case 0:
+                    Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), true);
+                    Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
+                    break;
+                case 1:
+                    Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), true);
+                    Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), true);
+                    Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
+                    taskpoint[0].GetComponent<Goal>().setPosition(robotPosition.position + new Vector3(0, 1f, 0));
+                    break;
+                case 2:
+                    taskpoint[0].GetComponent<Goal>().resetPosition();
+                    Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), true);
+                    Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
+                    Debug.Log("Task: " + task_name + " activating renderer for goal 2");
+                    break;
+                case 3:
+                    Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), true);
+                    Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), true);
+                    taskpoint[2].GetComponent<Goal>().setPosition(robotPosition.position + new Vector3(0, 1f, 0));
+                    Debug.Log("Task: " + task_name + " activating renderer for goal 3");
+                    break;
+                case 4:
+                    taskpoint[2].GetComponent<Goal>().resetPosition();
+                    Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), false);
+                    Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
+                    Debug.Log("Task: " + task_name + " activating renderer for goal 4");
+                    break;
+            }
+            if (verbose)
+                Debug.Log("Task: " + task_name + " activating renderer");
+            
         }
     }
 }

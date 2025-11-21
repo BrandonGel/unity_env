@@ -265,7 +265,7 @@ public class Environment2 : MonoBehaviour
         robotsObjList = mr.robots;
         dynamicObstaclesObjList = md.dynamic_obstacles;
         cg.set_collision_params(param.collisionParams,robotsObjList, dynamicObstaclesObjList);
-
+        tg.setShowRenderer(param.goalParams.showRenderer);
 
     }
 
@@ -325,6 +325,7 @@ public class Environment2 : MonoBehaviour
                 Debug.Log("Resetting Environment at Step: " + environment2Agent.StepCount);
             environment2Agent.EndEpisode();            
         }
+        tg.activateRenderer();
         
     }
 

@@ -14,6 +14,7 @@ namespace multiagent.taskgoal
         private int _counter = 0;
         private System.Random random;
         private bool _busy = false;
+        private bool _showRenderer = false;
         private int[] tile;
         public float goalWait = 1f;
         public int goalDelayWait = 0;
@@ -21,11 +22,13 @@ namespace multiagent.taskgoal
         public float goalWaitProbability = 1f;
         public int goalID = -1;
         public int goalType = 0;
+        public Vector3 initialPosition = Vector3.zero;
 
         void Start()
         {
             // Util.enableRenderer(GetComponent<Renderer>(), false);
             random = new System.Random();
+            initialPosition = transform.position;
         }
 
         public int getCounter()
@@ -97,8 +100,31 @@ namespace multiagent.taskgoal
             _busy = false;
         }
 
+        public void setShowRenderer(bool showRenderer)
+        {
+            _showRenderer = showRenderer;
+            Util.enableRenderer(GetComponent<Renderer>(), showRenderer);
+        }
 
+        public bool getShowRenderer()
+        {
+            return _showRenderer;
+        }
 
+        public void setPosition(Vector3 position)
+        {
+            transform.position = position;
+        }
+
+        public Vector3 getPosition()
+        {
+            return transform.position;
+        }
+
+        public void resetPosition()
+        {
+            transform.position = initialPosition;
+        }
     }
 
 

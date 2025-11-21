@@ -11,6 +11,7 @@ public class GUI_environment2 : MonoBehaviour
     [Range(-90, 90)][SerializeField] public float rollAngle = 0; // rotate x axis
     public float dx = 0; // rotate y axis
     public float dy = 0; // rotate x axis
+    public float dz = 0; // rotate z axis
     private List<Camera> _envCameras = new List<Camera>();
     private List<Environment2Agent> _envAgents = new List<Environment2Agent>();
     float fov = 60f;
@@ -21,6 +22,8 @@ public class GUI_environment2 : MonoBehaviour
     private GUIStyle _negativeStyle = new GUIStyle();
     public int envID = 0;
     public bool useOrthographic = false;
+    private bool isPanning = false;
+    private Vector3 lastMousePosition;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,7 +44,7 @@ public class GUI_environment2 : MonoBehaviour
         _mainCamera.enabled = true;
 
         useOrthographic =_envHead.GetComponent<Environment2Head>().useOrthographic;
-        // _mainCamera.orthographic = useOrthographic;
+        _mainCamera.orthographic = useOrthographic;
 
         Scene currentScene = SceneManager.GetActiveScene();
         foreach (Transform child in _envHead.transform)
@@ -78,7 +81,7 @@ public class GUI_environment2 : MonoBehaviour
         {
             debugPlayers += _envAgents[envID].robots.Count;
         }
-
+        
 
         // // Camera GUI & Reward Information
         bool mainCameraDisplayed = _mainCamera.GetComponent<Camera>().enabled;
@@ -145,13 +148,68 @@ public class GUI_environment2 : MonoBehaviour
         {
             dy += -1f;
         }
-        
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        if(scrollInput < 0)
+        {
+            dz += 0.5f;
+        }
+        else if(scrollInput > 0)
+        {
+            dz += -0.5f;
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            // Get mouse movement deltas
+            float mouseX = Input.GetAxis("Mouse X");
+            float mouseY = Input.GetAxis("Mouse Y");
+
+            // Apply rotation to the transform
+            // Rotate around the Y-axis for horizontal movement (mouseX)
+            // Rotate around the X-axis for vertical movement (mouseY)
+            transform.Rotate(Vector3.up, mouseX * 0.5f, Space.World); 
+            transform.Rotate(Vector3.right, -mouseY * 0.5f, Space.Self); // Invert mouseY for intuitive up/down rotation
+            yawAngle = transform.rotation.eulerAngles.y;
+            rollAngle = transform.rotation.eulerAngles.x-90f;
+        }
+
+        // Check if the middle mouse button (Mouse 2) is pressed down
+        if (Input.GetMouseButtonDown(2))
+        {
+            isPanning = true;
+            lastMousePosition = Input.mousePosition;
+        }
+
+        // Check if the middle mouse button is being held down
+        if (Input.GetMouseButton(2) && isPanning)
+        {
+            Vector3 currentMousePosition = Input.mousePosition;
+            Vector3 delta = currentMousePosition - lastMousePosition;
+
+            // Calculate the movement in world coordinates
+            Vector3 panDirection = new Vector3(-delta.x, -delta.y, 0f).normalized; 
+            transform.Translate(panDirection * 0.5f , Space.World);
+            Vector3 envCenter = _envHead.GetComponent<Environment2Head>().envCenters[envID];
+            dx = transform.position.x - envCenter.x;
+            dy = transform.position.y - envCenter.y;
+            dz = transform.position.z - envCenter.z;
+
+            lastMousePosition = currentMousePosition;
+        }
+
+        // Check if the middle mouse button is released
+        if (Input.GetMouseButtonUp(2))
+        {
+            isPanning = false;
+        }
+
         if (Input.GetKey(KeyCode.R))
         {
             yawAngle = 0;
             rollAngle = 0;
             dx = 0;
             dy = 0;
+            dz = 0;
         }
     }
 
@@ -173,6 +231,7 @@ public class GUI_environment2 : MonoBehaviour
             rollAngle = 0;
             dx = 0;
             dy = 0;
+            dz = 0;
         }
         if (_mainCamera.enabled == true)
         {
@@ -184,7 +243,7 @@ public class GUI_environment2 : MonoBehaviour
             if (maxLength == envSize.x)
             {
                 float currentAspectRatio = (float)Screen.width / Screen.height;
-                Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg;
+                Camera.main.fieldOfView = 2f * Mathf.Atan(Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) / currentAspectRatio) * Mathf.Rad2Deg + dz;
             }
 
             envCenter.y = 1.1f * maxLength / (2 * Mathf.Tan(Mathf.Deg2Rad * fov / 2));
@@ -198,7 +257,10 @@ public class GUI_environment2 : MonoBehaviour
 
 
             _mainCamera.transform.localRotation =  Quaternion.Euler(90+rollAngle, yawAngle%360f, 0);
-            _mainCamera.transform.position = envCenter + new Vector3(dx, 0, dy);
+            _mainCamera.transform.position = envCenter + new Vector3(dx, dz, dy);
+            _mainCamera.transform.position = Quaternion.Euler(0,  yawAngle%360f, 0) * (_mainCamera.transform.position-envCenter) + envCenter;
+            _mainCamera.transform.position = Quaternion.Euler(rollAngle,  0, 0) * _mainCamera.transform.position;
+
         }
     }
 }

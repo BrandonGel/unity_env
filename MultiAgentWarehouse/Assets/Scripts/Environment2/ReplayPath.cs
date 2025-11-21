@@ -52,6 +52,7 @@ public class ReplayPath
             if (isAtEnd) // In termination state
             {
                 agentsAtEnd++;
+                robot.GetComponent<Robot2>().StepCount = 0;
                 continue;
             }
             
@@ -84,6 +85,7 @@ public class ReplayPath
                                                 headingRotationSpeed * Time.deltaTime
                                             );
             robot.transform.position = newPosition;  
+            robot.GetComponent<Robot2>().StepCount += 1;
         }
 
         // Return true only if all agents have reached the end of their trajectories
@@ -159,6 +161,7 @@ public class ReplayPath
                 
                 robot.transform.position = finalPosition;
                 robot.transform.rotation = Quaternion.Euler(0, finalHeading, 0);
+                robot.GetComponent<Robot2>().StepCount = 0;
                 continue;
             }
 
@@ -198,6 +201,24 @@ public class ReplayPath
                                                 headingRotationSpeed * Time.deltaTime
                                             );
             robot.transform.position = newPosition;
+
+            // Update Robot Velocity
+            Vector3 velocity1 = new Vector3(pos1.vx, 0, pos1.vy);
+            Vector3 velocity2 = new Vector3(pos2.vx, 0, pos2.vy);
+            Vector3 velocity = Util.interpolate(velocity1, velocity2, frac);
+            velocity = Vector3.Scale(velocity, scale);
+            robot.GetComponent<Robot2>().set_linearVelocity(velocity);  
+
+            // Update Robot Angular Velocity
+            float angularVelocity1 = pos1.w;
+            float angularVelocity2 = pos2.w;
+            float angularVelocity = Util.linearInterpolate(angularVelocity1, angularVelocity2, frac);
+            robot.GetComponent<Robot2>().set_angularVelocity(new Vector3(0, angularVelocity, 0));   
+
+            // Update Robot Collision Tag ID
+            int collisionTagID = pos2.collisionTagID;
+            robot.GetComponent<Robot2>().setCollisionTagID(collisionTagID);
+            robot.GetComponent<Robot2>().StepCount += 1;
         }
 
         // Return true only if all agents have reached the end of their trajectories

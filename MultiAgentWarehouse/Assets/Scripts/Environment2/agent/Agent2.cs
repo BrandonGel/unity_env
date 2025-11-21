@@ -378,6 +378,19 @@ namespace multiagent.robot
         {
             return _collisionTagID;
         }
+
+        public void setCollisionTagID(int collisionTagID)
+        {
+            _collisionTagID = collisionTagID;
+            if(collisionTagID > 0)
+            {
+                changeMaterialColor("c");
+            }
+            else
+            {
+                changeMaterialColor();
+            }
+        }
     }
 
 }

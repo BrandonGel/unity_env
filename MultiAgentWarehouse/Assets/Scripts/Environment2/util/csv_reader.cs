@@ -16,6 +16,10 @@ namespace multiagent.util
         public float x;
         public float y;
         public float theta; // orientation in radians
+        public float vx;
+        public float vy;
+        public float w;
+        public int collisionTagID;
     }
 
     public class csv_reader
@@ -561,7 +565,10 @@ namespace multiagent.util
                         int xIndex = -1;
                         int yIndex = -1;
                         int thetaIndex = -1;
-
+                        int vxIndex = -1;
+                        int vyIndex = -1;
+                        int wIndex = -1;
+                        int collisionTagIDIndex = -1;
                         if (hasHeaderRow && reader.header.Count > 0)
                         {
                             // Use header to find column indices
@@ -569,6 +576,10 @@ namespace multiagent.util
                             xIndex = reader.header.IndexOf("x");
                             yIndex = reader.header.IndexOf("y");
                             thetaIndex = reader.header.IndexOf("theta");
+                            vxIndex = reader.header.IndexOf("vx");
+                            vyIndex = reader.header.IndexOf("vy");
+                            wIndex = reader.header.IndexOf("w");
+                            collisionTagIDIndex = reader.header.IndexOf("collisionTagID");
                         }
                         else
                         {
@@ -577,6 +588,10 @@ namespace multiagent.util
                             xIndex = 1;
                             yIndex = 2;
                             thetaIndex = 3;
+                            vxIndex = 4;
+                            vyIndex = 5;
+                            wIndex = 6;
+                            collisionTagIDIndex = 7;
                         }
 
                         if (xIndex == -1 || yIndex == -1)
@@ -618,11 +633,44 @@ namespace multiagent.util
                             {
                                 // Parse theta (orientation), default to 0 if not found or not parseable
                                 float theta = 0f;
+                                float vx = 0f;
+                                float vy = 0f;
+                                float w = 0f;
+                                int collisionTagID = 0;
                                 if (thetaIndex != -1 && thetaIndex < row.Length)
                                 {
                                     if (!float.TryParse(row[thetaIndex], out theta))
                                     {
                                         theta = 0f;
+                                    }
+                                }
+                            
+                                if (vxIndex != -1 && vxIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[vxIndex], out vx))
+                                    {
+                                        vx = 0f;
+                                    }
+                                }
+                                if (vyIndex != -1 && vyIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[vyIndex], out vy))
+                                    {
+                                        vy = 0f;
+                                    }
+                                }
+                                if (wIndex != -1 && wIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[wIndex], out w))
+                                    {
+                                        w = 0f;
+                                    }
+                                }
+                                if (collisionTagIDIndex != -1 && collisionTagIDIndex < row.Length)
+                                {
+                                    if (!int.TryParse(row[collisionTagIDIndex], out collisionTagID))
+                                    {
+                                        collisionTagID = 0;
                                     }
                                 }
 
@@ -631,7 +679,11 @@ namespace multiagent.util
                                     time = time,
                                     x = x,
                                     y = y,
-                                    theta = theta
+                                    theta = theta,
+                                    vx = vx,
+                                    vy = vy,
+                                    w = w,
+                                    collisionTagID = collisionTagID
                                 };
 
                                 positions.Add(pos);

@@ -180,6 +180,7 @@ MonoBehaviour:
   useOrthographic: 1
   screenRecorder: {fileID: 81640659}
   startRecordingOnPlay: 0
+  endlessMode: 0
 --- !u!114 &81640658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,7 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startRecordingOnPlay: 1
-  toggleRecordingKey: 114
+  toggleRecordingKey: 0
   screenshotWidth: 1920
   screenshotHeight: 1080
   useFullScreenResolution: 0
@@ -504,6 +505,7 @@ MonoBehaviour:
   rollAngle: 0
   dx: 0
   dy: 0
+  dz: 0
   envID: 0
   useOrthographic: 0
 --- !u!4 &1897403340
