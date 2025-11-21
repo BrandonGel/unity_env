@@ -261,7 +261,6 @@ namespace multiagent.dynamic_obstacle
             CurrentEpisode++;
             StepCount = 0;
             collisionTagID = 0;
-            Debug.Log("Resetting Dynamic Obstacle " + getID() + " to position " + newSpawnPosition);
             transform.position = newSpawnPosition;
             transform.rotation = newSpawnOrientation;
             navMeshAgent.Warp(newSpawnPosition);

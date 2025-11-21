@@ -49,7 +49,7 @@ public class MakeStartsGoals : MonoBehaviour
                 float goalDelayPenalty = goalParams != default ? goalParams.starts[j].sampleGoalPenalty() : 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.starts[j].sampleGoalProb() : 0f;
 
-                start.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
+                start.GetComponent<Goal>().setParameters(0,i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 start.transform.localScale = scaling;
                 start.transform.parent = gameObject.transform.Find("Starts").transform;
                 start.transform.localPosition = pos;
@@ -82,7 +82,7 @@ public class MakeStartsGoals : MonoBehaviour
                 float goalWait = goalParams != default ? goalParams.goals[j].sampleGoalWait() : 0f;
                 float goalDelayPenalty = goalParams != default ? goalParams.goals[j].sampleGoalPenalty() : 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.goals[j].sampleGoalProb() : 0f;
-                goal.GetComponent<Goal>().setParameters(i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
+                goal.GetComponent<Goal>().setParameters(1,i, j, loc, goalWait, goalDelayPenalty, goalWaitProbability);
                 goal.transform.localScale = scaling;
                 goal.transform.parent = gameObject.transform.Find("Goals").transform;
                 goal.transform.localPosition = pos;
@@ -107,7 +107,7 @@ public class MakeStartsGoals : MonoBehaviour
             Vector3 pos = new Vector3(loc[0], 0, loc[1]) + nontaskSpawnPosition;
             pos = Vector3.Scale(pos, scaling);
             GameObject non_task = Instantiate(non_task_prefab, pos, Quaternion.identity);
-            non_task.GetComponent<Goal>().setParameters(i, 0, loc, 0f, 0f, 0f);
+            non_task.GetComponent<Goal>().setParameters(2, i, 0, loc, 0f, 0f, 0f);
             non_task.transform.localScale = scaling;
             non_task.transform.parent = gameObject.transform.Find("Nontasks").transform;
             non_task.transform.localPosition = pos;

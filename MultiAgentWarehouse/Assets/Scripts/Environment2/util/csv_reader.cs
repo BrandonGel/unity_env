@@ -22,6 +22,7 @@ namespace multiagent.util
         public float vy;
         public float w;
         public int collisionTagID;
+        public int goalCategory;
         public int goalId;
         public int goalType;
         public float xg;
@@ -534,7 +535,6 @@ namespace multiagent.util
                 Debug.LogError($"Directory not found: {directoryPath}");
                 return positionsDict;
             }
-            Debug.Log("CSV Path:" + directoryPath);
             try
             {
                 string[] csvFiles = Directory.GetFiles(directoryPath, searchPattern);
@@ -577,6 +577,7 @@ namespace multiagent.util
                         int vyIndex = -1;
                         int wIndex = -1;
                         int collisionTagIDIndex = -1;
+                        int goalCategoryIndex = -1;
                         int goalIdIndex = -1;
                         int goalTypeIndex = -1;
                         int xgIndex = -1;
@@ -607,7 +608,8 @@ namespace multiagent.util
                             vyIndex = reader.header.IndexOf("vy");
                             wIndex = reader.header.IndexOf("w");
                             collisionTagIDIndex = reader.header.IndexOf("collisionTagID");
-                            goalIdIndex = reader.header.IndexOf("goalId");
+                            goalCategoryIndex = reader.header.IndexOf("goalCategory");
+                            goalIdIndex = reader.header.IndexOf("goalID");
                             goalTypeIndex = reader.header.IndexOf("goalType");
                             xgIndex = reader.header.IndexOf("xg");
                             ygIndex = reader.header.IndexOf("yg");
@@ -623,10 +625,11 @@ namespace multiagent.util
                             vyIndex = 5;
                             wIndex = 6;
                             collisionTagIDIndex = 7;
-                            goalIdIndex = 8;
-                            goalTypeIndex = 9;
-                            xgIndex = 10;
-                            ygIndex = 11;
+                            goalCategoryIndex = 8;
+                            goalIdIndex = 9;
+                            goalTypeIndex = 10;
+                            xgIndex = 11;
+                            ygIndex = 12;
                         }
 
                         if (xIndex == -1 || yIndex == -1)
@@ -688,6 +691,7 @@ namespace multiagent.util
                                 float w = 0f;
                                 int collisionTagID = 0;
                                 int goalId = 0;
+                                int goalCategory = -1;
                                 int goalType = -1;
                                 float xg = 0f;
                                 float yg = 0f;
@@ -698,7 +702,69 @@ namespace multiagent.util
                                         theta = 0f;
                                     }
                                 }
-
+                                if (vxIndex != -1 && vxIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[vxIndex], out vx))
+                                    {
+                                        vx = 0f;
+                                    }
+                                }
+                                if (vyIndex != -1 && vyIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[vyIndex], out vy))
+                                    {
+                                        vy = 0f;
+                                    }
+                                }
+                                if (wIndex != -1 && wIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[wIndex], out w))
+                                    {
+                                        w = 0f;
+                                    }
+                                }
+                                if (collisionTagIDIndex != -1 && collisionTagIDIndex < row.Length)
+                                {
+                                    if (!int.TryParse(row[collisionTagIDIndex], out collisionTagID))
+                                    {
+                                        collisionTagID = -1;
+                                    }
+                                }
+                                if (goalCategoryIndex != -1 && goalCategoryIndex < row.Length)
+                                {
+                                    if (!int.TryParse(row[goalCategoryIndex], out goalCategory))
+                                    {
+                                        goalCategory = -1;
+                                    }
+                                }
+                                if (goalIdIndex != -1 && goalIdIndex < row.Length)
+                                {
+                                    if (!int.TryParse(row[goalIdIndex], out goalId))
+                                    {
+                                        goalId = -1;
+                                    }
+                                }
+                                if (goalTypeIndex != -1 && goalTypeIndex < row.Length)
+                                {
+                                    if (!int.TryParse(row[goalTypeIndex], out goalType))
+                                    {
+                                        goalType = -1;
+                                    }
+                                }
+                                if (xgIndex != -1 && xgIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[xgIndex], out xg))
+                                    {
+                                        xg = 0f;
+                                    }
+                                }
+                                if (ygIndex != -1 && ygIndex < row.Length)
+                                {
+                                    if (!float.TryParse(row[ygIndex], out yg))
+                                    {
+                                        yg = 0f;
+                                    }
+                                }
                                 PositionOrientation pos = new PositionOrientation
                                 {
                                     unix_time = unix_time,
@@ -710,6 +776,7 @@ namespace multiagent.util
                                     vy = vy,
                                     w = w,
                                     collisionTagID = collisionTagID,
+                                    goalCategory = goalCategory,
                                     goalId = goalId,
                                     goalType = goalType,
                                     xg = xg,

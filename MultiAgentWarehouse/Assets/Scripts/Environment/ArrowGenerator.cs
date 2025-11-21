@@ -154,6 +154,9 @@ public class ArrowGenerator : MonoBehaviour
         trianglesList.Add(0);
         trianglesList.Add(2);
         trianglesList.Add(1);
+        trianglesList.Add(0);
+        trianglesList.Add(1);
+        trianglesList.Add(2);
 
         float stemHalfWidth = stemWidth / 2;
         verticesList.Add(stemOrigin + stemHalfWidth * normalVector);
@@ -166,6 +169,12 @@ public class ArrowGenerator : MonoBehaviour
         trianglesList.Add(3);
         trianglesList.Add(5);
         trianglesList.Add(6);
+        trianglesList.Add(3);
+        trianglesList.Add(4);
+        trianglesList.Add(6);
+        trianglesList.Add(3);
+        trianglesList.Add(6);
+        trianglesList.Add(5);
 
 
         mesh.vertices = verticesList.ToArray();
@@ -267,6 +276,7 @@ public class ArrowGenerator : MonoBehaviour
             normalVector = Quaternion.AngleAxis(signedAngle, binormalVector) * normalVector;
         }
 
+        float directionSign = Mathf.Sign(dummyValue);
         float scale = Mathf.Clamp(Mathf.Abs(dummyValue) / maxLim, 0, 1);
 
         Vector3[] vertices = mesh.vertices;
@@ -290,6 +300,10 @@ public class ArrowGenerator : MonoBehaviour
             {
                 vertices[i] = new Vector3(0f, 0f, 0f);
                 continue;
+            }
+            if (directionSign < 0)
+            {
+                vertices[i] = Quaternion.AngleAxis(-180, normalVector) * (vertices[i] - stemOrigin) + stemOrigin;
             }
         }
 

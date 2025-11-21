@@ -5,6 +5,7 @@ using multiagent.task;
 using multiagent.taskgoal;
 using UnityEngine.Assertions;
 using multiagent.util;
+using UnityEngine;
 public class TaskGeneration
 {
     int n_tasks_started = 0;
@@ -18,6 +19,7 @@ public class TaskGeneration
     List<Task> tasks = new List<Task>();
     List<Task> available_tasks = new List<Task>();
     List<Task> incompleted_tasks = new List<Task>();
+    List<int> csv_task_time_indices = new List<int>();
     System.Random random = new System.Random();
     bool verbose = false;
     bool showRenderer = false;
@@ -171,28 +173,70 @@ public class TaskGeneration
     public void updateCSVTasks(float t,Dictionary<string, List<PositionOrientation>> agentPoses)
     {
         int robotID = 0;
+
+        if (csv_task_time_indices.Count == 0)
+        {
+            for (int i = 0; i < agentPoses.Count; i++)
+            {
+                csv_task_time_indices.Add(0);
+            }
+        }
+
+        int agent_index = 0;
         foreach (var agent in agentPoses)
         {
             List<PositionOrientation> agentPosesList = agent.Value;
-            for (int i = 0; i < agentPosesList.Count; i++)
+            for (int i = csv_task_time_indices[agent_index]; i < agentPosesList.Count; i++)
             {
-                
                 PositionOrientation pos = agentPosesList[i];
-                if (pos.unix_time > t)
+                if (pos.time > t)
                 {
                     break;
                 }
+                csv_task_time_indices[agent_index] = i + 1;
+                csv_task_time_indices[agent_index] = Mathf.Min(csv_task_time_indices[agent_index], agentPosesList.Count - 1);
+                
 
-                if (pos.goalType == -1)
+                if (pos.goalCategory == -1)
                 {
+                    tasks[agent_index].setTaskInd(-1);
                     continue;
                 }
 
-                int x = starts[pos.goalId][0].GetComponent<Goal>().getTile()[0];
-                int y = starts[pos.goalId][0].GetComponent<Goal>().getTile()[1];
+                GameObject goalClass = null;
+                int goalID = pos.goalId;
+                int goalType = pos.goalType;
+                int task_ind = -1;
+                if (pos.goalCategory == 0)
+                {
+                    goalClass = starts[goalID][goalType];
+                    task_ind = goalType == 0 ? 0 : 3;
+                }
+                else if (pos.goalCategory == 1)
+                {
+                    goalClass = goals[goalID][goalType];
+                    task_ind = goalType == 0 ? 1 : 2;
+                }
 
-
+                int current_task_ind = tasks[agent_index].getTaskInd();
+                int[] goalTile = goalClass.GetComponent<Goal>().getTile();
+                if(tasks[agent_index].getShowRenderer() && current_task_ind != task_ind)
+                {
+                    Transform goalClassParent = goalClass.transform.parent;
+                    goalClass= UnityEngine.Object.Instantiate(goalClass);
+                    goalClass.transform.parent = goalClassParent;
+                    goalClass.GetComponent<Goal>().setParameters(pos.goalCategory, pos.goalId, pos.goalType, goalTile, 0f, 0f, 0f);
+                    tasks[agent_index].taskpoint[task_ind] = goalClass;
+                }
+                if(!tasks[agent_index].getShowRenderer())
+                {
+                    tasks[agent_index].taskpoint[task_ind] = goalClass;
+                }
+                tasks[agent_index].setTaskInd(task_ind);
+                
+                
             }
+            agent_index++;
         }
     }
     public void CheckAvailableTasks(float t)

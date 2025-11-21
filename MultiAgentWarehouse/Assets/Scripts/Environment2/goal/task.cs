@@ -146,7 +146,10 @@ namespace multiagent.task
             GameObject currentGoal = taskpoint[task_ind];
             return currentGoal;
         }
-
+        public int getCurrentGoalCategory()
+        {
+            return taskpoint[task_ind].GetComponent<Goal>().goalCategory;
+        }
         public int getCurrentGoalID()
         {
             return taskpoint[task_ind].GetComponent<Goal>().goalID;
@@ -164,17 +167,35 @@ namespace multiagent.task
         public void setShowRenderer(bool showRenderer)
         {
             this.showRenderer = showRenderer;
+            if(showRenderer)
+            {
+                activateRenderer();
+            }
+        }
+
+        public bool getShowRenderer()
+        {
+            return showRenderer;
+        }
+
+        public void setTaskInd(int task_ind)
+        {
+            this.task_ind = task_ind;
+        }
+
+        public int getTaskInd()
+        {
+            return task_ind;
         }
 
         public void activateRenderer()
         {
-            if(!showRenderer)
+            if(!showRenderer || task_ind == -1 || taskpoint.Count <= 3)
             {
                 return;
             }
             switch (task_ind)
             {
-                case -1:
                 case 0:
                     Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), true);
                     Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
@@ -194,7 +215,6 @@ namespace multiagent.task
                     Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
                     Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), true);
                     Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
-                    Debug.Log("Task: " + task_name + " activating renderer for goal 2");
                     break;
                 case 3:
                     Util.enableRenderer(taskpoint[0].GetComponent<Renderer>(), false);
@@ -202,7 +222,6 @@ namespace multiagent.task
                     Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), true);
                     Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), true);
                     taskpoint[2].GetComponent<Goal>().setPosition(robotPosition.position + new Vector3(0, 1f, 0));
-                    Debug.Log("Task: " + task_name + " activating renderer for goal 3");
                     break;
                 case 4:
                     taskpoint[2].GetComponent<Goal>().resetPosition();
@@ -210,7 +229,6 @@ namespace multiagent.task
                     Util.enableRenderer(taskpoint[1].GetComponent<Renderer>(), false);
                     Util.enableRenderer(taskpoint[2].GetComponent<Renderer>(), false);
                     Util.enableRenderer(taskpoint[3].GetComponent<Renderer>(), false);
-                    Debug.Log("Task: " + task_name + " activating renderer for goal 4");
                     break;
             }
             if (verbose)

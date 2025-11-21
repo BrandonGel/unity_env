@@ -20,6 +20,7 @@ namespace multiagent.taskgoal
         public int goalDelayWait = 0;
         public float goalDelayPenalty = 0f;
         public float goalWaitProbability = 1f;
+        public int goalCategory = -1;
         public int goalID = -1;
         public int goalType = 0;
         public Vector3 initialPosition = Vector3.zero;
@@ -51,8 +52,9 @@ namespace multiagent.taskgoal
             return tile;
         }
 
-        public void setParameters(int goalID, int goalType, int[] tile, float goalWait = 0f, float goalDelayPenalty = 0f, float goalWaitProbability = 1f)
+        public void setParameters(int goalCategory, int goalID, int goalType, int[] tile, float goalWait = 0f, float goalDelayPenalty = 0f, float goalWaitProbability = 1f)
         {
+            this.goalCategory = goalCategory;
             this.goalID = goalID;
             this.goalType = goalType;
             this.tile = tile;

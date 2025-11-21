@@ -63,7 +63,7 @@ public class Environment2 : MonoBehaviour
         Robot2 robotTemplate = mr.robot_prefab.GetComponent<Robot2>();
         robots_obs_space = robotTemplate.calculateObservationSize(robotTemplate.getObservationSize(), param.agentParams.rayParams.rayDirections, param.agentParams.rayParams.maxRayDegrees);
         normalizeObservations = param.unityParams.normalizeObservations;
-        savePath = Directory.GetParent(Application.dataPath).FullName;;
+        savePath = Directory.GetParent(Application.dataPath).FullName;
         if (!param.unityParams.useShadow)
         {
             if (verbose)
@@ -226,8 +226,6 @@ public class Environment2 : MonoBehaviour
             {
                 mr.initStartLocation(param.agentParams.num_of_agents, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
                 md.initStartLocation(param.dynamicObstacleParams.num_of_dyn_obs, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
-                // mr.initStartLocation(param.agentParams.num_of_agents, default, mn_agent.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
-                // md.initStartLocation(param.dynamicObstacleParams.num_of_dyn_obs, default, mn_dynamic_obstacle.FindValidNavMeshSpawnPoint, scaling, !alreadyCreated);
             }
         }
         else if (envJson.conf.mode.Contains("download"))
@@ -242,7 +240,6 @@ public class Environment2 : MonoBehaviour
         }
         else if (envJson.conf.mode == "csv")
         {
-            
             string csvpath = getEpisodePath(environment2Agent.getCurrentEpisode());
             csv_data reader = new csv_data();
             List<AgentData> agentDataList = reader.ReadAllCSVFirstPositionAsAgentData(csvpath, verbose: param.unityParams.verbose);

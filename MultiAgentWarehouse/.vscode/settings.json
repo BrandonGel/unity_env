@@ -51,5 +51,8 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "MultiAgentWarehouse.sln"
+    "dotnet.defaultSolution": "MultiAgentWarehouse.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "/home/bho36/Documents/code/unity_env/MultiAgentWarehouse/MultiAgentWarehouse.sln"
+    ]
 }

@@ -76,11 +76,10 @@ public class Environment2Agent : Agent
         if (CurrentEpisode > 0)
         {
             env.exportEpisodeData(CurrentEpisode);
-            CurrentEpisode += 1;
-        }            
+        }   
+        CurrentEpisode += 1;         
         CumulativeReward = 0f;
         env.readConfig(env.getConfigFile());
-        Debug.Log("Episode: " + CurrentEpisode);
         env.init();
         robots = env.mr.getRobots();
         if (verbose && !env.isEndRun())

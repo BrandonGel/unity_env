@@ -112,6 +112,7 @@ public class MakeRobots2 : MonoBehaviour
                 }
                 else
                 {
+                    Debug.Log("Position: " + pos + " Orientation: " + orientation);
                     robots[i].GetComponent<Robot2>().updateSpawnState(pos, orientation);
                     robots[i].GetComponent<Robot2>().setCollisionOn(false);
                 }

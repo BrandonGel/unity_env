@@ -150,10 +150,14 @@ namespace multiagent.robot
                     arrowObj1.GetComponent<ArrowGenerator>().GenerateArrow();
 
                     // Angular Velocity Arrow
-                    arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
-                    arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, debugArrow2DMode);
-                    arrowObj2.transform.parent = gameObject.transform;
-                    arrowObj2.GetComponent<ArrowGenerator>().GenerateArrow();
+                    if(!debugArrow2DMode)
+                    {
+                        arrowObj2 = Instantiate(arrow, arrowPosition, arrowOrientation);
+                        arrowObj2.GetComponent<ArrowGenerator>().setParam("u", -maxRotationSpeed, maxRotationSpeed, Color.red, debugArrowParams, debugArrow2DMode);
+                        arrowObj2.transform.parent = gameObject.transform;
+                        arrowObj2.GetComponent<ArrowGenerator>().GenerateArrow();
+                    }
+                    
                 }
                 if (debugOnlyAcceleration || debugArrow)
                 {
@@ -184,7 +188,10 @@ namespace multiagent.robot
                 if (debugOnlySpeed || debugArrow)
                 {
                     arrowObj1.GetComponent<ArrowGenerator>().scaleArrow(currentSpeed);
-                    arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+                    if(!debugArrow2DMode)
+                    {
+                        arrowObj2.GetComponent<ArrowGenerator>().scaleArrow(currentRotationSpeed);
+                    }
                 }
                 if (debugOnlyAcceleration || debugArrow)
                 {
@@ -240,8 +247,7 @@ namespace multiagent.robot
             changeMaterialColor();
             setGoal();
             _ddstate = Vector3.zero;
-            aData.setID(getID());
-            aData.clear();
+            aData = new agentData(getID());
             addInfo();
         }
 
@@ -717,12 +723,14 @@ namespace multiagent.robot
             sData.add(abs_goalPos); // Goal Position (xg, yg)
             if (taskClass != null)
             {
+                sData.add(taskClass.getCurrentGoalCategory()); // Current Goal Category
                 sData.add(taskClass.getCurrentGoalID()); // Current Goal ID
                 sData.add(taskClass.getCurrentGoalType()); // Current Goal Type
             }
             else
             {
-                sData.add(0);
+                sData.add(-1);
+                sData.add(-1);
                 sData.add(-1);
             }
             sData.add(getCollisionTagID()); // Collision Tag ID
@@ -741,7 +749,7 @@ namespace multiagent.robot
                  "vx", "vy", "w", 
                  "Uv", "Uw", 
                  "xg", "yg",
-                  "goalID", "goalType", "collisionTagID", "reward", "safetyViolated", "U_constraint"
+                  "goalCategory", "goalID", "goalType", "collisionTagID", "reward", "safetyViolated", "U_constraint"
                 }; 
                 for (int i = 0; i < lidarDataUnnormalized.Length/3; i++)
                 {
@@ -901,12 +909,6 @@ namespace multiagent.robot
         public void set_angularVelocity(Vector3 angularVelocity)
         {
             _rigidbody.angularVelocity = angularVelocity;
-        }
-
-        // Use this in csv update path function
-        public void setUnixtime(float unix_time)
-        {
-            this.unix_time = unix_time;
         }
 
         // Use this in csv update path function

@@ -641,6 +641,43 @@ namespace multiagent.util
             return nearbyObjects;
         }
 
+        /// <summary>
+        /// Smooth a path represented as a list of Vector3 positions using Chaikin's corner-cutting algorithm.
+        /// </summary>
+        /// <param name="inputPath">The original list of Vector3 positions</param>
+        /// <param name="iterations">Number of smoothing iterations</param>
+        /// <returns>A new, smoothed list of Vector3 positions</returns>
+        public static List<Vector3> SmoothPath(List<Vector3> inputPath, int iterations = 6)
+        {
+            if (inputPath == null || inputPath.Count < 3 || iterations <= 0)
+                return new List<Vector3>(inputPath);
+
+            List<Vector3> path = new List<Vector3>(inputPath);
+
+            for (int iter = 0; iter < iterations; iter++)
+            {
+                List<Vector3> newPath = new List<Vector3>();
+                newPath.Add(path[0]); // Keep the first point
+
+                for (int i = 0; i < path.Count - 1; i++)
+                {
+                    Vector3 p0 = path[i];
+                    Vector3 p1 = path[i + 1];
+
+                    Vector3 Q = Vector3.Lerp(p0, p1, 0.25f);
+                    Vector3 R = Vector3.Lerp(p0, p1, 0.75f);
+
+                    newPath.Add(Q);
+                    newPath.Add(R);
+                }
+
+                newPath.Add(path[path.Count - 1]); // Keep the last point
+                path = newPath;
+            }
+
+            return path;
+        }
+
 
     }
     
