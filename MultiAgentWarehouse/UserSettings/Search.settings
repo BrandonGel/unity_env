@@ -9,7 +9,7 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.66F56946" = "project sett"
+	"last_search.66F56946" = ""
 	"OpenInspectorPreview.66F56946" = "0"
 	"currentGroup.66F56946" = null
 }
@@ -68,6 +68,8 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"s"
+	"draw mod"
 	"project sett"
 	"pro"
 	"unity mesh rea"

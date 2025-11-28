@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8082829339735988003}
   - component: {fileID: 751770625880602634}
   m_Layer: 0
-  m_Name: goal
+  m_Name: goal delivery
   m_TagString: Goal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae0e11e358daba4c3aff76326f484e30, type: 2}
+  - {fileID: 2100000, guid: bbbed24a0e4bf569dabc1e32610ce2cb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -125,5 +125,7 @@ MonoBehaviour:
   goalDelayWait: 0
   goalDelayPenalty: 0
   goalWaitProbability: 1
+  goalCategory: -1
   goalID: -1
   goalType: 0
+  initialPosition: {x: 0, y: 0, z: 0}
