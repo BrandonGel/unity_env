@@ -4,9 +4,9 @@
   "envpath":  "env.json",
   "imagepath":  "Processed_image.png",
   "schedulepath":  "schedule.json",
-  "csvpath":  "/home/bho36/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_145717",
-  "csvfolder":  "/home/bho36/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_145717",
+  "csvpath":  "/home/brandon-ho/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_204050",
+  "csvfolder":  "/home/brandon-ho/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_204050",
   "mode": "csv",
-  "dataPath" : "/home/bho36/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_145717",
+  "dataPath" : "/home/brandon-ho/Dropbox/Team_Path_Planning/brandon_collision_data/data/20251121_204050",
   "world_mode": "image"
 }

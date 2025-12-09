@@ -18,8 +18,10 @@ public class MakeStartsGoals : MonoBehaviour
     public List<List<GameObject>> goals = new List<List<GameObject>>();
     public List<GameObject> non_tasks = new List<GameObject>();
 
-    public GameObject start_prefab; // Assign your obstacle prefab here
-    public GameObject goal_prefab; // Assign your obstacle prefab here
+    public GameObject start_pickup_prefab; // Assign your obstacle prefab here
+    public GameObject start_delivery_prefab; // Assign your obstacle prefab here
+    public GameObject goal_pickup_prefab; // Assign your obstacle prefab here
+    public GameObject goal_delivery_prefab; // Assign your obstacle prefab here
     public GameObject non_task_prefab; // Assign your obstacle prefab here
     public float goalWait = 1f;
     public int goalDelayWait = 0;
@@ -33,7 +35,8 @@ public class MakeStartsGoals : MonoBehaviour
         this.start_locations = start_locations;
         // Vector3 startingSpawnPosition = start_prefab.transform.localScale / 2;
         // Vector3 startingSpawnPosition = new Vector3(0.5f,start_prefab.transform.localScale.y/2, 0.5f);
-        Vector3 startingSpawnPosition = new Vector3(0f, start_prefab.transform.localScale.y / 2, 0f);
+        Vector3 startingPickupSpawnPosition = new Vector3(0f, start_pickup_prefab.transform.localScale.y / 2, 0f);
+        Vector3 startingDeliverySpawnPosition = new Vector3(0f, start_delivery_prefab.transform.localScale.y / 2, 0f);
         scaling = scaling == default ? Vector3.one : scaling;
         i = 0;
         foreach (List<int[]> locs in start_locations)
@@ -42,9 +45,17 @@ public class MakeStartsGoals : MonoBehaviour
             int j = 0;
             foreach (int[] loc in locs)
             {
-                Vector3 pos = new Vector3(loc[0], 0, loc[1]) + startingSpawnPosition;
+                Vector3 pos = new Vector3(loc[0], 0, loc[1]) ;
+                if (j%2 == 0)
+                {
+                    pos += startingPickupSpawnPosition;
+                }
+                else
+                {
+                    pos += startingDeliverySpawnPosition;
+                }   
                 pos = Vector3.Scale(pos, scaling);
-                GameObject start = Instantiate(start_prefab, pos, Quaternion.identity);
+                GameObject start = j%2 == 0 ? Instantiate(start_pickup_prefab, pos, Quaternion.identity) : Instantiate(start_delivery_prefab, pos, Quaternion.identity);                
                 float goalWait = goalParams != default ? goalParams.starts[j].sampleGoalWait() : 0f;
                 float goalDelayPenalty = goalParams != default ? goalParams.starts[j].sampleGoalPenalty() : 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.starts[j].sampleGoalProb() : 0f;
@@ -68,7 +79,8 @@ public class MakeStartsGoals : MonoBehaviour
         this.goal_locations = goal_locations;
         // Vector3 endingSpawnPosition = goal_prefab.transform.localScale / 2;
         // Vector3 endingSpawnPosition = new Vector3(0.5f, goal_prefab.transform.localScale.y/2, 0.5f);
-        Vector3 endingSpawnPosition = new Vector3(0f, goal_prefab.transform.localScale.y / 2, 0f);
+        Vector3 endingPickupSpawnPosition = new Vector3(0f, goal_pickup_prefab.transform.localScale.y / 2, 0f);
+        Vector3 endingDeliverySpawnPosition = new Vector3(0f, goal_delivery_prefab.transform.localScale.y / 2, 0f);
         i = 0;
         foreach (List<int[]> locs in goal_locations)
         {
@@ -76,9 +88,17 @@ public class MakeStartsGoals : MonoBehaviour
             int j = 0;
             foreach (int[] loc in locs)
             {
-                Vector3 pos = new Vector3(loc[0], 0, loc[1]) + endingSpawnPosition;
+                Vector3 pos = new Vector3(loc[0], 0, loc[1]) ;
+                if (j%2 == 0)
+                {
+                    pos += endingPickupSpawnPosition;
+                }
+                else
+                {
+                    pos += endingDeliverySpawnPosition;
+                }   
                 pos = Vector3.Scale(pos, scaling);
-                GameObject goal = Instantiate(goal_prefab, pos, Quaternion.identity);
+                GameObject goal = j%2 == 0 ? Instantiate(goal_pickup_prefab, pos, Quaternion.identity) : Instantiate(goal_delivery_prefab, pos, Quaternion.identity);                
                 float goalWait = goalParams != default ? goalParams.goals[j].sampleGoalWait() : 0f;
                 float goalDelayPenalty = goalParams != default ? goalParams.goals[j].sampleGoalPenalty() : 0f;
                 float goalWaitProbability = goalParams != default ? goalParams.goals[j].sampleGoalProb() : 0f;

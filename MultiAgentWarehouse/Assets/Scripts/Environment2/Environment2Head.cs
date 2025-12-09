@@ -62,6 +62,9 @@ public class Environment2Head : MonoBehaviour
             List<string> subdirPaths = Util.GetSubdirectoryPaths(conf.csvpath);
             if (subdirPaths.Count > 0)
                 num_envs = Util.CountEnvFolders(subdirPaths[0]);
+            if (episodeNumbers.Count == 0)
+                episodeNumbers.Add(-1);
+                num_envs =1 ;
             
             if (verbose)
                 Debug.Log("Using CSV Exporter/Recording with save path: " + savePath);

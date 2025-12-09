@@ -437,6 +437,7 @@ MonoBehaviour:
   obstaclePrefab: {fileID: 7613047925106939522, guid: 783e24eecd90de341aaa98d69c586711, type: 3}
   groundMaterial: {fileID: 2100000, guid: 3f936ea76f26c83778d9a3269c281ae4, type: 2}
   obstacleMaterial: {fileID: 2100000, guid: bbf2a35792655098c98bead8fb97110c, type: 2}
+  offsets: {x: 0, y: 0, z: 0}
 --- !u!114 &7447488921523759353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,8 +451,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   non_tasks: []
-  start_prefab: {fileID: 3602961329708867756, guid: 79ea60a3772d8e8f3a148c24351217e9, type: 3}
-  goal_prefab: {fileID: 3602961329708867756, guid: 06377289e508b1b5e95a46716f0cd648, type: 3}
+  start_pickup_prefab: {fileID: 3602961329708867756, guid: 79ea60a3772d8e8f3a148c24351217e9, type: 3}
+  start_delivery_prefab: {fileID: 3602961329708867756, guid: 28a424c72cb7d6bbbbe505fb7cccf775, type: 3}
+  goal_pickup_prefab: {fileID: 3602961329708867756, guid: 06377289e508b1b5e95a46716f0cd648, type: 3}
+  goal_delivery_prefab: {fileID: 3602961329708867756, guid: c25da55a0d89516ba9d2120873bf57a2, type: 3}
   non_task_prefab: {fileID: 3602961329708867756, guid: 1ec66227335c5c331b23f1d2c66402d7, type: 3}
   goalWait: 1
   goalDelayWait: 0
@@ -561,6 +564,7 @@ MonoBehaviour:
   robots: []
   verbose: 0
   normalizeObservations: 0
+  unix_time: -1
 --- !u!114 &6343004617225765319
 MonoBehaviour:
   m_ObjectHideFlags: 0
